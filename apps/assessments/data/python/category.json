@@ -1,0 +1,28 @@
+{
+  "code": "PYTHON",
+  "name": "پایتون",
+
+  "learning_objectives": [
+
+    {
+      "code": "PY-VAR-001",
+      "name": "متغیرها"
+    },
+
+    {
+      "code": "PY-LOOP-001",
+      "name": "حلقه‌ها"
+    },
+
+    {
+      "code": "PY-FUNC-001",
+      "name": "توابع"
+    },
+
+    {
+      "code": "PY-LIST-001",
+      "name": "لیست‌ها"
+    }
+
+  ]
+}

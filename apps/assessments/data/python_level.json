@@ -1,0 +1,48 @@
+{
+  "category": {
+    "code": "PYTHON",
+    "name": "پایتون"
+  },
+
+  "learning_objective": {
+    "code": "PY-LOOP-001",
+    "title": "حلقه‌های for"
+  },
+
+  "assessment": {
+    "code": "LEVEL-001",
+    "title": "تعیین سطح پایتون",
+    "type": "level",
+    "duration": 30,
+    "passing_score": 70
+  },
+
+  "questions": [
+    {
+      "code": "PY-LOOP-001",
+      "title": "حلقه for",
+      "body": "کدام دستور برای پیمایش لیست استفاده می‌شود؟",
+      "difficulty": "easy",
+      "score": 1,
+      "estimated_seconds": 60,
+      "choices": [
+        {
+          "text": "for",
+          "correct": true
+        },
+        {
+          "text": "while",
+          "correct": false
+        },
+        {
+          "text": "if",
+          "correct": false
+        },
+        {
+          "text": "break",
+          "correct": false
+        }
+      ]
+    }
+  ]
+}

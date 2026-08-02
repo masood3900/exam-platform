@@ -1,0 +1,223 @@
+{
+  "learning_objective": "PY-VAR-001",
+
+  "questions": [
+
+    {
+      "code": "Q-PY-VAR-001",
+
+      "title": "تعریف متغیر",
+
+      "body": "کدام گزینه یک متغیر معتبر در پایتون ایجاد می‌کند؟",
+
+      "difficulty": "easy",
+
+      "question_type": "multiple_choice",
+
+      "score": 1,
+
+      "estimated_seconds": 45,
+
+      "explanation": "در پایتون برای ایجاد متغیر فقط کافی است از عملگر = استفاده شود.",
+
+      "choices": [
+
+        {
+          "code": "Q-PY-VAR-001-A",
+          "order": 1,
+          "text": "x = 10",
+          "correct": true,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-001-B",
+          "order": 2,
+          "text": "10 = x",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-001-C",
+          "order": 3,
+          "text": "int x = 10",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-001-D",
+          "order": 4,
+          "text": "var x := 10",
+          "correct": false,
+          "explanation": ""
+        }
+
+      ]
+    },
+
+    {
+      "code": "Q-PY-VAR-002",
+
+      "title": "نام متغیر",
+
+      "body": "کدام نام برای متغیر در پایتون معتبر است؟",
+
+      "difficulty": "easy",
+
+      "question_type": "multiple_choice",
+
+      "score": 1,
+
+      "estimated_seconds": 45,
+
+      "explanation": "نام متغیر نباید با عدد شروع شود و نباید کلمه رزرو شده باشد.",
+
+      "choices": [
+
+        {
+          "code": "Q-PY-VAR-002-A",
+          "order": 1,
+          "text": "_count",
+          "correct": true,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-002-B",
+          "order": 2,
+          "text": "2count",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-002-C",
+          "order": 3,
+          "text": "for",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-002-D",
+          "order": 4,
+          "text": "user-name",
+          "correct": false,
+          "explanation": ""
+        }
+
+      ]
+    },
+
+    {
+      "code": "Q-PY-VAR-003",
+
+      "title": "نوع داده",
+
+      "body": "خروجی دستور type(10) چیست؟",
+
+      "difficulty": "easy",
+
+      "question_type": "multiple_choice",
+
+      "score": 1,
+
+      "estimated_seconds": 40,
+
+      "explanation": "عدد صحیح از نوع int است.",
+
+      "choices": [
+
+        {
+          "code": "Q-PY-VAR-003-A",
+          "order": 1,
+          "text": "<class 'int'>",
+          "correct": true,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-003-B",
+          "order": 2,
+          "text": "<class 'float'>",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-003-C",
+          "order": 3,
+          "text": "<class 'str'>",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-003-D",
+          "order": 4,
+          "text": "integer",
+          "correct": false,
+          "explanation": ""
+        }
+
+      ]
+    },
+
+    {
+      "code": "Q-PY-VAR-004",
+
+      "title": "چند انتساب",
+
+      "body": "خروجی کد زیر چیست؟\n\nx, y = 3, 5\nprint(x)",
+
+      "difficulty": "easy",
+
+      "question_type": "multiple_choice",
+
+      "score": 1,
+
+      "estimated_seconds": 45,
+
+      "explanation": "در انتساب چندگانه مقدار ۳ داخل x قرار می‌گیرد.",
+
+      "choices": [
+
+        {
+          "code": "Q-PY-VAR-004-A",
+          "order": 1,
+          "text": "3",
+          "correct": true,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-004-B",
+          "order": 2,
+          "text": "5",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-004-C",
+          "order": 3,
+          "text": "(3,5)",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-VAR-004-D",
+          "order": 4,
+          "text": "خطا",
+          "correct": false,
+          "explanation": ""
+        }
+
+      ]
+    }
+
+  ]
+}

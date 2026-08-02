@@ -1,0 +1,61 @@
+{
+  "learning_objective": "PY-FUNC-001",
+
+  "questions": [
+
+    {
+      "code": "Q-PY-FUNC-001",
+
+      "title": "مقدار بازگشتی تابع",
+
+      "body": "خروجی کد زیر چیست؟",
+
+      "difficulty": "easy",
+
+      "question_type": "multiple_choice",
+
+      "score": 1,
+
+      "estimated_seconds": 60,
+
+      "explanation": "....",
+
+      "choices": [
+
+        {
+          "code": "Q-PY-FUNC-001-A",
+          "order": 1,
+          "text": "5",
+          "correct": true,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-FUNC-001-B",
+          "order": 2,
+          "text": "23",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-FUNC-001-C",
+          "order": 3,
+          "text": "None",
+          "correct": false,
+          "explanation": ""
+        },
+
+        {
+          "code": "Q-PY-FUNC-001-D",
+          "order": 4,
+          "text": "خطا",
+          "correct": false,
+          "explanation": ""
+        }
+
+      ]
+    }
+
+  ]
+}

@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+سؤال {{ question_number }} | {{ attempt.assessment.title }}
+{% endblock %}
+
+
+
+{% block extra_css %}
+
+<style>
+
+.choice-item{
+
+    background:#fff;
+    border:1px solid #dee2e6;
+    border-radius:.5rem;
+    padding:1rem;
+    margin-bottom:1rem;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+
+.choice-item:hover{
+
+    border-color:#0d6efd;
+
+}
+
+
+.choice-item.selected{
+
+    background:#e7f1ff;
+    border-color:#0d6efd;
+
+}
+
+
+.choice-item label{
+
+    cursor:pointer;
+    width:100%;
+    margin:0;
+
+}
+
+
+</style>
+
+{% endblock %}
+
+
+
+
+
+{% block page_header %}
+
+<div class="row mb-4">
+
+    <div class="col">
+
+        <h2 class="mb-1">
+
+            {{ attempt.assessment.title }}
+
+        </h2>
+
+        <p class="text-muted mb-0">
+
+            سؤال {{ question_number }}
+            از
+            {{ total_questions }}
+
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+
+        <h4 class="mb-4">
+
+            {{ question.title }}
+
+        </h4>
+
+
+        <div class="mb-4">
+
+            {{ question.body|linebreaks }}
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'assessments:answer' attempt.id %}"
+        >
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="question_number"
+                value="{{ question_number }}"
+            >
+
+
+            {% for choice in choices %}
+
+            <div class="choice-item">
+
+                <input
+                    class="d-none"
+                    type="radio"
+                    name="choice"
+                    id="choice{{ choice.id }}"
+                    value="{{ choice.id }}"
+                >
+
+                <label for="choice{{ choice.id }}">
+
+                    <strong>
+
+                        {% if forloop.counter == 1 %}
+                            الف)
+                        {% elif forloop.counter == 2 %}
+                            ب)
+                        {% elif forloop.counter == 3 %}
+                            ج)
+                        {% elif forloop.counter == 4 %}
+                            د)
+                        {% else %}
+                            {{ forloop.counter }})
+                        {% endif %}
+
+                    </strong>
+
+                    {{ choice.text }}
+
+                </label>
+
+            </div>
+
+            {% endfor %}
+
+
+            <div class="d-flex justify-content-between mt-4">
+
+                <a
+                    href="javascript:history.back()"
+                    class="btn btn-outline-secondary"
+                >
+                    خروج
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary px-5"
+                >
+                    ثبت پاسخ
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+{% block extra_js %}
+
+<script>
+
+const items = document.querySelectorAll(".choice-item");
+
+items.forEach(function(item){
+
+    item.addEventListener("click",function(){
+
+        items.forEach(function(i){
+
+            i.classList.remove("selected");
+
+        });
+
+        this.classList.add("selected");
+
+        this.querySelector("input").checked = true;
+
+    });
+
+});
+
+</script>
+
+{% endblock %}
