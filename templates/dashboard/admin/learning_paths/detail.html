@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <h1>
+        {{ learning_path.name }}
+    </h1>
+
+    <hr>
+
+    <h2>اطلاعات مسیر</h2>
+
+    <p>
+        شناسه:
+        {{ learning_path.slug }}
+    </p>
+
+    {% if learning_path.description %}
+        <p>
+            {{ learning_path.description }}
+        </p>
+    {% endif %}
+
+    <p>
+        ترتیب نمایش:
+        {{ learning_path.order }}
+    </p>
+
+    <p>
+        وضعیت:
+        {% if learning_path.is_active %}
+            فعال
+        {% else %}
+            غیرفعال
+        {% endif %}
+    </p>
+
+
+    <hr>
+
+
+    <h2>دوره‌های این مسیر</h2>
+
+    {% for course in learning_path.courses.all %}
+
+        <article>
+
+            <h3>
+                {{ course.name }}
+            </h3>
+
+            <p>
+                کد:
+                {{ course.code }}
+            </p>
+
+            <p>
+                قیمت نهایی:
+                {{ course.final_price|floatformat:0 }}
+                تومان
+            </p>
+
+        </article>
+
+        <hr>
+
+    {% empty %}
+
+        <p>
+            هنوز دوره‌ای در این مسیر ایجاد نشده است.
+        </p>
+
+    {% endfor %}
+    <hr>
+
+    <h2>عملیات</h2>
+
+    <div>
+
+        <a
+            href="{% url 'accounts:admin-learning-path-update' learning_path.pk %}"
+        >
+            ویرایش مسیر آموزشی
+        </a>
+
+    </div>
+
+    <hr>
+
+    <a href="{% url 'accounts:admin-learning-paths' %}">
+        بازگشت به مسیرهای آموزشی
+    </a>
+
+
+    <a href="{% url 'accounts:admin-learning-paths' %}">
+        بازگشت به مسیرهای آموزشی
+    </a>
+
+</div>
+
+{% endblock %}

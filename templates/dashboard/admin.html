@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>داشبورد مدیریت</h1>
+
+<p>
+    خوش آمدید {{ request.user.get_full_name|default:request.user.username }}
+</p>
+
+{% endblock %}

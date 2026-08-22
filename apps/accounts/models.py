@@ -109,6 +109,7 @@ class UserProfile(models.Model):
         max_length=10,
         unique=True,
         blank=True,
+        null=True,
     )
 
     phone = models.CharField(

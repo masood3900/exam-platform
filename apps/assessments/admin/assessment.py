@@ -2,35 +2,29 @@ from django.contrib import admin
 from apps.assessments.models import (
     Assessment,
     AssessmentRule,
+    LearningObjective,
 )
+from django import forms
 
-@admin.register(Assessment)
-class AssessmentAdmin(admin.ModelAdmin):
 
-    list_display = (
-        "code",
-        "title",
-        "assessment_type",
-        "duration_minutes",
-        "passing_score",
-        "is_active",
+class AssessmentRuleInline(admin.TabularInline):
+    model = AssessmentRule
+    
+    extra = 1
+
+    fields = (
+        "category",
+        "learning_objective",
+        "difficulty",
+        "question_count",
     )
 
-    list_filter = (
-        "assessment_type",
-        "is_active",
+    autocomplete_fields = (
+        "category",
+        "learning_objective",
     )
 
-    search_fields = (
-        "code",
-        "title",
-    )
-    ordering = ("assessment_type", "title")
-    list_per_page = 25
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
+    min_num = 1
 
 
 @admin.register(AssessmentRule)
@@ -78,3 +72,37 @@ class AssessmentRuleAdmin(admin.ModelAdmin):
         "category",
         "learning_objective",
     )
+
+
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    inlines = [
+    AssessmentRuleInline,
+    ]
+
+    list_display = (
+        "code",
+        "title",
+        "assessment_type",
+        "duration_minutes",
+        "passing_score",
+        "is_active",
+    )
+
+    list_filter = (
+        "assessment_type",
+        
+        "is_active",
+    )
+
+    search_fields = (
+        "code",
+        "title",
+    )
+    ordering = ("assessment_type", "title")
+    list_per_page = 25
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+

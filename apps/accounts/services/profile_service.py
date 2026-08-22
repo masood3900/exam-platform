@@ -1,9 +1,13 @@
+from apps.accounts.models import UserProfile
+
 class ProfileService:
 
     @staticmethod
     def completion(user):
 
-        profile = user.profile
+        profile,created = UserProfile.objects.get_or_create(
+            user=user
+        ) 
 
         fields = {
             "نام": bool(user.first_name),

@@ -12,6 +12,7 @@ class QuestionDetailView(
 
     template_name = "assessments/question/detail.html"
 
+
     def get(
         self,
         request,
@@ -27,32 +28,46 @@ class QuestionDetailView(
             id=kwargs["attempt_id"],
             student=request.user,
         )
-
-        self.question = (
-            self.attempt.questions
-            .prefetch_related("choices")
-            .filter(
-                order=kwargs["number"],
-            )
-            .prefetch_related(
-                "choices",
-            )
-            .first()
-        )
-
-        if self.question is None:
-
+        if self.attempt.status != Attempt.Status.STARTED:
             return redirect(
                 "assessments:result",
                 attempt_id=self.attempt.id,
             )
 
+
+        self.attempt_question = (
+            self.attempt.questions
+            .prefetch_related(
+                "choices__original_choice",
+            )
+            .filter(
+                order=kwargs["number"],
+            )
+            .first()
+        )
+
+
+        if self.attempt_question is None:
+
+            return redirect(
+                "assessments:result",
+                attempt_id=self.attempt.id,
+            )
+        self.selected_choice_ids = set(
+            self.attempt_question.choices.filter(
+                selected=True,
+            ).values_list(
+                "id",
+                flat=True,
+            )
+        )
+        
         return super().get(
             request,
             *args,
             **kwargs,
         )
-
+    
     def get_context_data(
         self,
         **kwargs,
@@ -63,9 +78,28 @@ class QuestionDetailView(
         )
 
         context["attempt"] = self.attempt
-        context["question"] = self.question
-        context["choices"] = self.question.choices.all()
-        context["question_number"] = self.question.order
-        context["total_questions"] = self.attempt.total_questions
+
+        context["question"] = (
+            self.attempt_question.question
+        )
+
+        context["attempt_question"] = (
+            self.attempt_question
+        )
+
+        context["choices"] = (
+            self.attempt_question.choices.all()
+        )
+
+        context["question_number"] = (
+            self.attempt_question.order
+        )
+
+        context["total_questions"] = (
+            self.attempt.total_questions
+        )
+        context["selected_choice_ids"] = (
+            self.selected_choice_ids
+        )
 
         return context

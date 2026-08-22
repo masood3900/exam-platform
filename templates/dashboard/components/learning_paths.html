@@ -1,0 +1,42 @@
+<div class="mb-4">
+
+    <h4 class="mb-3">
+        📚 حوزه‌های آموزشی من
+    </h4>
+
+
+    <div class="row g-4">
+
+
+        {% for item in learning_paths %}
+
+
+            <div class="col-md-6 col-lg-4">
+
+
+                {% include "dashboard/components/path_card.html" %}
+
+
+            </div>
+
+
+        {% empty %}
+
+
+            <div class="col-12">
+
+                <div class="alert alert-info">
+
+                    هنوز مسیر آموزشی برای شما ثبت نشده است.
+
+                </div>
+
+            </div>
+
+
+        {% endfor %}
+
+
+    </div>
+
+</div>

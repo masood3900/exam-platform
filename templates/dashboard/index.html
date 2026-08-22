@@ -4,26 +4,10 @@
 داشبورد
 {% endblock %}
 
+
 {% block content %}
-
-<div class="card shadow-sm">
-
-    <div class="card-body">
-
-        <h2 class="card-title">
-
-            سلام {{ user.username }}
-
-        </h2>
-
-        <hr>
-
-        <p>
-            به سامانه آموزشی خوش آمدید.
-        </p>
-
-    </div>
-
-</div>
-
+{% include "dashboard/components/header.html" %}
+{% include "dashboard/components/stats.html" %}
+{% include "dashboard/components/learning_paths.html" %}
+{% include "dashboard/components/recent_attempts.html" %}
 {% endblock %}

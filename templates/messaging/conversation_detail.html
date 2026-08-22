@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+گفتگو
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="col">
+
+    <h2 class="mb-1">
+        💬 گفتگو
+    </h2>
+
+    <p class="text-muted mb-0">
+
+        {% if request.user.id == conversation.student_id %}
+
+            {{ conversation.instructor.get_full_name|default:conversation.instructor.username }}
+
+        {% else %}
+
+            {{ conversation.student.get_full_name|default:conversation.student.username }}
+
+        {% endif %}
+
+        —
+
+        {{ conversation.learning_path.name }}
+
+    </p>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container mt-4 mb-4">
+
+    <div class="card shadow-sm border-0">
+
+
+        <!-- ========================= -->
+        <!-- سربرگ گفتگو -->
+        <!-- ========================= -->
+
+        <div class="card-header bg-white">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <strong>
+
+                        {% if request.user.id == conversation.student_id %}
+
+                            {{ conversation.instructor.get_full_name|default:conversation.instructor.username }}
+
+                        {% else %}
+
+                            {{ conversation.student.get_full_name|default:conversation.student.username }}
+
+                        {% endif %}
+
+                    </strong>
+
+                    <div class="small text-muted">
+
+                        📚 {{ conversation.learning_path.name }}
+
+                    </div>
+
+                </div>
+                <div>
+                    {% if request.user.id == conversation.student_id %}
+
+                        <a
+                            href="{% url 'accounts:dashboard' %}"
+                            class="btn btn-outline-secondary btn-sm"
+                        >
+                            ← بازگشت به داشبرد
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{% url 'accounts:instructor-student-detail' conversation.student.id %}"
+                            class="btn btn-outline-secondary btn-sm"
+                        >
+                            ← بازگشت به پروفایل دانش‌آموز
+                        </a>
+
+                    {% endif %}
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- پیام‌ها -->
+        <!-- ========================= -->
+
+        <div
+            class="card-body"
+            style="
+                height: 500px;
+                overflow-y: auto;
+                background-color: #f8f9fa;
+            "
+        >
+
+            {% for message in conversation_messages %}
+
+                {% if message.sender_id == request.user.id %}
+
+                    <!-- ========================= -->
+                    <!-- پیام من -->
+                    <!-- ========================= -->
+
+                    <div class="d-flex justify-content-end mb-3">
+
+                        <div
+                            class="bg-primary text-white rounded-3 p-3"
+                            style="max-width: 75%;"
+                        >
+
+                            <div class="small mb-1 opacity-75">
+
+                                {{ message.created_at|date:"Y/m/d H:i" }}
+
+                            </div>
+
+
+                            {% if message.text %}
+
+                                <div>
+
+                                    {{ message.text|linebreaksbr }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if message.file %}
+
+                                <div class="mt-2">
+
+                                    <div
+                                        class="bg-white text-dark rounded-2 p-2"
+                                    >
+
+                                        📎
+
+                                        <a
+                                            href="{% url 'messaging:message-file' message.id %}"
+                                            class="text-decoration-none"
+                                        >
+
+                                            {{ message.file.name|cut:"messaging/" }}
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                {% else %}
+
+                    <!-- ========================= -->
+                    <!-- پیام طرف مقابل -->
+                    <!-- ========================= -->
+
+                    <div class="d-flex justify-content-start mb-3">
+
+                        <div
+                            class="bg-white border rounded-3 p-3 shadow-sm"
+                            style="max-width: 75%;"
+                        >
+
+                            <div class="d-flex justify-content-between gap-3">
+
+                                <strong class="small">
+
+                                    {{ message.sender.get_full_name|default:message.sender.username }}
+
+                                </strong>
+
+                                <small class="text-muted">
+
+                                    {{ message.created_at|date:"Y/m/d H:i" }}
+
+                                </small>
+
+                            </div>
+
+
+                            {% if message.text %}
+
+                                <div class="mt-2">
+
+                                    {{ message.text|linebreaksbr }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if message.file %}
+
+                                <div class="mt-2">
+
+                                    <div
+                                        class="bg-light border rounded-2 p-2"
+                                    >
+
+                                        📎
+
+                                        <a
+                                            href="{% url 'messaging:message-file' message.id %}"
+                                            class="text-decoration-none"
+                                        >
+
+                                            {{ message.file.name|cut:"messaging/" }}
+
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+            {% empty %}
+
+                <div class="text-center text-muted mt-5">
+
+                    <div class="fs-1">
+                        💬
+                    </div>
+
+                    <p>
+                        هنوز پیامی در این گفتگو ارسال نشده است.
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- خطا -->
+        <!-- ========================= -->
+
+        {% if error %}
+
+            <div class="alert alert-danger m-3 mb-0">
+
+                {{ error }}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- ========================= -->
+        <!-- ارسال پیام -->
+        <!-- ========================= -->
+
+        <div class="card-footer bg-white">
+
+            <form
+                method="post"
+                enctype="multipart/form-data"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="mb-2">
+
+                    <textarea
+                        name="text"
+                        class="form-control"
+                        rows="3"
+                        placeholder="پیام خود را بنویسید..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <input
+                            type="file"
+                            name="file"
+                            class="form-control"
+                        >
+
+                        <div class="form-text">
+
+                            حداکثر حجم فایل: ۱۰ مگابایت
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary ms-3"
+                    >
+
+                        ارسال پیام
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

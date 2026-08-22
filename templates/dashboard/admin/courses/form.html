@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <h1>
+        {% if object %}
+             ویرایش دوره: {{ object.name }}
+        {% else %}
+             ایجاد دوره جدید
+        {% endif %}
+    </h1>
+
+    <hr>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div>
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+
+        {% for field in form %}
+
+            <div class="mb-3">
+
+                <label for="{{ field.id_for_label }}">
+
+                    {{ field.label }}
+
+                    {% if field.field.required %}
+                        <span>*</span>
+                    {% endif %}
+
+                </label>
+
+
+                {{ field }}
+
+
+                {% if field.help_text %}
+                    <small>
+                        {{ field.help_text }}
+                    </small>
+                {% endif %}
+
+
+                {% if field.errors %}
+                    <div>
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+
+        <button type="submit">
+            ذخیره دوره
+        </button>
+
+        <a href="{% url 'accounts:admin-courses' %}">
+            انصراف
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

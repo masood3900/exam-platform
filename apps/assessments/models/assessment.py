@@ -1,15 +1,20 @@
 import uuid
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxValueValidator,MinValueValidator
+from django.core.exceptions import ValidationError
+
 from apps.assessments.models.question import(
     QuestionCategory,
     LearningObjective,
     Question,
 )
 
+from .course import Course
 
 
 class Assessment(models.Model):
+
 
     class AssessmentType(models.TextChoices):
         LEVEL = "level", "تعیین سطح"
@@ -28,26 +33,42 @@ class Assessment(models.Model):
         max_length=30,
         unique=True,
     )
-
     title = models.CharField(
         max_length=255,
     )
-
     assessment_type = models.CharField(
         max_length=20,
         choices=AssessmentType.choices,
+        default=AssessmentType.PRACTICE,
+        verbose_name="نوع آزمون",
     )
 
     description = models.TextField(
         blank=True,
     )
-
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.PROTECT,
+        related_name="assessments",
+        verbose_name="دوره آموزشی",
+    )
+    objectives = models.ManyToManyField(
+        "LearningObjective",
+        related_name="assessments",
+        blank=True,
+        verbose_name="اهداف آموزشی",
+    )
+   
     duration_minutes = models.PositiveIntegerField(
         default=30,
     )
 
     passing_score = models.PositiveSmallIntegerField(
         default=70,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+        ],
         help_text="حداقل درصد قبولی",
     )
 
@@ -70,6 +91,13 @@ class Assessment(models.Model):
     is_active = models.BooleanField(
         default=True,
     )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_assessments",   
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -80,11 +108,13 @@ class Assessment(models.Model):
     )
 
     class Meta:
-        ordering = ["assessment_type","title"]
+        ordering = ["assessment_type","title",]
         indexes =[
-            models.Index(fields=["assessment_type"]),
-            models.Index(fields=["is_active"]),
+            models.Index(fields=["assessment_type",]),
+            models.Index(fields=["is_active",]),
+           
         ]
+      
         verbose_name = "آزمون"
         verbose_name_plural = "آزمون‌ها"
 
@@ -110,12 +140,16 @@ class AssessmentRule(models.Model):
         Assessment,
         on_delete=models.CASCADE,
         related_name="rules",
+        verbose_name="آزمون",
     )
 
     category = models.ForeignKey(
         QuestionCategory,
         on_delete=models.PROTECT,
         related_name="assessment_rules",
+        null=True,
+        blank=True,
+        verbose_name="دسته سوال",
     )
 
     learning_objective = models.ForeignKey(
@@ -124,6 +158,7 @@ class AssessmentRule(models.Model):
         null=True,
         blank=True,
         related_name="assessment_rules",
+        verbose_name="هدف آموزشی",
     )
 
     difficulty = models.CharField(
@@ -131,42 +166,139 @@ class AssessmentRule(models.Model):
         choices=Question.Difficulty.choices,
         blank=True,
         null=True,
+        verbose_name="سطح سختی",
     )
 
     question_count = models.PositiveSmallIntegerField(
         default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(100),
+        ],
+        verbose_name="تعداد سوال",
+    )
+
+    random_selection = models.BooleanField(
+        default=True,
+        verbose_name="انتخاب تصادفی سوالات",
     )
 
     class Meta:
+
         ordering = [
             "assessment",
             "category",
             "learning_objective",
         ]
+
         constraints = [
             models.UniqueConstraint(
-            fields=[
-                "assessment",
-                "category",
-                "learning_objective",
-                "difficulty",
-            ],
-            name="unique_assessment_rule",
-        ),
-    ]
+                fields=[
+                    "assessment",
+                    "category",
+                    "learning_objective",
+                    "difficulty",
+                ],
+                name="unique_assessment_rule",
+            ),
+        ]
 
         verbose_name = "قانون انتخاب سؤال"
         verbose_name_plural = "قوانین انتخاب سؤال"
+
+
+    def clean(self):
+
+        errors = {}
+
+        # حداقل یکی از دسته یا هدف آموزشی باید مشخص باشد
+        if not self.category and not self.learning_objective:
+            errors["learning_objective"] = (
+                "حداقل یک دسته یا هدف آموزشی باید انتخاب شود."
+            )
+
+
+        # بررسی ارتباط هدف آموزشی با دسته
+        if self.learning_objective:
+
+            if (
+                self.category
+                and self.learning_objective.category != self.category
+            ):
+                errors["learning_objective"] = (
+                    "هدف آموزشی انتخاب شده متعلق به این دسته نیست."
+                )
+
+
+        # پیدا کردن سوالات قابل استفاده
+        if self.learning_objective:
+
+            questions = Question.objects.filter(
+                learning_objective=self.learning_objective,
+                is_active=True,
+            )
+
+        elif self.category:
+
+            questions = Question.objects.filter(
+                learning_objective__category=self.category,
+                is_active=True,
+            )
+
+        else:
+
+            questions = Question.objects.none()
+
+
+        # اعمال فیلتر سطح سختی
+        if self.difficulty:
+
+            questions = questions.filter(
+                difficulty=self.difficulty
+            )
+
+
+        available_count = questions.count()
+
+
+        if self.question_count > available_count:
+
+            errors["question_count"] = (
+                f"تعداد درخواست شده بیشتر از سوالات موجود است. "
+                f"تعداد موجود: {available_count}"
+            )
+
+
+        if errors:
+            raise ValidationError(errors)
+
+
 
     def __str__(self):
 
         text = self.assessment.title
 
-        if self.learning_objective:
-            text += f" | {self.learning_objective.code}"
-        else:
-            text += f" | {self.category.name}"
 
-        text += f" | {self.question_count} سؤال"
+        if self.learning_objective:
+
+            text += (
+                f" | {self.learning_objective.code}"
+            )
+
+        elif self.category:
+
+            text += (
+                f" | {self.category.name}"
+            )
+
+        else:
+
+            text += " | بدون دسته"
+
+
+        text += (
+            f" | {self.question_count} سؤال"
+        )
+
 
         return text

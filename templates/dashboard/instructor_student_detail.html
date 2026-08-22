@@ -1,0 +1,275 @@
+```html
+{% extends "base.html" %}
+
+
+{% block title %}
+دانش‌آموز | {{ data.student.get_full_name|default:data.student.username }}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+
+    <!-- هدر دانش‌آموز -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div class="d-flex align-items-center">
+
+                    {% if data.student.profile.avatar %}
+
+                        <img
+                            src="{{ data.student.profile.avatar.url }}"
+                            class="rounded-circle me-3"
+                            width="80"
+                            height="80"
+                            style="object-fit: cover;">
+
+                    {% else %}
+
+                        <img
+                            src="https://ui-avatars.com/api/?name={{ data.student.username }}&background=0d6efd&color=fff&size=128"
+                            class="rounded-circle me-3"
+                            width="80"
+                            height="80">
+
+                    {% endif %}
+
+
+                    <div>
+
+                        <h2 class="mb-1">
+
+                            {{ data.student.get_full_name|default:data.student.username }}
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            نام کاربری:
+                            {{ data.student.username }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="d-flex gap-2">
+
+                    {% if data.assignments %}
+
+                        {% with assignment=data.assignments.0 %}
+
+                            <a
+                                href="{% url 'messaging:instructor-conversation' assignment.id %}"
+                                class="btn btn-primary"
+                            >
+                                💬 گفتگو با دانش‌آموز
+                            </a>
+
+                        {% endwith %}
+
+                    {% endif %}
+
+
+                    <a
+                        href="{% url 'accounts:instructor-students' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        بازگشت به دانش‌آموزان
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- آمار -->
+
+    <div class="row g-3 mb-4">
+
+
+        <div class="col-md-3">
+
+            <a
+                href="{% url 'accounts:instructor-student-attempts' data.student.id %}"
+                class="text-decoration-none text-dark"
+            >
+
+                <div class="card border-0 shadow-sm text-center h-100">
+
+                    <div class="card-body">
+
+                        <div class="fs-2">
+                            📝
+                        </div>
+
+                        <h6 class="text-muted">
+                            آزمون‌ها
+                        </h6>
+
+                        <h3>
+                            {{ data.attempt_count }}
+                        </h3>
+
+                        <small class="text-primary">
+                            مشاهده آزمون‌ها →
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm text-center h-100">
+
+                <div class="card-body">
+
+                    <div class="fs-2">
+                        ⭐
+                    </div>
+
+                    <h6 class="text-muted">
+                        میانگین
+                    </h6>
+
+                    <h3>
+                        {{ data.average_percentage }}٪
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm text-center h-100">
+
+                <div class="card-body">
+
+                    <div class="fs-2">
+                        🏆
+                    </div>
+
+                    <h6 class="text-muted">
+                        بهترین نتیجه
+                    </h6>
+
+                    <h3>
+                        {{ data.best_percentage }}٪
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm text-center h-100">
+
+                <div class="card-body">
+
+                    <div class="fs-2">
+                        ✅
+                    </div>
+
+                    <h6 class="text-muted">
+                        آزمون‌های قبول‌شده
+                    </h6>
+
+                    <h3>
+                        {{ data.passed_count }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- مسیرهای آموزشی -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white">
+
+            <h5 class="mb-0">
+                📚 مسیرهای آموزشی
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% for item in data.learning_paths %}
+
+                <div class="border rounded p-3 mb-2">
+
+                    <strong>
+                        {{ item.learning_path.name }}
+                    </strong>
+
+                    {% if item.completed_at %}
+
+                        <span class="badge bg-success float-end">
+                            تکمیل شده
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-primary float-end">
+                            در حال یادگیری
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            {% empty %}
+
+                <div class="text-muted">
+                    مسیر آموزشی فعالی وجود ندارد.
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}
+```

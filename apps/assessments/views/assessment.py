@@ -1,10 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
-
+from django.contrib import messages
 from apps.assessments.models import Assessment
 from apps.assessments.services.attempt_service import AttemptService
-
 
 class AssessmentStartView(
     LoginRequiredMixin,
@@ -23,10 +22,24 @@ class AssessmentStartView(
             is_active=True,
         )
 
-        attempt = AttemptService.start_attempt(
-            student=request.user,
-            assessment=assessment,
-        )
+        try:
+
+            attempt = AttemptService.start_attempt(
+                student=request.user,
+                assessment=assessment,
+            )
+
+        except ValueError as e:
+
+            messages.error(
+                request,
+                str(e)
+            )
+
+            return redirect(
+                "accounts:dashboard"
+            )
+
 
         return redirect(
             "assessments:question",

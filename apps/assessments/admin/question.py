@@ -22,7 +22,6 @@ class ChoiceInline(admin.TabularInline):
         "explanation",
     )
 
-   
 @admin.register(Question)
 class QuestionAdmin(
     DepartmentRestrictedAdminMixin,
@@ -149,7 +148,7 @@ class LearningObjectiveAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
     autocomplete_fields = (
         "category",
     )
-    department_lookup = "category__department"
+    
     department_foreignkeys = {
         "category": {
             "model": QuestionCategory,
@@ -163,6 +162,7 @@ class QuestionCategoryAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
     list_display = (
         "code",
         "name",
+        "course",
         "department",
         "parent",
         "order",
@@ -171,12 +171,15 @@ class QuestionCategoryAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
 
     list_filter = (
         DepartmentListFilter,
+        
         "is_active",
     )
 
     search_fields = (
         "code",
         "name",
+        "course__name",
+        "parent__name",
     )
 
     ordering = (
@@ -184,14 +187,19 @@ class QuestionCategoryAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
         "name",
     ) 
     list_per_page = 25
+
     list_select_related = (
+        "course",
         "department",
         "parent",
+        
     )
     autocomplete_fields = (
+        "course",
         "parent",
     )
     department_field = "department"
+    
     department_foreignkeys = {
         "parent": {
             "model": QuestionCategory,

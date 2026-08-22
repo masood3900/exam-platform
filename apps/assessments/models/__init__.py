@@ -14,3 +14,7 @@ from .attempt import (
     AttemptChoice,
 )
 from .analytics import *
+from .learning_path import *
+from.user_learning_path import UserLearningPath
+from .course import Course
+from .course_enrollment import CourseEnrollment

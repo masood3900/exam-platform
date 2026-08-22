@@ -1,0 +1,25 @@
+<div class="row g-4">
+
+    {% for item in course_items %}
+
+        <div class="col-12 col-md-6 col-lg-4">
+
+            {% include "core/components/course_card.html" %}
+
+        </div>
+
+    {% empty %}
+
+        <div class="col-12">
+
+            <div class="alert alert-info text-center">
+
+                در حال حاضر دوره فعالی وجود ندارد.
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>

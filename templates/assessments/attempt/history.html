@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}
+آزمون‌های انجام‌شده
+{% endblock %}
+
+
+{% block page_header %}
+
+<div class="col">
+
+    <h2 class="mb-1">
+        📝 آزمون‌های انجام‌شده
+    </h2>
+
+    <p class="text-muted mb-0">
+        فهرست آزمون‌هایی که تاکنون به پایان رسانده‌اید.
+    </p>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container mt-4">
+
+    {% for attempt in attempts %}
+
+        <div class="card shadow-sm mb-3">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div>
+
+                        <h5 class="mb-2">
+                            {{ attempt.assessment.title }}
+                        </h5>
+
+                        <p class="text-muted mb-1">
+                            کد آزمون:
+                            {{ attempt.assessment.code }}
+                        </p>
+
+                        <p class="mb-1">
+                            تعداد سؤال:
+                            {{ attempt.total_questions }}
+                        </p>
+
+                        <p class="mb-0">
+                            پاسخ صحیح:
+                            {{ attempt.correct_answers }}
+                            از
+                            {{ attempt.total_questions }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="text-end">
+
+                        <div class="fs-3 fw-bold">
+                            {{ attempt.percentage }}%
+                        </div>
+
+                        {% if attempt.passed %}
+
+                            <span class="badge bg-success">
+                                قبول
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-danger">
+                                مردود
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <small class="text-muted">
+
+                        {% if attempt.finished_at %}
+
+                            {{ attempt.finished_at|date:"Y/m/d H:i" }}
+
+                        {% endif %}
+
+                    </small>
+
+
+                    <a
+                        href="{% url 'assessments:result' attempt.id %}"
+                        class="btn btn-outline-primary btn-sm"
+                    >
+                        مشاهده نتیجه
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% empty %}
+
+        <div class="alert alert-info">
+
+            هنوز هیچ آزمونی را به پایان نرسانده‌اید.
+
+        </div>
+
+    {% endfor %}
+
+
+</div>
+
+{% endblock %}

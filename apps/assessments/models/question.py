@@ -1,6 +1,8 @@
 import uuid
 from django.conf import settings
 from django.db import models
+from .learning_path import LearningPath
+from .course import Course
 
 
 class QuestionCategory(models.Model):
@@ -32,6 +34,13 @@ class QuestionCategory(models.Model):
 
         blank=True,
     )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.PROTECT,
+        related_name="categories",
+        verbose_name="دوره آموزشی",
+        
+    )
 
     parent = models.ForeignKey(
         "self",
@@ -39,6 +48,7 @@ class QuestionCategory(models.Model):
         blank=True,
         on_delete=models.PROTECT,
         related_name="children",
+        
     )
 
     order = models.PositiveIntegerField(
@@ -56,6 +66,7 @@ class QuestionCategory(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True,
     )
+  
 
     class Meta:
         ordering = ["order", "name"]
@@ -70,8 +81,8 @@ class QuestionCategory(models.Model):
                 name="unique_category_name_per_parent",
             ),
         ]
-        verbose_name = "دسته سوال"
-        verbose_name_plural = "دسته‌بندی سوالات"
+        verbose_name = "واحد آموزشی"
+        verbose_name_plural = "واحدهای آموزشی"
     @property
     def level(self):
         level = 0

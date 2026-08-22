@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <h1>داشبورد مدیریت</h1>
+
+    <p>
+        مدیریت سامانه آموزشی
+    </p>
+
+    {% include "dashboard/admin/components/stats.html" %}
+
+    <hr>
+
+    <section>
+
+        <h2>مدیریت سامانه</h2>
+
+        <div>
+
+            <a href="{% url 'accounts:admin-learning-paths' %}">
+             مدیریت مسیرهای آموزشی
+            </a>
+
+        </div>
+
+        <div>
+
+            <a href="{% url 'accounts:admin-courses' %}">
+             مدیریت دوره‌ها
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

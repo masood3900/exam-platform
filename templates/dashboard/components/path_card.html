@@ -1,0 +1,72 @@
+<div class="card shadow-sm h-100">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+
+            <h5 class="card-title mb-0">
+                {{ item.learning_path.name }}
+            </h5>
+
+            <span class="badge bg-info">
+                {{ item.status }}
+            </span>
+
+        </div>
+
+
+        <p class="text-muted">
+            {{ item.learning_path.description }}
+        </p>
+
+
+        <hr>
+
+
+        <div>
+            📝 آزمون‌ها:
+            {{ item.assessment_count }}
+        </div>
+
+
+        <div>
+            👤 تعداد شرکت:
+            {{ item.attempt_count }}
+        </div>
+
+
+        <div>
+            📊 میانگین:
+
+            {% if item.has_attempt %}
+                {{ item.average_percentage }}%
+            {% else %}
+                هنوز آزمونی انجام نشده
+            {% endif %}
+
+        </div>
+
+
+        <div>
+            ✅ قبولی:
+
+            {% if item.has_attempt %}
+                {{ item.passed_count }}
+            {% else %}
+                -
+            {% endif %}
+
+        </div>
+
+
+        <a href="{% url 'accounts:learning-path-detail' item.learning_path.id %}"
+           class="btn btn-primary btn-sm mt-3">
+
+            ورود به مسیر
+
+        </a>
+
+
+    </div>
+
+</div>

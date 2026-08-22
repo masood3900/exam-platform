@@ -18,11 +18,8 @@
     border-radius:.5rem;
     padding:1rem;
     margin-bottom:1rem;
-
     cursor:pointer;
-
     transition:.2s;
-
 }
 
 
@@ -48,7 +45,11 @@
     margin:0;
 
 }
+.choice-radio{
 
+    display:none;
+
+}
 
 </style>
 
@@ -96,13 +97,6 @@
     <div class="card-body">
 
 
-        <h4 class="mb-4">
-
-            {{ question.title }}
-
-        </h4>
-
-
         <div class="mb-4">
 
             {{ question.body|linebreaks }}
@@ -126,14 +120,17 @@
 
             {% for choice in choices %}
 
-            <div class="choice-item">
+            <div class="choice-item {% if choice.id in selected_choice_ids %}selected{% endif %}">
 
                 <input
-                    class="d-none"
+                    class="choice-radio"
                     type="radio"
                     name="choice"
                     id="choice{{ choice.id }}"
                     value="{{ choice.id }}"
+                    {% if choice.id in selected_choice_ids %}
+                        checked
+                    {% endif %}
                 >
 
                 <label for="choice{{ choice.id }}">
@@ -161,26 +158,30 @@
             </div>
 
             {% endfor %}
-
-
             <div class="d-flex justify-content-between mt-4">
-
-                <a
-                    href="javascript:history.back()"
+                <a 
+                    href="{% url 'assessments:navigate' attempt.id question_number|add:'-1' %}"
                     class="btn btn-outline-secondary"
                 >
-                    خروج
+                    سؤال قبلی
                 </a>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary px-5"
-                >
-                    ثبت پاسخ
-                </button>
+                <div>
+                    <a
+                     href="{% url 'assessments:navigate' attempt.id question_number|add:'1' %}"
+                     class="btn btn-outline-primary me-2"
+                     >
+                         سؤال بعدی  
+                    </a>
+                    <button
+                        type="submit"
+                        class="btn btn-primary px-5"
+                    >
+                         ثبت پاسخ
+                    </button>
+                </div>
 
             </div>
-
+    
         </form>
 
     </div>
@@ -190,32 +191,42 @@
 {% endblock %}
 
 
-
-
-
 {% block extra_js %}
 
 <script>
+    const items = document.querySelectorAll(".choice-item");
 
-const items = document.querySelectorAll(".choice-item");
 
-items.forEach(function(item){
+    items.forEach(function(item){
 
-    item.addEventListener("click",function(){
+        item.addEventListener("click",function(){
 
-        items.forEach(function(i){
+            items.forEach(function(i){
+                i.classList.remove("selected");
+                const radio = i.querySelector(
+                    ".choice-radio"
+                );
 
-            i.classList.remove("selected");
+                radio.checked = false;
+            });
 
+            this.classList.add("selected");
+
+
+            const radio = this.querySelector(
+                ".choice-radio"
+            );
+
+            radio.checked = true;
+
+            console.log(
+                "selected:",
+                radio.value
+            );
+                                                                                                                                                
         });
 
-        this.classList.add("selected");
-
-        this.querySelector("input").checked = true;
-
     });
-
-});
 
 </script>
 

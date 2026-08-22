@@ -2,76 +2,58 @@
 
     <div class="container">
 
-        <a class="navbar-brand" href="/">
+        <a
+            class="navbar-brand"
+            href="/"
+        >
             سامانه آموزشی
         </a>
+
 
         <button
             class="navbar-toggler"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarMain"
+            aria-controls="navbarMain"
+            aria-expanded="false"
+            aria-label="باز کردن منو"
         >
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarMain">
+
+        <div
+            class="collapse navbar-collapse"
+            id="navbarMain"
+        >
 
             <ul class="navbar-nav me-auto">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/">
-                        خانه
-                    </a>
-                </li>
 
-                <li class="nav-item dropdown">
+                <li class="nav-item">
 
                     <a
-                        class="nav-link dropdown-toggle"
-                        href="#"
-                        role="button"
-                        data-bs-toggle="dropdown"
+                        class="nav-link"
+                        href="/"
                     >
-                        بانک سؤال
+                        خانه
                     </a>
 
-                    <ul class="dropdown-menu">
-
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                دسته‌ها
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                اهداف آموزشی
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"
-                               href="*">
-                                سؤال‌ها
-                            </a>
-                        </li>
-
-                    </ul>
-
                 </li>
+
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        آزمون‌ها
+
+                    <a
+                        class="nav-link"
+                        href="{% url 'messaging:inbox' %}"
+                    >
+                        💬 پیام‌ها
                     </a>
+
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        رتبه‌بندی
-                    </a>
-                </li>
 
             </ul>
 

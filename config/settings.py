@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'apps.accounts.apps.AccountsConfig',
     'apps.assessments.apps.AssessmentsConfig',
     'apps.core.apps.CoreConfig',
+    'apps.education.apps.EducationConfig',
+    'apps.messaging.apps.MessagingConfig',
 ]
 
 MIDDLEWARE = [
@@ -55,8 +57,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 AUTH_USER_MODEL = "accounts.User"
-LOGIN_REDIRECT_URL = reverse_lazy("dashboard")
-LOGOUT_REDIRECT_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("accounts:dashboard")
+LOGOUT_REDIRECT_URL = reverse_lazy("accounts:login")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 TEMPLATES = [
@@ -69,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "apps.messaging.context_processors.messaging_context",
             ],
         },
     },
@@ -127,6 +130,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR/"staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

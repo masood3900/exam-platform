@@ -1,0 +1,578 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+نتیجه آزمون | {{ attempt.assessment.title }}
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="container">
+
+
+    <!-- عنوان آزمون -->
+
+    <div class="mb-4">
+
+        <h2>
+            {{ attempt.assessment.title }}
+        </h2>
+
+        <p class="text-muted">
+            نتیجه نهایی آزمون
+        </p>
+
+    </div>
+
+
+
+    <!-- خلاصه نتیجه -->
+
+    <div class="row g-3 mb-4">
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm text-center">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        تعداد سؤال
+                    </h6>
+
+                    <h3>
+                        {{ attempt.total_questions }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm text-center">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        پاسخ صحیح
+                    </h6>
+
+                    <h3 class="text-success">
+
+                        {{ attempt.correct_answers }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm text-center">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        نمره
+                    </h6>
+
+                    <h3>
+
+                        {{ attempt.score }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm text-center">
+
+                <div class="card-body">
+
+
+                    <h6 class="text-muted">
+                        درصد
+                    </h6>
+
+
+                    <h3>
+
+                        {{ attempt.percentage }}٪
+
+                    </h3>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <!-- وضعیت قبولی -->
+
+
+    {% if attempt.passed %}
+
+
+    <div class="alert alert-success">
+
+        🎉 تبریک!
+        آزمون را با موفقیت پشت سر گذاشتید.
+
+    </div>
+
+
+    {% else %}
+
+
+    <div class="alert alert-danger">
+
+        نیاز به مرور و تمرین بیشتر دارید.
+
+    </div>
+
+
+    {% endif %}
+
+
+
+
+
+
+
+    <!-- تحلیل اهداف آموزشی -->
+
+
+    <div class="card shadow-sm mb-4">
+
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+
+                📊 تحلیل عملکرد آموزشی
+
+            </h5>
+
+
+        </div>
+
+
+
+        <div class="card-body">
+
+
+            {% for item in objective_report %}
+
+
+            <div class="mb-4">
+
+
+                <div class="d-flex justify-content-between">
+
+
+                    <strong>
+
+                        {{ item.objective.name }}
+
+                    </strong>
+
+
+
+                    <span>
+
+                        {{ item.correct }}
+
+                        از
+
+                        {{ item.total }}
+
+                        |
+
+                        {{ item.percentage }}٪
+
+
+                    </span>
+
+
+                </div>
+
+
+
+                <div class="progress mt-2"
+                     style="height:25px;">
+
+
+
+                    <div
+
+                        class="progress-bar
+
+                        {% if item.percentage >= 85 %}
+
+                            bg-success
+
+                        {% elif item.percentage >= 60 %}
+
+                            bg-warning
+
+                        {% else %}
+
+                            bg-danger
+
+                        {% endif %}"
+
+                        role="progressbar"
+
+                        style="width: {{ item.percentage }}%;"
+
+                    >
+
+                        {{ item.percentage }}٪
+
+
+                    </div>
+
+
+                </div>
+
+
+
+            </div>
+
+
+            {% empty %}
+
+
+            <div class="alert alert-info">
+
+                تحلیل آموزشی موجود نیست.
+
+            </div>
+
+
+            {% endfor %}
+
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <!-- پیشنهاد مطالعه -->
+
+
+    <div class="card shadow-sm mb-4">
+
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+
+                📚 پیشنهاد مطالعه
+
+            </h5>
+
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <p class="text-muted">
+
+                مباحثی که نیاز به تمرین بیشتری دارند در این قسمت نمایش داده می‌شوند.
+
+            </p>
+
+
+            <ul>
+
+
+                {% for item in objective_report %}
+
+
+                    {% if item.percentage < 60 %}
+
+
+                    <li class="text-danger">
+
+                        مرور:
+                        {{ item.objective.name }}
+
+
+                    </li>
+
+
+                    {% endif %}
+
+
+
+                {% empty %}
+
+
+                    <li>
+
+                        پیشنهاد خاصی وجود ندارد.
+
+                    </li>
+
+
+                {% endfor %}
+
+
+            </ul>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+    <!-- خلاصه سوالات -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+            📋 پاسخ‌های آزمون
+            </h5>
+
+        </div>
+
+    <div class="card-body">
+
+        <p class="text-muted mb-3">
+            برای مشاهده جزئیات پاسخ‌ها، روی دکمه زیر کلیک کنید.
+        </p>
+
+        <details>
+
+            <summary
+                class="btn btn-outline-primary"
+                style="cursor:pointer;"
+            >
+                مشاهده سؤال‌ها و پاسخ‌ها
+            </summary>
+
+
+            <div class="mt-4">
+
+                {% for question in questions %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        <!-- عنوان سؤال -->
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+
+                            <strong>
+                                سؤال {{ question.order }}
+                            </strong>
+
+
+                            {% if question.is_correct %}
+
+                                <span class="badge bg-success">
+                                    صحیح
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    غلط
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- هدف آموزشی -->
+
+                        <small class="text-muted d-block mb-3">
+
+                            هدف آموزشی:
+                            {{ question.question.learning_objective.title }}
+
+                        </small>
+
+
+                        <!-- متن سؤال -->
+
+                        <div class="mb-3">
+
+                            {{ question.question.body|linebreaks }}
+
+                        </div>
+
+
+                        <!-- گزینه‌ها -->
+
+                        {% for choice in question.choices.all %}
+
+                            <div
+                                class="p-2 mb-2 rounded
+                                {% if choice.selected and choice.is_correct %}
+                                    bg-success-subtle border border-success
+                                {% elif choice.selected and not choice.is_correct %}
+                                    bg-danger-subtle border border-danger
+                                {% elif choice.is_correct %}
+                                    bg-success-subtle border border-success
+                                {% else %}
+                                    border
+                                {% endif %}"
+                            >
+
+                                {% if choice.selected %}
+
+                                    <strong>
+                                        انتخاب شما:
+                                    </strong>
+
+                                {% endif %}
+
+
+                                {% if choice.is_correct %}
+
+                                    <strong>
+                                        ✓ پاسخ صحیح
+                                    </strong>
+
+                                {% endif %}
+
+
+                                {{ choice.text }}
+
+                            </div>
+
+                        {% endfor %}
+
+
+                        <!-- توضیح پاسخ -->
+
+                        {% for choice in question.choices.all %}
+
+                            {% if choice.selected and choice.explanation %}
+
+                                <div class="alert alert-info mt-3 mb-0">
+
+                                    <strong>
+                                        💡 توضیح:
+                                    </strong>
+
+                                    {{ choice.explanation }}
+
+                                </div>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="alert alert-info">
+                        اطلاعات سؤال‌ها موجود نیست.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </details>
+
+    </div>
+
+</div>
+
+
+    <!-- عملیات -->
+
+
+    <div class="d-flex justify-content-between mb-5">
+
+
+        <a href="{% url 'accounts:dashboard' %}"
+
+           class="btn btn-outline-secondary">
+
+            بازگشت
+
+        </a>
+
+
+
+        {% if can_retry %}
+
+            <a
+                href="{% url 'assessments:start' attempt.assessment.id %}"
+                class="btn btn-primary"
+            >
+             آزمون مجدد
+            </a>
+
+        {% else %}
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                disabled
+            >
+             تعداد فرصت برای آزمون مجدد به پایان رسیده است چنانچه تمایل به آزمون مجدد دارید با ادمین هماهنگ کنید
+            </button>
+
+        {% endif %}
+
+
+        </div>
+
+
+
+
+</div>
+
+{% endblock %}
