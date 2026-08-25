@@ -62,14 +62,7 @@ class User(AbstractUser):
         null=True,
         blank=True,
     )
-    department = models.ForeignKey(
-        "core.Department",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="users",
-        verbose_name="دپارتمان"
-    )
+   
 
     avatar = models.ImageField(
         "تصویر پروفایل",

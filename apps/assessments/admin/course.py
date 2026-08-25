@@ -10,6 +10,7 @@ class CourseAdmin(admin.ModelAdmin):
         "code",
         "name",
         "learning_path",
+        "scientific_group",
         "parent",
         "price",
         "discount_percent",
@@ -21,6 +22,7 @@ class CourseAdmin(admin.ModelAdmin):
 
     list_filter = (
         "learning_path",
+        "scientific_group",
         "parent",
         "is_active",
         "discount_percent",
@@ -30,6 +32,8 @@ class CourseAdmin(admin.ModelAdmin):
         "code",
         "name",
         "parent__name",
+        "scientific_group__name",
+        "scientific_group__code",
     )
 
     ordering = (
@@ -41,12 +45,14 @@ class CourseAdmin(admin.ModelAdmin):
     list_select_related = (
         "learning_path",
         "parent",
+        "scientific_group",
     )
 
     autocomplete_fields = (
         "learning_path",
         "parent",
         "prerequisites",
+        "scientific_group",
     )
 
     fieldsets = (
@@ -56,6 +62,7 @@ class CourseAdmin(admin.ModelAdmin):
                 "fields": (
                     "learning_path",
                     "parent",
+                    "scientific_group",
                     "code",
                     "name",
                     "description",

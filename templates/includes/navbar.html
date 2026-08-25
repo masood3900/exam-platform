@@ -1,3 +1,4 @@
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 
     <div class="container">
@@ -8,7 +9,6 @@
         >
             سامانه آموزشی
         </a>
-
 
         <button
             class="navbar-toggler"
@@ -22,7 +22,6 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-
         <div
             class="collapse navbar-collapse"
             id="navbarMain"
@@ -30,30 +29,91 @@
 
             <ul class="navbar-nav me-auto">
 
-
                 <li class="nav-item">
-
                     <a
                         class="nav-link"
                         href="/"
                     >
                         خانه
                     </a>
-
                 </li>
 
+                {% if user.is_authenticated %}
 
-                <li class="nav-item">
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{% url 'messaging:inbox' %}"
+                        >
+                            💬 پیام‌ها
+                        </a>
+                    </li>
 
-                    <a
-                        class="nav-link"
-                        href="{% url 'messaging:inbox' %}"
-                    >
-                        💬 پیام‌ها
-                    </a>
+                {% endif %}
 
-                </li>
+            </ul>
 
+            <ul class="navbar-nav">
+
+                {% if user.is_authenticated %}
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{{ dashboard_url }}"
+                        >
+                            داشبورد
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            {{ user.get_full_name|default:user.username }}
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+
+                        <form
+                            method="post"
+                            action="{% url 'accounts:logout' %}"
+                            class="d-inline"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="nav-link btn btn-link"
+                            >
+                                خروج
+                            </button>
+
+                        </form>
+
+                    </li>
+
+                {% else %}
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{% url 'accounts:login' %}"
+                        >
+                            ورود
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{% url 'accounts:register' %}"
+                        >
+                            ثبت‌نام
+                        </a>
+                    </li>
+
+                {% endif %}
 
             </ul>
 

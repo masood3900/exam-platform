@@ -15,7 +15,6 @@ class CustomUserAdmin(UserAdmin):
         "phone",
         "is_staff",
         "is_active",
-        "department",
     )
 
     list_filter = (
@@ -23,7 +22,7 @@ class CustomUserAdmin(UserAdmin):
         "is_superuser",
         "is_active",
         "gender",
-        "department",
+        
     )
 
     search_fields = (
@@ -57,7 +56,7 @@ class CustomUserAdmin(UserAdmin):
                 "phone",
                 "birth_date",
                 "gender",
-                "department",
+    
             )
         }),
 
@@ -93,7 +92,6 @@ class CustomUserAdmin(UserAdmin):
                 "phone",
                 "birth_date",
                 "gender",
-                "department",
                 "password1",
                 "password2",
                 "is_staff",

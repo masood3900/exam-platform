@@ -8,6 +8,7 @@ from apps.assessments.models import (
     AttemptQuestion,
     AttemptChoice,
     Question,
+    AssessmentEnrollment,
 )
 
 
@@ -15,11 +16,29 @@ class AttemptService:
 
     @staticmethod
     def can_start_attempt(
-    *,
-    student,
-    assessment,
+        *,
+        student,
+        assessment,
     ):
-        previous_attempts = Attempt.objects.filter(
+        """
+        بررسی امکان شروع آزمون.
+
+        آزمون رایگان:
+        بر اساس max_attempts
+
+        آزمون پولی با Enrollment فعال:
+        بر اساس max_attempts
+
+        آزمون پولی بدون خرید:
+        فقط به تعداد demo_attempts
+        """
+        if not assessment.is_active:
+            return False
+
+        if student.is_superuser:
+            return True
+
+        attempts = Attempt.objects.filter(
             student=student,
             assessment=assessment,
             status__in=[
@@ -27,7 +46,19 @@ class AttemptService:
                 Attempt.Status.GRADED,
             ],
         ).count()
-        return previous_attempts < assessment.max_attempts
+
+        if assessment.is_free:
+            return attempts < assessment.max_attempts
+
+        enrollment = assessment.enrollments.filter(
+            user=student,
+            status=AssessmentEnrollment.Status.ACTIVE,
+        ).first()
+
+        if enrollment:
+            return attempts < assessment.max_attempts
+
+        return attempts < assessment.demo_attempts
 
     @staticmethod
     @transaction.atomic
@@ -41,16 +72,14 @@ class AttemptService:
         انتخاب سوالات
         ساخت Snapshot سوال و گزینه‌ها
         """
+
         if not AttemptService.can_start_attempt(
             student=student,
             assessment=assessment,
         ):
-
             raise ValueError(
                 "تعداد دفعات مجاز شرکت در این آزمون تمام شده است."
             )
-
-        
 
         attempt = Attempt.objects.create(
             assessment=assessment,
@@ -113,15 +142,16 @@ class AttemptService:
 
             if rule.random_selection:
                 random.shuffle(questions)
+
             selected_questions.extend(
-                questions[: rule.question_count]
+                questions[:rule.question_count]
             )
 
         if assessment.shuffle_questions:
-
             random.shuffle(selected_questions)
 
         return selected_questions
+
     @staticmethod
     def _build_question_queryset(
         *,
@@ -162,7 +192,6 @@ class AttemptService:
 
         return queryset
 
-
     @staticmethod
     @transaction.atomic
     def _create_attempt_questions(
@@ -193,7 +222,6 @@ class AttemptService:
             )
 
             if shuffle_choices:
-
                 random.shuffle(choices)
 
             for index, choice in enumerate(
@@ -232,12 +260,10 @@ class AttemptService:
                 "این سؤال متعلق به این آزمون نیست."
             )
 
-        # حذف انتخاب‌های قبلی
         attempt_question.choices.update(
             selected=False,
         )
 
-        # انتخاب گزینه‌های جدید
         attempt_question.choices.filter(
             id__in=selected_choice_ids,
         ).update(
@@ -259,7 +285,6 @@ class AttemptService:
             ]
         )
 
-
     @staticmethod
     @transaction.atomic
     def check_answer(
@@ -272,7 +297,6 @@ class AttemptService:
         """
 
         if attempt_question.attempt != attempt:
-
             raise ValueError(
                 "این سؤال متعلق به این آزمون نیست."
             )
@@ -284,7 +308,6 @@ class AttemptService:
         )
 
         if not selected_choices:
-
             raise ValueError(
                 "هیچ گزینه‌ای انتخاب نشده است."
             )
@@ -296,11 +319,13 @@ class AttemptService:
         )
 
         selected_ids = {
-            c.id for c in selected_choices
+            choice.id
+            for choice in selected_choices
         }
 
         correct_ids = {
-            c.id for c in correct_choices
+            choice.id
+            for choice in correct_choices
         }
 
         is_correct = (
@@ -310,13 +335,10 @@ class AttemptService:
         attempt_question.is_correct = is_correct
 
         if is_correct:
-
             attempt_question.score = (
                 attempt_question.question.score
             )
-
         else:
-
             attempt_question.score = 0
 
         attempt_question.save(
@@ -330,9 +352,11 @@ class AttemptService:
 
     @staticmethod
     @transaction.atomic
-    def finalize_unanswered_questions(attempt):
+    def finalize_unanswered_questions(
+        attempt,
+    ):
         """
-         سؤالات بدون پاسخ را نهایی می‌کند.
+        سوالات بدون پاسخ را نهایی می‌کند.
         """
 
         unanswered = attempt.questions.exclude(
@@ -352,8 +376,9 @@ class AttemptService:
                     "is_correct",
                     "score",
                     "status",
-            ])    
-    
+                ]
+            )
+
     @staticmethod
     @transaction.atomic
     def finish_attempt(
@@ -365,32 +390,27 @@ class AttemptService:
         """
 
         if attempt.status != Attempt.Status.STARTED:
-
             raise ValueError(
                 "این آزمون قابل پایان دادن نیست."
             )
 
-        AttemptService.finalize_unanswered_questions(attempt,)
-        
-        
-        total_questions = attempt.questions.count()
-
-       
+        AttemptService.finalize_unanswered_questions(
+            attempt,
+        )
 
         total_score = sum(
-            q.score or 0
-            for q in attempt.questions.all()
+            question.score or 0
+            for question in attempt.questions.all()
         )
 
         max_score = sum(
-            q.question.score
-            for q in attempt.questions.all()
+            question.question.score
+            for question in attempt.questions.all()
         )
 
         percentage = 0
 
         if max_score:
-
             percentage = round(
                 (total_score / max_score) * 100,
                 2,
@@ -401,15 +421,21 @@ class AttemptService:
         )
 
         attempt.score = total_score
+
         attempt.percentage = percentage
-        attempt.correct_answers = attempt.questions.filter(
-            is_correct=True,
-        ).count()
+
+        attempt.correct_answers = (
+            attempt.questions.filter(
+                is_correct=True,
+            ).count()
+        )
 
         attempt.passed = passed
+
         attempt.status = Attempt.Status.GRADED
 
         attempt.submitted_at = timezone.now()
+
         attempt.finished_at = timezone.now()
 
         attempt.save(

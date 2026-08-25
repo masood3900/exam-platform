@@ -20,15 +20,7 @@ class QuestionCategory(models.Model):
     name = models.CharField(
         max_length=255,
     )
-    department = models.ForeignKey(
-        "core.Department",
-        on_delete=models.PROTECT,
-        related_name="question_categories",
-        verbose_name="دپارتمان",
-        null=True,
-        blank=True,
-    )
-
+    
 
     description = models.TextField(
 
@@ -77,7 +69,7 @@ class QuestionCategory(models.Model):
         ]
         constraints = [
             models.UniqueConstraint(
-                fields=["department","parent", "name"],
+                fields=["parent", "name"],
                 name="unique_category_name_per_parent",
             ),
         ]

@@ -1,10 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 
-from apps.assessments.models import Course, CourseEnrollment
+from apps.assessments.models import Course
+from apps.assessments.services.enrollment_service import (
+    EnrollmentService,
+)
 
 
 class CourseEnrollView(
@@ -25,52 +28,22 @@ class CourseEnrollView(
         )
 
         try:
-            with transaction.atomic():
-
-                enrollment, created = (
-                    CourseEnrollment.objects.get_or_create(
-                        user=request.user,
-                        course=course,
-                    )
+            enrollment = (
+                EnrollmentService.enroll(
+                    user=request.user,
+                    course=course,
                 )
+            )
 
-                if not created:
-                    if enrollment.has_access:
-                        messages.info(
-                            request,
-                            "شما قبلاً به این دوره دسترسی دارید.",
-                        )
-                    else:
-                        messages.info(
-                            request,
-                            "ثبت‌نام شما برای این دوره قبلاً انجام شده است.",
-                        )
+        except ValueError as exc:
+            messages.error(
+                request,
+                str(exc),
+            )
 
-                    return redirect(
-                        "accounts:dashboard"
-                    )
-
-                if course.is_free:
-                    enrollment.status = (
-                        CourseEnrollment.Status.ACTIVE
-                    )
-                    enrollment.payment_status = (
-                        CourseEnrollment.PaymentStatus.NOT_REQUIRED
-                    )
-                else:
-                    enrollment.status = (
-                        CourseEnrollment.Status.PENDING
-                    )
-                    enrollment.payment_status = (
-                        CourseEnrollment.PaymentStatus.UNPAID
-                    )
-
-                enrollment.save(
-                    update_fields=[
-                        "status",
-                        "payment_status",
-                    ]
-                )
+            return redirect(
+                "accounts:dashboard"
+            )
 
         except IntegrityError:
             messages.error(
@@ -82,7 +55,7 @@ class CourseEnrollView(
                 "accounts:dashboard"
             )
 
-        if course.is_free:
+        if enrollment.has_access:
             messages.success(
                 request,
                 f"دوره «{course.name}» با موفقیت به داشبورد شما اضافه شد.",

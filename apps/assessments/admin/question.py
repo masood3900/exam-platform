@@ -5,10 +5,7 @@ from apps.assessments.models import (
     Question,
     Choice,
 )
-from apps.core.admin_mixins.department import (
-     DepartmentRestrictedAdminMixin,
-     DepartmentListFilter,
-)
+
  
 
 class ChoiceInline(admin.TabularInline):
@@ -24,7 +21,6 @@ class ChoiceInline(admin.TabularInline):
 
 @admin.register(Question)
 class QuestionAdmin(
-    DepartmentRestrictedAdminMixin,
     admin.ModelAdmin,
 ):
 
@@ -58,24 +54,14 @@ class QuestionAdmin(
     list_select_related = (
         "learning_objective",
         "learning_objective__category",
-        "learning_objective__category__department",
+        
     )
 
     autocomplete_fields = (
         "learning_objective",
     )
 
-    department_lookup = (
-        "learning_objective__category__department"
-    )
-
-    department_foreignkeys = {
-        "learning_objective": {
-            "model": LearningObjective,
-            "lookup": "category__department",
-        },
-    }
-
+   
     inlines = [
         ChoiceInline,
     ]
@@ -110,8 +96,7 @@ class QuestionAdmin(
 
         formset.save_m2m()
 @admin.register(LearningObjective)
-class LearningObjectiveAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
-    department_lookup = "category__department"
+class LearningObjectiveAdmin(admin.ModelAdmin):
     list_display = (
         "code",
         "name",
@@ -143,34 +128,26 @@ class LearningObjectiveAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
     list_per_page = 25
     list_select_related = (
         "category",
-        "category__department",
     )
     autocomplete_fields = (
         "category",
     )
     
-    department_foreignkeys = {
-        "category": {
-            "model": QuestionCategory,
-            "lookup": "department",
-        },
-    }
+
      
 @admin.register(QuestionCategory)
-class QuestionCategoryAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
+class QuestionCategoryAdmin(admin.ModelAdmin):
 
     list_display = (
         "code",
         "name",
         "course",
-        "department",
         "parent",
         "order",
         "is_active",
     )
 
     list_filter = (
-        DepartmentListFilter,
         
         "is_active",
     )
@@ -190,7 +167,6 @@ class QuestionCategoryAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
 
     list_select_related = (
         "course",
-        "department",
         "parent",
         
     )
@@ -198,14 +174,7 @@ class QuestionCategoryAdmin(DepartmentRestrictedAdminMixin,admin.ModelAdmin):
         "course",
         "parent",
     )
-    department_field = "department"
     
-    department_foreignkeys = {
-        "parent": {
-            "model": QuestionCategory,
-            "lookup": "department",
-        },
-    }
    
 @admin.register(Choice)
 class ChoiceAdmin(admin.ModelAdmin):

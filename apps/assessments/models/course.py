@@ -28,6 +28,14 @@ class Course(models.Model):
         related_name="children",
         verbose_name="دوره والد",
     )
+    scientific_group = models.ForeignKey(
+        "ScientificGroup",
+        on_delete=models.PROTECT,
+        related_name="courses",
+        verbose_name="گروه علمی",
+        null=True,
+        blank=True,
+    )
 
 
     code = models.CharField(
@@ -100,7 +108,7 @@ class Course(models.Model):
     )
     @property
     def is_free(self):
-        return self.price == 0
+        return self.final_price == 0
 
     @property
     def final_price(self):

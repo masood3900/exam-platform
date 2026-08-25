@@ -5,3 +5,5 @@ from .assessment import *
 from .attempt import *
 from .course_enrollment import *
 from .course import *
+from .scientific_group import *
+from .course_instructor_assignment import *

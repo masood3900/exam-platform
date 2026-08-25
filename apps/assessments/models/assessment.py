@@ -3,14 +3,15 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MaxValueValidator,MinValueValidator
 from django.core.exceptions import ValidationError
-
+from .course import Course
+from .learning_path import LearningPath
 from apps.assessments.models.question import(
     QuestionCategory,
     LearningObjective,
     Question,
 )
 
-from .course import Course
+
 
 
 class Assessment(models.Model):
@@ -46,10 +47,40 @@ class Assessment(models.Model):
     description = models.TextField(
         blank=True,
     )
+    price = models.PositiveIntegerField(
+        default=0,
+        verbose_name="قیمت آزمون",
+        help_text="قیمت پایه آزمون به تومان؛ صفر یعنی رایگان",
+    )
+
+    discount_percent = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[
+            MaxValueValidator(100),
+        ],
+        verbose_name="درصد تخفیف",
+        help_text="درصد تخفیف از 0 تا 100",
+    )
+
+    demo_attempts = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name="تعداد تلاش آزمایشی",
+        help_text="تعداد دفعاتی که کاربر قبل از خرید می‌تواند آزمون را آزمایش کند.",
+    )
+    learning_path = models.ForeignKey(
+        LearningPath,
+        on_delete=models.PROTECT,
+        related_name="assessments",
+        null=True,
+        blank=True,
+        verbose_name="مسیر آموزشی",
+    )
     course = models.ForeignKey(
         Course,
         on_delete=models.PROTECT,
         related_name="assessments",
+        null=True,
+        blank=True,
         verbose_name="دوره آموزشی",
     )
     objectives = models.ManyToManyField(
@@ -106,6 +137,47 @@ class Assessment(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True,
     )
+    @property
+    def final_price(self):
+        if self.price == 0:
+            return 0
+
+        return self.price * (
+            100 - self.discount_percent
+        ) // 100
+
+    @property
+    def is_free(self):
+        return self.price == 0
+
+    @property
+    def has_discount(self):
+        return (
+            self.price > 0
+            and self.discount_percent > 0
+        )
+    def clean(self):
+
+        errors = {}
+
+        # آزمون وابسته به دوره باید مسیر آموزشی داشته باشد
+        if self.course and not self.learning_path:
+            errors["learning_path"] = (
+                "آزمونی که به یک دوره متصل است، "
+                "باید مسیر آموزشی داشته باشد."
+            )
+
+        # اگر هر دو مشخص شده‌اند، باید متعلق به یک مسیر باشند
+        if self.course and self.learning_path:
+
+            if self.course.learning_path_id != self.learning_path_id:
+                errors["learning_path"] = (
+                    "مسیر آموزشی آزمون باید با مسیر آموزشی دوره یکسان باشد."
+                )
+
+        if errors:
+            from django.core.exceptions import ValidationError
+            raise ValidationError(errors)
 
     class Meta:
         ordering = ["assessment_type","title",]

@@ -84,24 +84,53 @@ class AssessmentAdmin(admin.ModelAdmin):
         "code",
         "title",
         "assessment_type",
-        "duration_minutes",
-        "passing_score",
+        "learning_path",
+        "course",
+        "price",
+        "discount_percent",
+        "final_price_display",
+        "demo_attempts",
+        "max_attempts",
         "is_active",
     )
 
     list_filter = (
         "assessment_type",
-        
+        "learning_path",
         "is_active",
     )
 
     search_fields = (
         "code",
         "title",
+        "learning_path__name",
+        "course__code",
+        "course__name",
+    )
+    autocomplete_fields = (
+        "learning_path",
+        "course",
+        "objectives",
+        "created_by",
+    )
+    list_select_related = (
+        "learning_path",
+        "course",
+        "created_by",
     )
     ordering = ("assessment_type", "title")
     list_per_page = 25
+
+    @admin.display(
+        description="قیمت نهایی",
+        ordering="price",
+    )
+    def final_price_display(self, obj):
+        return obj.final_price
+
+
     readonly_fields = (
+        "final_price_display",
         "created_at",
         "updated_at",
     )

@@ -13,8 +13,17 @@ from .attempt import (
     AttemptQuestion,
     AttemptChoice,
 )
+from .scientific_group import (
+    ScientificGroup,
+    ScientificGroupMembership,
+)
+from .course_instructor_assignment import (
+    CourseInstructorAssignment,
+)
+
 from .analytics import *
 from .learning_path import *
-from.user_learning_path import UserLearningPath
+from .user_learning_path import UserLearningPath
 from .course import Course
 from .course_enrollment import CourseEnrollment
+from .assessment_enrollment import AssessmentEnrollment
