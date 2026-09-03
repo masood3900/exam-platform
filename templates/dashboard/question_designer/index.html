@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}داشبورد طراح سوال{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/question_designer/components/header.html" %}
+    {% include "dashboard/question_designer/components/stats.html" %}
+    {% include "dashboard/question_designer/components/questions.html" %}
+</div>
+
+<!-- Modal نمایش جزئیات -->
+<div class="modal fade" id="questionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات سوال</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body question-body" id="questionModalBody">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% include "dashboard/components/bulk_actions.html" %}
+
+<script>
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function showQuestionDetails(questionId) {
+    const modal = new bootstrap.Modal(document.getElementById('questionModal'));
+    modal.show();
+    document.getElementById('questionModalBody').innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+    fetch(`/accounts/question-designer/question/${questionId}/detail/`)
+        .then(response => response.json())
+        .then(data => {
+            let html = `
+                <h5>${data.code} - ${data.title || 'بدون عنوان'}</h5>
+                <span class="badge bg-primary">${data.status_display}</span>
+                <hr>
+                <p><strong>موضوع:</strong> ${data.scientific_group || 'ندارد'}</p>
+                <div class="question-body">${data.body}</div>
+                <p><strong>نوع:</strong> ${data.question_type} | <strong>سختی:</strong> ${data.difficulty}</p>
+            `;
+
+            if (data.choices.length > 0) {
+                html += '<p><strong>گزینه‌ها:</strong></p><ul>';
+                data.choices.forEach((choice, index) => {
+                    const correct = choice.is_correct ? '✅' : '';
+                    html += `<li>${index + 1}. ${choice.text} ${correct}</li>`;
+                });
+                html += '</ul>';
+            }
+
+            if (data.explanation) {
+                html += `<div class="alert alert-info"><strong>توضیح:</strong> ${data.explanation}</div>`;
+            }
+
+            if (data.review_history && data.review_history.length > 0) {
+                html += `<div class="mb-3"><strong>📜 تاریخچه:</strong><div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">`;
+                data.review_history.forEach(history => {
+                    html += `<div class="small mb-2 pb-2 border-bottom">
+                        <strong>${history.action}</strong>
+                        <span class="text-muted">توسط ${history.reviewer}</span>
+                        <span class="text-muted">- ${history.created_at}</span>
+                        ${history.note ? `<br><span class="text-muted">💬 ${history.note}</span>` : ''}
+                    </div>`;
+                });
+                html += '</div></div>';
+            }
+
+            if (data.status === 'draft' || data.status === 'rejected') {
+                const csrfToken = getCsrfToken();
+                html += `
+                    <div class="d-flex gap-2 mb-3">
+                        <a href="/accounts/question-designer/question/${data.id}/edit/" class="btn btn-warning btn-sm">✏️ ویرایش</a>
+                        <form method="post" action="/accounts/question-designer/question/${data.id}/delete/" class="d-inline">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                            <button type="submit" class="btn btn-danger btn-sm">🗑️ حذف</button>
+                        </form>
+                    </div>
+                    <form method="post" action="/accounts/question-designer/question/${data.id}/submit/">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                        <div class="mb-2">
+                            <input type="text" name="note" class="form-control" placeholder="یادداشت (اختیاری)">
+                        </div>
+                        <button type="submit" class="btn btn-primary">📤 ارسال برای تایید</button>
+                    </form>
+                `;
+            }
+
+            document.getElementById('questionModalBody').innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('questionModalBody').innerHTML = '<div class="alert alert-danger">خطا</div>';
+        });
+}
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.min.css">
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+<script>
+    window.MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}
+    مدیریت حوزه‌های علمی
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .scientific-group-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .scientific-group-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    }
+    
+    .scientific-group-link {
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .scientific-group-link:hover {
+        color: inherit;
+    }
+    
+    .scientific-group-code {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">مدیریت حوزه‌های علمی</h1>
+            <p class="text-muted mb-0">مدیریت حوزه‌ها و رشته‌های علمی سامانه</p>
+        </div>
+        <a href="{% url 'accounts:admin-scientific-group-create' %}" class="btn btn-primary">
+            ایجاد حوزه جدید
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for domain in domains %}
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm scientific-group-card">
+                <a href="#" class="scientific-group-link">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h2 class="h5 card-title mb-0">{{ domain.name }}</h2>
+                            {% if domain.is_active %}
+                                <span class="badge text-bg-success">فعال</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">غیرفعال</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="scientific-group-code mb-3">
+                            کد: {{ domain.code }}
+                        </div>
+
+                        {% if domain.description %}
+                            <p class="card-text text-muted">{{ domain.description|truncatechars:120 }}</p>
+                        {% endif %}
+
+                        <div class="d-flex gap-3 text-muted small mt-3">
+                            <span>رشته‌ها: {{ domain.children.count }}</span>
+                            <span>اعضا: {{ domain.memberships.count }}</span>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="card-footer bg-transparent border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-sm btn-outline-primary" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#assignModal{{ domain.id }}">
+                            👤 اختصاص کاربر
+                        </button>
+                        
+                        {% if not domain.children.exists %}
+                        <form method="post" action="{% url 'accounts:admin-scientific-group-delete' group_id=domain.id %}" 
+                              class="d-inline" onsubmit="return confirm('حذف شود؟')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-secondary">هیچ حوزه علمی ثبت نشده است.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal های اختصاص کاربر -->
+{% for domain in domains %}
+<div class="modal fade" id="assignModal{{ domain.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">اختصاص کاربر به {{ domain.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:admin-scientific-group-assign' group_id=domain.id %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">کاربر</label>
+                        <select name="user_id" class="form-control" required>
+                            <option value="">انتخاب کنید...</option>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">نقش</label>
+                        <select name="role" class="form-control" required>
+                            <option value="domain_manager">مدیر کل</option>
+                            <option value="technical_manager">مدیر کل فنی</option>
+                            <option value="financial_manager">مدیر مالی</option>
+                            <option value="scientific_manager">مدیر علمی</option>
+                            <option value="marketing_manager">مدیر تبلیغات</option>
+                            <option value="support_manager">مدیر پشتیبانی</option>
+                            <option value="question_designer">طراح سوال</option>
+                            <option value="instructor">مدرس</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">ثبت</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

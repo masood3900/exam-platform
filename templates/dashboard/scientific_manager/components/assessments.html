@@ -1,0 +1,93 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">📝 آزمون‌های مسیر آموزشی</h5>
+    </div>
+    <div class="card-body">
+        {% if assessments %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>عنوان</th>
+                            <th>نوع</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assessment in assessments %}
+                        <tr>
+                            <td>{{ assessment.title }}</td>
+                            <td>{{ assessment.get_assessment_type_display }}</td>
+                            <td>
+                                {% if assessment.is_active %}
+                                    <span class="badge bg-success">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-danger">غیرفعال</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'accounts:scientific_manager:scientific-manager-assessment-rule-create' assessment_id=assessment.id %}" 
+                                   class="btn btn-sm btn-outline-primary">📋 قوانین</a>
+
+                                <a href="{% url 'accounts:scientific_manager:assessment-pricing' assessment_id=assessment.id %}" class="btn btn-sm btn-outline-info">💰 قیمت</a>
+                                
+                                {% if assessment.is_free %}
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" 
+                                        data-bs-target="#addStudentModal{{ forloop.counter }}">
+                                    👤 افزودن دانشجو
+                                </button>
+                                {% endif %}
+                                
+                                <form method="post" action="{% url 'accounts:scientific_manager:assessment-toggle' assessment_id=assessment.id %}" 
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                        {% if assessment.is_active %}⏸️{% else %}▶️{% endif %}
+                                    </button>
+                                </form>
+                                
+                                <form method="post" action="{% url 'accounts:scientific_manager:assessment-delete' assessment_id=assessment.id %}" 
+                                      class="d-inline" onsubmit="return confirm('حذف شود؟')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {% include "dashboard/components/empty_state.html" with message="آزمونی ثبت نشده." %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal های افزودن دانشجو -->
+{% for assessment in assessments %}
+    {% if assessment.is_free %}
+    <div class="modal fade" id="addStudentModal{{ forloop.counter }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">افزودن دانشجو به «{{ assessment.title }}»</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'accounts:scientific_manager:assessment-add-student' assessment_id=assessment.id %}">
+                        {% csrf_token %}
+                        <select name="user_id" class="form-control" required>
+                            <option value="">انتخاب کاربر...</option>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary mt-3 w-100">ثبت</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}

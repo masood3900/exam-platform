@@ -7,3 +7,5 @@ from .course_enrollment import *
 from .course import *
 from .scientific_group import *
 from .course_instructor_assignment import *
+from .payment import *
+from .lesson import *

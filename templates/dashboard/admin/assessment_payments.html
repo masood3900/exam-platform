@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}پرداخت‌های {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>💰 پرداخت‌های «{{ assessment.title }}»</h1>
+        <a href="{% url 'accounts:admin-payment-management' %}" class="btn btn-secondary">بازگشت</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>کاربر</th>
+                            <th>مبلغ</th>
+                            <th>وضعیت</th>
+                            <th>کد رهگیری</th>
+                            <th>تاریخ ارسال</th>
+                            <th>تاریخ تایید</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.user.get_full_name|default:payment.user.username }}</td>
+                            <td>{{ payment.amount }} تومان</td>
+                            <td>
+                                {% if payment.status == 'approved' %}
+                                    <span class="badge bg-success">تایید شده</span>
+                                {% elif payment.status == 'pending' %}
+                                    <span class="badge bg-warning">در انتظار</span>
+                                {% else %}
+                                    <span class="badge bg-danger">رد شده</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ payment.tracking_code|default:"-" }}</td>
+                            <td>{{ payment.created_at|date:"Y/m/d H:i" }}</td>
+                            <td>{{ payment.reviewed_at|date:"Y/m/d H:i"|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6">پرداختی نیست.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}داشبورد مدیر کل{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/domain_manager/components/header.html" %}
+    {% include "dashboard/domain_manager/components/stats.html" %}
+        {% include "dashboard/domain_manager/components/learning_paths.html" %}
+    {% include "dashboard/domain_manager/components/managers.html" %}
+    {% include "dashboard/domain_manager/components/assessments.html" %}
+</div>
+{% endblock %}

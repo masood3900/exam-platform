@@ -6,7 +6,7 @@ from apps.accounts.services.dashboard_service import DashboardService
 
 class DashboardView(LoginRequiredMixin, TemplateView):
 
-    template_name = "dashboard/index.html"
+    template_name = "dashboard/student/index.html"
 
 
     def get_context_data(self, **kwargs):
@@ -22,6 +22,11 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         context["learning_paths"] = (
             DashboardService.learning_paths_dashboard(
+                self.request.user
+            )
+        )
+        context["assessments"] = (
+            DashboardService.assessments_dashboard(
                 self.request.user
             )
         )

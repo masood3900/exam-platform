@@ -1,29 +1,35 @@
-<section>
+<div class="row g-3 mb-4">
 
-    <h2>آمار کلی</h2>
-
-    <div>
-
-        <div>
-            <strong>{{ stats.students }}</strong>
-            <span>دانش‌آموز فعال</span>
-        </div>
-
-        <div>
-            <strong>{{ stats.courses }}</strong>
-            <span>دوره فعال</span>
-        </div>
-
-        <div>
-            <strong>{{ stats.assessments }}</strong>
-            <span>آزمون فعال</span>
-        </div>
-
-        <div>
-            <strong>{{ stats.questions }}</strong>
-            <span>سؤال فعال</span>
-        </div>
-
+    <div class="col-md-4">
+        <a href="{% url 'assessments:attempt-history' %}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <div class="fs-1 text-primary">📝</div>
+                    <h6 class="text-muted">آزمون‌های انجام‌شده</h6>
+                    <h3>{{ stats.total_attempts }}</h3>
+                </div>
+            </div>
+        </a>
     </div>
 
-</section>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <div class="fs-1 text-success">⭐</div>
+                <h6 class="text-muted">میانگین نمره</h6>
+                <h3>{{ stats.average_score }}%</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <div class="fs-1 text-warning">🏆</div>
+                <h6 class="text-muted">بهترین نتیجه</h6>
+                <h3>{{ stats.best_score }}%</h3>
+            </div>
+        </div>
+    </div>
+
+</div>

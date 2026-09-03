@@ -8,6 +8,10 @@ from apps.assessments.views import (
     ResultView,
     AttemptHistoryView,
 )
+from apps.assessments.views.code_execute import (
+    CodeExecuteView,
+    CodeCheckView,
+)
 
 
 app_name = "assessments"
@@ -53,6 +57,16 @@ urlpatterns = [
         "exam/attempt/<uuid:attempt_id>/result/",
         ResultView.as_view(),
         name="result",
+    ),
+    path(
+        "api/code/execute/",
+        CodeExecuteView.as_view(),
+        name="code-execute",
+    ),
+    path(
+        "api/exercise/<uuid:exercise_id>/check/",
+        CodeCheckView.as_view(),
+        name="exercise-check",
     ),
 
 ]

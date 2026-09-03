@@ -1,0 +1,60 @@
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.groups_count }}</h5>
+                <p class="card-text text-muted">گروه علمی</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.questions_count }}</h5>
+                <p class="card-text text-muted">سوال فعال</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.designers_count }}</h5>
+                <p class="card-text text-muted">طراح سوال</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.assessments_count }}</h5>
+                <p class="card-text text-muted">آزمون</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.students_count }}</h5>
+                <p class="card-text text-muted">دانشجو</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.average_percentage }}%</h5>
+                <p class="card-text text-muted">میانگین نتایج</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <a href="{% url 'accounts:revenue-chart' %}?type=scientific" class="text-decoration-none text-dark">
+            <div class="card text-center shadow-sm" style="transition: all 0.3s;">
+                <div class="card-body">
+                    <h5 class="card-title text-success">{{ total_revenue }} تومان</h5>
+                    <p class="card-text text-muted">💰 درآمد</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

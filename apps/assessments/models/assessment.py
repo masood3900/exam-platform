@@ -43,6 +43,7 @@ class Assessment(models.Model):
         default=AssessmentType.PRACTICE,
         verbose_name="نوع آزمون",
     )
+    
 
     description = models.TextField(
         blank=True,
@@ -82,6 +83,27 @@ class Assessment(models.Model):
         null=True,
         blank=True,
         verbose_name="دوره آموزشی",
+    )
+    scientific_group = models.ForeignKey(
+        "ScientificGroup",
+        on_delete=models.PROTECT,
+        related_name="assessments",
+        null=True,
+        blank=True,
+        verbose_name="گروه علمی",
+        help_text="برای آزمون‌های مستقل از گروه علمی استفاده می‌شود",
+    )
+    source_courses = models.ManyToManyField(
+        Course,
+        related_name="source_assessments",
+        blank=True,
+        verbose_name="دوره‌های منبع سوالات",
+        help_text="دوره‌هایی که سوالات آزمون از آن‌ها انتخاب می‌شود",
+    )
+    is_public = models.BooleanField(
+        default=False,
+        verbose_name="آزمون عمومی",
+        help_text="آیا همه کاربران می‌توانند ثبت‌نام کنند؟",
     )
     objectives = models.ManyToManyField(
         "LearningObjective",
@@ -148,7 +170,7 @@ class Assessment(models.Model):
 
     @property
     def is_free(self):
-        return self.price == 0
+        return self.final_price == 0
 
     @property
     def has_discount(self):
@@ -282,6 +304,35 @@ class AssessmentRule(models.Model):
     def clean(self):
 
         errors = {}
+        # آزمون وابسته به دوره
+        if self.course and not self.learning_path:
+            errors["learning_path"] = (
+                "آزمونی که به یک دوره متصل است، "
+                "باید مسیر آموزشی داشته باشد."
+            )
+
+        # اگر هر دو مشخص شده‌اند، باید متعلق به یک مسیر باشند
+        if self.course and self.learning_path:
+            if self.course.learning_path_id != self.learning_path_id:
+                errors["learning_path"] = (
+                    "مسیر آموزشی آزمون باید با مسیر آموزشی دوره یکسان باشد."
+                )
+
+        # آزمون مستقل نباید course داشته باشد
+        if self.scientific_group and self.course:
+            errors["course"] = (
+                "آزمون گروه علمی نمی‌تواند وابسته به دوره باشد. "
+                "یکی را انتخاب کنید."
+            )
+
+        # آزمون مستقل باید گروه علمی داشته باشد
+        if not self.course and not self.scientific_group:
+            errors["scientific_group"] = (
+                "آزمون باید یا به دوره متصل باشد یا به گروه علمی."
+            )
+
+        if errors:
+            raise ValidationError(errors)
 
         # حداقل یکی از دسته یا هدف آموزشی باید مشخص باشد
         if not self.category and not self.learning_objective:

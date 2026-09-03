@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% include "dashboard/components/header.html" %}
 
 <div class="container py-4">
 
@@ -14,33 +15,133 @@
 
     <hr>
 
-    <section>
+    <div class="row">
+        <!-- مدیریت سامانه -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">⚙️ مدیریت سامانه</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{% url 'accounts:admin-user-directory' %}" class="list-group-item list-group-item-action">
+                            👥 مدیریت کارمندان
+                        </a>
+                        <a href="{% url 'accounts:admin-payment-management' %}" class="list-group-item list-group-item-action">
+                            💰 مدیریت پرداخت‌ها
+                        </a>
 
-        <h2>مدیریت سامانه</h2>
-
-        <div>
-
-            <a href="{% url 'accounts:admin-learning-paths' %}">
-             مدیریت مسیرهای آموزشی
-            </a>
-
+                        <a href="{% url 'accounts:admin-scientific-groups' %}" class="list-group-item list-group-item-action">
+                            🏛️ مدیریت حوزه‌های علمی
+                        </a>
+                        
+                        <a href="{% url 'accounts:admin-learning-paths' %}" class="list-group-item list-group-item-action">
+                            📚 مدیریت مسیرهای آموزشی
+                        </a>
+                        <a href="{% url 'accounts:admin-assessments' %}" class="list-group-item list-group-item-action">
+                            📝 مدیریت آزمون‌ها
+                        </a>
+                        <a href="{% url 'accounts:admin-courses' %}" class="list-group-item list-group-item-action">
+                            📖 مدیریت دوره‌ها
+                        </a>
+                        <a href="{% url 'accounts:admin-assessment-create' %}" class="list-group-item list-group-item-action">
+                            📝 ساخت آزمون جدید
+                        </a>
+                                            </div>
+                </div>
+            </div>
         </div>
 
-        <div>
-
-            <a href="{% url 'accounts:admin-courses' %}">
-             مدیریت دوره‌ها
-            </a>
-
+        <!-- درخواست‌های پرداخت -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">💳 درخواست‌های پرداخت در انتظار</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_payments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>کاربر</th>
+                                        <th>محصول</th>
+                                        <th>مبلغ</th>
+                                        <th>تاریخ</th>
+                                        <th>عملیات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in pending_payments %}
+                                    <tr>
+                                        <td>{{ payment.user.get_full_name|default:payment.user.username }}</td>
+                                        <td>
+                                            {% if payment.assessment %}
+                                                {{ payment.assessment.title }}
+                                            {% elif payment.course %}
+                                                {{ payment.course.name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ payment.amount }} تومان</td>
+                                        <td>{{ payment.created_at|date:"Y/m/d H:i" }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#paymentModal{{ forloop.counter }}">
+                                                مشاهده
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">درخواست پرداختی در انتظار نیست.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div>
-            <a href="{% url 'accounts:instructor-dashboard' %}">
-                🎓 داشبورد مدرس
-            </a>
-        </div>
-
-    </section>
+    </div>
 
 </div>
+
+<!-- Modal های مشاهده پرداخت -->
+{% for payment in pending_payments %}
+<div class="modal fade" id="paymentModal{{ forloop.counter }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات درخواست پرداخت</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>کاربر:</strong> {{ payment.user.get_full_name|default:payment.user.username }}</p>
+                        <p><strong>مبلغ:</strong> {{ payment.amount }} تومان</p>
+                        <p><strong>کد رهگیری:</strong> {{ payment.tracking_code|default:"-" }}</p>
+                        <p><strong>تاریخ:</strong> {{ payment.created_at|date:"Y/m/d H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if payment.receipt_image %}
+                            <p><strong>عکس رسید:</strong></p>
+                            <img src="{{ payment.receipt_image.url }}" class="img-fluid rounded" 
+                                 style="max-height: 200px; cursor: pointer;" 
+                                 onclick="window.open(this.src)">
+                        {% else %}
+                            <p class="text-muted">عکسی ارسال نشده.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    💡 برای تایید/رد این درخواست، مدیر مالی اقدام می‌کند.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 {% endblock %}

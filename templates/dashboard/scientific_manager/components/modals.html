@@ -1,0 +1,77 @@
+<!-- Modal های بررسی سوال -->
+{% for question in pending_questions %}
+<div class="modal fade" id="reviewModal{{ forloop.counter }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">بررسی سوال {{ question.code }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>متن سوال:</strong></p>
+                <p>{{ question.body }}</p>
+                
+                {% if question.choices.all %}
+                <ul>
+                    {% for choice in question.choices.all %}
+                    <li>{{ choice.text }} {% if choice.is_correct %}✅{% endif %}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                
+                {% include "dashboard/components/question_history.html" with question=question %}
+                
+                <form method="post" action="{% url 'accounts:scientific_manager:question-review' question_id=question.id %}">
+                    {% csrf_token %}
+                    <textarea name="review_note" class="form-control" rows="2" placeholder="یادداشت"></textarea>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">✅ تایید</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">❌ رد</button>
+                    </div>
+                </form>
+                <form method="post" action="{% url 'accounts:scientific_manager:question-status-change' question_id=question.id %}" class="mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="draft">
+                    <button type="submit" class="btn btn-warning btn-sm">↩️ به پیش‌نویس</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Modal افزودن طراح -->
+<div class="modal fade" id="assignDesignerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">افزودن طراح سوال</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:scientific_manager:assign-designer' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">کاربر</label>
+                        <select name="user_id" class="form-control" required>
+                            <option value="">انتخاب کاربر...</option>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">موضوع/دوره</label>
+                        <select name="scientific_group_id" class="form-control" required>
+                            <option value="">انتخاب موضوع...</option>
+                            {% for group in my_groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">ثبت</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

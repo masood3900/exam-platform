@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}کاربران{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/domain_manager/components/header.html" %}
+    
+    <h1 class="mb-4">👥 کاربران</h1>
+    
+    {% if upper_manager %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            {% include "dashboard/components/upper_manager_card.html" with upper_manager=upper_manager %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <ul class="nav nav-tabs mb-4">
+        {% for key, group in directory_data.items %}
+        <li class="nav-item">
+            <a class="nav-link {% if forloop.first %}active{% endif %}" 
+               data-bs-toggle="tab" href="#tab-{{ key }}">
+                {{ group.title }} ({{ group.users|length }})
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <div class="tab-content">
+        {% for key, group in directory_data.items %}
+        <div class="tab-pane {% if forloop.first %}active{% endif %}" id="tab-{{ key }}">
+            <div class="row g-3">
+                {% for card_data in group.users %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="card user-card shadow-sm h-100">
+                        <div class="card-body text-center">
+                            {% if card_data.avatar %}
+                                <img src="{{ card_data.avatar }}" class="rounded-circle mb-3" width="60" height="60" style="object-fit: cover;">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ card_data.full_name }}&background={{ card_data.role_color }}&color=fff&size=128" 
+                                     class="rounded-circle mb-3" width="60" height="60">
+                            {% endif %}
+                            
+                            <span class="badge bg-{{ card_data.role_color }} mb-2">{{ card_data.role_label }}</span>
+                            
+                            <h6 class="mb-3">{{ card_data.full_name }}</h6>
+                            
+                            <a href="{% url 'messaging:direct-conversation' user_id=card_data.user.id %}" 
+                               class="btn btn-sm btn-outline-primary w-100">
+                                💬 ارسال پیام
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">کاربری نیست.</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

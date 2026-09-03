@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}قوانین سوال{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">📋 قوانین سوال برای «{{ assessment.title }}»</h1>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">➕ افزودن قانون</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">موضوع *</label>
+                            <select name="topic" id="topicSelect" class="form-control" required>
+                                <option value="">انتخاب کنید...</option>
+                                {% for topic in topics %}
+                                <option value="{{ topic.id }}">{{ topic.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">هدف آموزشی *</label>
+                            <select name="learning_objective" id="objectiveSelect" class="form-control" required>
+                                <option value="">اول موضوع انتخاب کنید</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">سطح سختی</label>
+                            <select name="difficulty" class="form-control">
+                                <option value="">همه سطوح</option>
+                                {% for value, label in difficulty_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">تعداد سوال</label>
+                            <input type="number" name="question_count" class="form-control" min="1" value="1">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">افزودن</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📋 قوانین فعلی ({{ existing_rules.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if existing_rules %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>هدف</th>
+                                <th>سختی</th>
+                                <th>تعداد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in existing_rules %}
+                            <tr>
+                                <td>{{ rule.learning_objective.name }}</td>
+                                <td>{{ rule.get_difficulty_display|default:"همه" }}</td>
+                                <td>{{ rule.question_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">قانونی نیست.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('topicSelect').addEventListener('change', function() {
+    const topicId = this.value;
+    const objectiveSelect = document.getElementById('objectiveSelect');
+    
+    objectiveSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
+    
+    if (!topicId) {
+        objectiveSelect.innerHTML = '<option value="">اول موضوع انتخاب کنید</option>';
+        return;
+    }
+    
+    fetch('/accounts/scientific-manager/api/objectives/' + topicId + '/')
+        .then(response => response.json())
+        .then(data => {
+            objectiveSelect.innerHTML = '<option value="">انتخاب هدف...</option>';
+            data.objectives.forEach(obj => {
+                const option = document.createElement('option');
+                option.value = obj.id;
+                option.textContent = obj.code + ' - ' + obj.name;
+                objectiveSelect.appendChild(option);
+            });
+        });
+});
+</script>
+{% endblock %}

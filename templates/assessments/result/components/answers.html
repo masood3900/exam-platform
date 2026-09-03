@@ -1,0 +1,54 @@
+{% load markdown_extras %}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">📋 پاسخ‌های آزمون</h5>
+    </div>
+    <div class="card-body">
+        <details>
+            <summary class="btn btn-outline-primary" style="cursor:pointer;">
+                مشاهده سؤال‌ها و پاسخ‌ها
+            </summary>
+            <div class="mt-4">
+                {% for question in questions %}
+                <div class="border rounded p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>سؤال {{ question.order }}</strong>
+                        {% if question.is_correct %}
+                            <span class="badge bg-success">صحیح</span>
+                        {% else %}
+                            <span class="badge bg-danger">غلط</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3 question-body">
+                        {{ question.question.body|markdown }}
+                    </div>
+
+                    {% for choice in question.choices.all %}
+                    <div class="p-2 mb-2 rounded {% if choice.selected and choice.is_correct %}bg-success-subtle border border-success{% elif choice.selected and not choice.is_correct %}bg-danger-subtle border border-danger{% elif choice.is_correct %}bg-success-subtle border border-success{% else %}border{% endif %}">
+                        {% if choice.selected %}<strong>انتخاب شما:</strong>{% endif %}
+                        {% if choice.is_correct %}<strong>✓ پاسخ صحیح</strong>{% endif %}
+                        {{ choice.text }}
+                        {% if choice.explanation %}
+                        <div class="small text-muted mt-2">💡 {{ choice.explanation|markdown }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    {% for choice in question.choices.all %}
+                        {% if choice.selected and choice.explanation %}
+                        <div class="alert alert-info mt-3 mb-0">
+                            <strong>💡 توضیح:</strong>
+                            {{ choice.explanation|markdown }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% empty %}
+                <div class="alert alert-info">اطلاعات سؤال‌ها موجود نیست.</div>
+                {% endfor %}
+            </div>
+        </details>
+    </div>
+</div>

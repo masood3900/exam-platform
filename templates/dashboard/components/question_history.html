@@ -1,0 +1,17 @@
+{% if question.review_history.all %}
+<div class="mb-3">
+    <label class="form-label">📜 تاریخچه:</label>
+    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+        {% for history in question.review_history.all %}
+        <div class="small mb-2 pb-2 border-bottom">
+            <strong>{{ history.get_action_display }}</strong>
+            <span class="text-muted">توسط {{ history.reviewer.get_full_name|default:history.reviewer.username }}</span>
+            <span class="text-muted">{{ history.created_at|date:"Y/m/d H:i" }}</span>
+            {% if history.note %}
+            <br><span class="text-muted">💬 {{ history.note }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

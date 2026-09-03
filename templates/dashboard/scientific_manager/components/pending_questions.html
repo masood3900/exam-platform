@@ -1,0 +1,50 @@
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0">⏳ سوالات در انتظار تایید</h5>
+    </div>
+    <div class="card-body">
+        {% if pending_questions %}
+        <form method="post" action="{% url 'accounts:scientific_manager:bulk-review' %}" id="bulkReviewForm">
+            {% csrf_token %}
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+                            <th>کد</th>
+                            <th>عنوان</th>
+                            <th>موضوع</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for question in pending_questions %}
+                        <tr>
+                            <td><input type="checkbox" name="question_ids" value="{{ question.id }}" class="question-checkbox"></td>
+                            <td>{{ question.code }}</td>
+                            <td>{{ question.title|default:"بدون عنوان" }}</td>
+                            <td>{{ question.scientific_group.name|default:"-" }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-success" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#reviewModal{{ forloop.counter }}">
+                                    بررسی
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" name="action" value="approve" class="btn btn-success">✅ تایید</button>
+                <button type="submit" name="action" value="reject" class="btn btn-danger">❌ رد</button>
+            </div>
+        </form>
+        {% else %}
+            {% include "dashboard/components/empty_state.html" with message="سوالی در انتظار تایید نیست." %}
+        {% endif %}
+    </div>
+</div>

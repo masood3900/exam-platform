@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}ارتباط با مدیر{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">💬 ارتباط با مدیر</h1>
+            
+            {% if manager %}
+            <div class="card shadow-sm">
+                <!-- هدر: مشخصات مدیر -->
+                <div class="card-header bg-info text-white d-flex align-items-center">
+                    {% if manager.avatar %}
+                        <img src="{{ manager.avatar }}" class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ manager.full_name }}&background=info&color=fff&size=128" 
+                             class="rounded-circle me-3" width="50" height="50">
+                    {% endif %}
+                    <div>
+                        <h5 class="mb-0">{{ manager.full_name }}</h5>
+                        <span class="badge bg-light text-info">{{ manager.role_label }}</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- تاریخچه گفتگو -->
+                    <div style="max-height: 300px; overflow-y: auto; direction: rtl;">
+                        {% for message in conversation %}
+                        <div class="mb-3 {% if message.sender.id == user.id %}text-end{% endif %}">
+                            <div class="d-inline-block p-2 rounded {% if message.sender.id == user.id %}bg-primary text-white{% else %}bg-light{% endif %}" 
+                                 style="max-width: 70%;">
+                                <div class="small {% if message.sender.id == user.id %}text-white-50{% else %}text-muted{% endif %}">
+                                    {{ message.sender.get_full_name|default:message.sender.username }}
+                                    | {{ message.created_at|date:"Y/m/d H:i" }}
+                                </div>
+                                <div>{{ message.text }}</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">هنوز پیامی رد و بدل نشده.</p>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- فرم ارسال پیام -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="manager_user_id" value="{{ manager_user.id }}">
+                        <div class="input-group">
+                            <textarea name="text" class="form-control" rows="3" 
+                                      placeholder="پیام خود را بنویسید..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">
+                            ارسال پیام
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                مدیری برای این آزمون تعیین نشده است.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

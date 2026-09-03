@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}ساخت موضوع{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h1 class="mb-4">📚 ساخت موضوع/دوره</h1>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- اطلاعات موضوع -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">اطلاعات موضوع</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">رشته *</label>
+                            <select name="parent" class="form-control" required>
+                                <option value="">انتخاب کنید...</option>
+                                {% for field in fields %}
+                                <option value="{{ field.id }}">{{ field.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">نام موضوع *</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">کد *</label>
+                                <input type="text" name="code" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">توضیحات</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- اهداف -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🎯 اهداف آموزشی</h5>
+                        <button type="button" class="btn btn-sm btn-light" onclick="addObjective()">➕ هدف</button>
+                    </div>
+                    <div class="card-body" id="objectives-container">
+                        <div class="objective-item row mb-2">
+                            <div class="col-md-6">
+                                <input type="text" name="objective_names[]" class="form-control" placeholder="نام هدف">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" name="objective_codes[]" class="form-control" placeholder="کد هدف">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- طراحان -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">👥 طراحان سوال</h5>
+                        <button type="button" class="btn btn-sm btn-light" onclick="addDesigner()">➕ طراح</button>
+                    </div>
+                    <div class="card-body" id="designers-container">
+                        <div class="designer-item mb-2">
+                            <select name="designer_ids[]" class="form-control">
+                                <option value="">انتخاب طراح...</option>
+                                {% for user in all_users %}
+                                <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100">ذخیره همه</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addObjective() {
+    const container = document.getElementById('objectives-container');
+    const div = document.createElement('div');
+    div.className = 'objective-item row mb-2';
+    div.innerHTML = `
+        <div class="col-md-6">
+            <input type="text" name="objective_names[]" class="form-control" placeholder="نام هدف">
+        </div>
+        <div class="col-md-6">
+            <input type="text" name="objective_codes[]" class="form-control" placeholder="کد هدف">
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function addDesigner() {
+    const container = document.getElementById('designers-container');
+    const div = document.createElement('div');
+    div.className = 'designer-item mb-2';
+    div.innerHTML = `
+        <select name="designer_ids[]" class="form-control">
+            <option value="">انتخاب طراح...</option>
+            {% for user in all_users %}
+            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+            {% endfor %}
+        </select>
+    `;
+    container.appendChild(div);
+}
+</script>
+{% endblock %}

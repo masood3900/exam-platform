@@ -1,0 +1,58 @@
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📚 مسیرهای آموزشی</h5>
+        <a href="{% url 'accounts:domain_manager:learning-path-create' %}" class="btn btn-sm btn-light">
+            ➕ مسیر جدید
+        </a>
+    </div>
+    <div class="card-body">
+        {% if learning_paths %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>مسیر</th>
+                            <th>مدیر علمی</th>
+                            <th>ترتیب</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for path in learning_paths %}
+                        <tr>
+                            <td>{{ path.name }}</td>
+                            <td>
+                                {% for membership in path.scientific_group.memberships.all %}
+                                    {% if membership.role == 'scientific_manager' and membership.is_active %}
+                                        {{ membership.user.get_full_name }}
+                                    {% endif %}
+                                {% empty %}
+                                    -
+                                {% endfor %}
+                            </td>
+                            <td>{{ path.order }}</td>
+                            <td>
+                                {% if path.is_active %}
+                                    <span class="badge bg-success">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-danger">غیرفعال</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'accounts:domain_manager:learning-path-delete' path_id=path.id %}"
+                                      class="d-inline" onsubmit="return confirm('کل مسیر حذف شود؟')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">مسیری نیست.</p>
+        {% endif %}
+    </div>
+</div>

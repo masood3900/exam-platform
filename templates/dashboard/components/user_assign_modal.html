@@ -1,0 +1,41 @@
+<!-- Modal اختصاص کاربر -->
+<div class="modal fade" id="assignModal{{ target_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ modal_title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ assign_url }}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">کاربر</label>
+                        <select name="user_id" class="form-control" required>
+                            <option value="">انتخاب کنید...</option>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    {% if show_role %}
+                    <div class="mb-3">
+                        <label class="form-label">نقش</label>
+                        <select name="role" class="form-control" required>
+                            <option value="domain_manager">مدیر کل</option>
+                            <option value="scientific_manager">مدیر علمی</option>
+                            <option value="instructor">مدرس</option>
+                            <option value="question_designer">طراح سوال</option>
+                            <option value="financial_manager">مدیر مالی</option>
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary w-100">ثبت</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

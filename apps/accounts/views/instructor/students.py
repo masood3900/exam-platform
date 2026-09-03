@@ -13,22 +13,15 @@ class InstructorStudentListView(
     TemplateView,
 ):
 
-    template_name = (
-        "dashboard/instructor_students.html"
-    )
+    template_name = "dashboard/instructor_students.html"
 
-    def get_context_data(
-        self,
-        **kwargs,
-    ):
-
-        context = super().get_context_data(
-            **kwargs
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
         context["students"] = (
             InstructorDashboardService.students(
-                limit=None
+                instructor=self.request.user,
+                limit=None,
             )
         )
 
@@ -40,23 +33,14 @@ class InstructorStudentDetailView(
     TemplateView,
 ):
 
-    template_name = (
-        "dashboard/instructor_student_detail.html"
-    )
+    template_name = "dashboard/instructor_student_detail.html"
 
-    def get_context_data(
-        self,
-        **kwargs,
-    ):
-
-        context = super().get_context_data(
-            **kwargs
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
         student = get_object_or_404(
             User,
             id=kwargs["pk"],
-            groups__name="Students",
             is_active=True,
         )
 

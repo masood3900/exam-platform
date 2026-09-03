@@ -1,0 +1,38 @@
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">👥 دانشجویان مسیر آموزشی</h5>
+    </div>
+    <div class="card-body">
+        {% if student_groups %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>دوره</th>
+                        <th>تعداد دانشجو</th>
+                        <th>میانگین نتایج</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in student_groups %}
+                    <tr>
+                        <td>{{ item.group.name }}</td>
+                        <td>{{ item.students_count }}</td>
+                        <td>{{ item.avg_percentage }}%</td>
+                        <td>
+                            <a href="{% url 'accounts:scientific_manager:course-students' group_id=item.group.id %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                مشاهده لیست
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            {% include "dashboard/components/empty_state.html" with message="دانشجویی نیست." %}
+        {% endif %}
+    </div>
+</div>

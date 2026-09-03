@@ -7,6 +7,15 @@ from apps.messaging.views import (
     ConversationInboxView,
     MessageFileView,
 )
+from apps.messaging.views.direct_message import (
+    DirectInboxView,
+    DirectComposeView,
+    DirectConversationView,
+)
+from apps.messaging.views.ticket import TicketCreateView
+from apps.messaging.views.ticket_list import TicketListView
+from apps.messaging.views.ticket import TicketCreateView
+from apps.messaging.views.ticket_list import TicketListView
 
 
 app_name = "messaging"
@@ -38,6 +47,41 @@ urlpatterns = [
         "file/<int:message_id>/",
         MessageFileView.as_view(),
         name="message-file",
+    ),
+    path(
+        "direct/",
+        DirectInboxView.as_view(),
+        name="direct-inbox",
+    ),
+    path(
+        "direct/compose/",
+        DirectComposeView.as_view(),
+        name="direct-compose",
+    ),
+    path(
+        "direct/conversation/<int:user_id>/",
+        DirectConversationView.as_view(),
+        name="direct-conversation",
+    ),
+    path(
+        "ticket/create/",
+        TicketCreateView.as_view(),
+        name="ticket-create",
+    ),
+    path(
+        "tickets/",
+        TicketListView.as_view(),
+        name="ticket-list",
+    ),
+    path(
+        "ticket/create/",
+        TicketCreateView.as_view(),
+        name="ticket-create",
+    ),
+    path(
+        "tickets/",
+        TicketListView.as_view(),
+        name="ticket-list",
     ),
 
 ]

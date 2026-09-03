@@ -1,233 +1,144 @@
 {% extends "base.html" %}
-
+{% load markdown_extras %}
 
 {% block title %}
 سؤال {{ question_number }} | {{ attempt.assessment.title }}
 {% endblock %}
 
-
-
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.min.css">
 
 <style>
-
-.choice-item{
-
-    background:#fff;
-    border:1px solid #dee2e6;
-    border-radius:.5rem;
-    padding:1rem;
-    margin-bottom:1rem;
-    cursor:pointer;
-    transition:.2s;
+.choice-item {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: .5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: .2s;
 }
 
-
-.choice-item:hover{
-
-    border-color:#0d6efd;
-
+.choice-item:hover {
+    border-color: #0d6efd;
 }
 
-
-.choice-item.selected{
-
-    background:#e7f1ff;
-    border-color:#0d6efd;
-
+.choice-item.selected {
+    background: #e7f1ff;
+    border-color: #0d6efd;
 }
 
-
-.choice-item label{
-
-    cursor:pointer;
-    width:100%;
-    margin:0;
-
-}
-.choice-radio{
-
-    display:none;
-
+.choice-item label {
+    cursor: pointer;
+    width: 100%;
+    margin: 0;
 }
 
+.choice-radio {
+    display: none;
+}
+
+.question-body {
+    direction: rtl;
+    text-align: right;
+    line-height: 2;
+}
+
+.question-body pre {
+    direction: ltr;
+    text-align: left;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
 </style>
-
 {% endblock %}
-
-
-
-
 
 {% block page_header %}
-
 <div class="row mb-4">
-
     <div class="col">
-
-        <h2 class="mb-1">
-
-            {{ attempt.assessment.title }}
-
-        </h2>
-
+        <h2 class="mb-1">{{ attempt.assessment.title }}</h2>
         <p class="text-muted mb-0">
-
-            سؤال {{ question_number }}
-            از
-            {{ total_questions }}
-
+            سؤال {{ question_number }} از {{ total_questions }}
         </p>
-
     </div>
-
 </div>
-
 {% endblock %}
-
-
-
-
 
 {% block content %}
-
-
 <div class="card shadow-sm">
-
     <div class="card-body">
-
-
-        <div class="mb-4">
-
-            {{ question.body|linebreaks }}
-
+        <div class="mb-4 question-body">
+            {{ question.body|markdown }}
         </div>
 
-
-        <form
-            method="post"
-            action="{% url 'assessments:answer' attempt.id %}"
-        >
-
+        <form method="post" action="{% url 'assessments:answer' attempt.id %}">
             {% csrf_token %}
-
-            <input
-                type="hidden"
-                name="question_number"
-                value="{{ question_number }}"
-            >
-
+            <input type="hidden" name="question_number" value="{{ question_number }}">
 
             {% for choice in choices %}
-
             <div class="choice-item {% if choice.id in selected_choice_ids %}selected{% endif %}">
-
-                <input
-                    class="choice-radio"
-                    type="radio"
-                    name="choice"
-                    id="choice{{ choice.id }}"
-                    value="{{ choice.id }}"
-                    {% if choice.id in selected_choice_ids %}
-                        checked
-                    {% endif %}
-                >
-
+                <input class="choice-radio" type="radio" name="choice" 
+                       id="choice{{ choice.id }}" value="{{ choice.id }}"
+                       {% if choice.id in selected_choice_ids %}checked{% endif %}>
                 <label for="choice{{ choice.id }}">
-
                     <strong>
-
-                        {% if forloop.counter == 1 %}
-                            الف)
-                        {% elif forloop.counter == 2 %}
-                            ب)
-                        {% elif forloop.counter == 3 %}
-                            ج)
-                        {% elif forloop.counter == 4 %}
-                            د)
-                        {% else %}
-                            {{ forloop.counter }})
-                        {% endif %}
-
+                        {% if forloop.counter == 1 %}الف)
+                        {% elif forloop.counter == 2 %}ب)
+                        {% elif forloop.counter == 3 %}ج)
+                        {% elif forloop.counter == 4 %}د)
+                        {% else %}{{ forloop.counter }}){% endif %}
                     </strong>
-
                     {{ choice.text }}
-
                 </label>
-
             </div>
-
             {% endfor %}
+
             <div class="d-flex justify-content-between mt-4">
-                <a 
-                    href="{% url 'assessments:navigate' attempt.id question_number|add:'-1' %}"
-                    class="btn btn-outline-secondary"
-                >
-                    سؤال قبلی
-                </a>
+                <a href="{% url 'assessments:navigate' attempt.id question_number|add:'-1' %}" 
+                   class="btn btn-outline-secondary">سؤال قبلی</a>
                 <div>
-                    <a
-                     href="{% url 'assessments:navigate' attempt.id question_number|add:'1' %}"
-                     class="btn btn-outline-primary me-2"
-                     >
-                         سؤال بعدی  
-                    </a>
-                    <button
-                        type="submit"
-                        class="btn btn-primary px-5"
-                    >
-                         ثبت پاسخ
-                    </button>
+                    <a href="{% url 'assessments:navigate' attempt.id question_number|add:'1' %}" 
+                       class="btn btn-outline-primary me-2">سؤال بعدی</a>
+                    <button type="submit" class="btn btn-primary px-5">ثبت پاسخ</button>
                 </div>
-
             </div>
-    
         </form>
-
     </div>
-
 </div>
-
 {% endblock %}
 
-
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-javascript.min.js"></script>
+
+<script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$', '$$']]
+        }
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <script>
     const items = document.querySelectorAll(".choice-item");
 
-
-    items.forEach(function(item){
-
-        item.addEventListener("click",function(){
-
-            items.forEach(function(i){
+    items.forEach(function(item) {
+        item.addEventListener("click", function() {
+            items.forEach(function(i) {
                 i.classList.remove("selected");
-                const radio = i.querySelector(
-                    ".choice-radio"
-                );
-
+                const radio = i.querySelector(".choice-radio");
                 radio.checked = false;
             });
 
             this.classList.add("selected");
-
-
-            const radio = this.querySelector(
-                ".choice-radio"
-            );
-
+            const radio = this.querySelector(".choice-radio");
             radio.checked = true;
-
-            console.log(
-                "selected:",
-                radio.value
-            );
-                                                                                                                                                
         });
-
     });
-
 </script>
-
 {% endblock %}

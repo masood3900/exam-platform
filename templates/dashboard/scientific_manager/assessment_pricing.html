@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}تغییر قیمت{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="mb-4">💰 تغییر قیمت «{{ assessment.title }}»</h1>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">قیمت (تومان)</label>
+                            <input type="number" name="price" class="form-control" 
+                                   value="{{ assessment.price }}" min="0">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">درصد تخفیف</label>
+                            <input type="number" name="discount_percent" class="form-control" 
+                                   value="{{ assessment.discount_percent }}" min="0" max="100">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">ذخیره</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

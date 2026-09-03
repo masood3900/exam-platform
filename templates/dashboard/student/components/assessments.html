@@ -1,0 +1,27 @@
+<div class="row g-3 mb-4">
+    <!-- کارت دوره‌های من -->
+    <div class="col-md-6">
+        <a href="{% url 'accounts:my-courses' %}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm border-0 h-100" style="cursor: pointer; transition: all 0.3s;">
+                <div class="card-body text-center py-5">
+                    <div class="fs-1 mb-3">📚</div>
+                    <h4>دوره‌های من</h4>
+                    <p class="text-muted mb-0">مشاهده دوره‌های رایگان و خریداری شده</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- کارت آزمون‌های من -->
+    <div class="col-md-6">
+        <a href="{% url 'accounts:my-assessments' %}" class="text-decoration-none text-dark">
+            <div class="card shadow-sm border-0 h-100" style="cursor: pointer; transition: all 0.3s;">
+                <div class="card-body text-center py-5">
+                    <div class="fs-1 mb-3">📝</div>
+                    <h4>آزمون‌های من</h4>
+                    <p class="text-muted mb-0">مشاهده آزمون‌های رایگان و خریداری شده</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}داشبورد مدیر علمی{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/scientific_manager/components/header.html" %}
+    {% include "dashboard/scientific_manager/components/stats.html" %}
+    {% include "dashboard/scientific_manager/components/pending_questions.html" %}
+    {% include "dashboard/scientific_manager/components/designers.html" %}
+    {% include "dashboard/scientific_manager/components/students.html" %}
+    {% include "dashboard/scientific_manager/components/assessments.html" %}
+</div>
+
+{% include "dashboard/scientific_manager/components/modals.html" %}
+{% endblock %}
+
+{% block extra_js %}
+{% include "dashboard/components/bulk_actions.html" %}
+{% endblock %}

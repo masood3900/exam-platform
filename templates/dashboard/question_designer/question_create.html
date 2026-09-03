@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}طراحی سوال جدید{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">✏️ طراحی سوال جدید</h1>
+            
+            <form method="post" id="questionForm">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ field.label }}: {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">📝 اطلاعات سوال</h5>
+                    </div>
+                    <div class="card-body">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">دوره/موضوع *</label>
+                            {{ form.topic }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">هدف آموزشی *</label>
+                            {{ form.learning_objective }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">عنوان سوال (اختیاری)</label>
+                            {{ form.title }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">متن سوال *</label>
+                            {{ form.body }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">نوع سوال</label>
+                                {{ form.question_type }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">سختی</label>
+                                {{ form.difficulty }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">نمره</label>
+                                {{ form.score }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">زمان (ثانیه)</label>
+                            {{ form.estimated_seconds }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">توضیح پاسخ صحیح</label>
+                            {{ form.explanation }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">✅ گزینه‌ها</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ formset.management_form }}
+                        
+                        <div id="choices-container">
+                            {% for choice_form in formset %}
+                            <div class="choice-item border rounded p-3 mb-2">
+                                <div class="choice-header d-flex justify-content-between mb-2">
+                                    <strong>گزینه {{ forloop.counter }}</strong>
+                                    <label>
+                                        {{ choice_form.is_correct }}
+                                        پاسخ صحیح
+                                    </label>
+                                </div>
+                                {{ choice_form.id }}
+                                {{ choice_form.text }}
+                                
+                                <div class="mt-2">
+                                    <label class="form-label small">توضیح گزینه (اختیاری - می‌توانید Markdown بنویسید)</label>
+                                    {{ choice_form.explanation }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="addChoiceBtn">
+                            ➕ افزودن گزینه
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    💾 ذخیره به عنوان پیش‌نویس
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addBtn = document.getElementById('addChoiceBtn');
+    const container = document.getElementById('choices-container');
+    
+    if (addBtn && container) {
+        addBtn.addEventListener('click', function() {
+            const totalFormsInput = document.querySelector('[name="choices-TOTAL_FORMS"]');
+            const formCount = parseInt(totalFormsInput.value);
+            const newIndex = formCount;
+            
+            const newForm = document.createElement('div');
+            newForm.className = 'choice-item border rounded p-3 mb-2';
+            newForm.innerHTML = `
+                <div class="choice-header d-flex justify-content-between mb-2">
+                    <strong>گزینه ${newIndex + 1}</strong>
+                    <label>
+                        <input type="checkbox" name="choices-${newIndex}-is_correct" value="true" class="form-check-input">
+                        پاسخ صحیح
+                    </label>
+                </div>
+                <textarea name="choices-${newIndex}-text" rows="2" class="form-control" placeholder="متن گزینه..."></textarea>
+                <div class="mt-2">
+                    <label class="form-label small">توضیح گزینه (اختیاری)</label>
+                    <textarea name="choices-${newIndex}-explanation" rows="2" class="form-control" placeholder="توضیح..."></textarea>
+                </div>
+                <input type="hidden" name="choices-${newIndex}-id">
+            `;
+            
+            container.appendChild(newForm);
+            totalFormsInput.value = newIndex + 1;
+        });
+    }
+});
+</script>
+{% endblock %}

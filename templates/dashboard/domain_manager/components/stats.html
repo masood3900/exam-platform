@@ -1,0 +1,44 @@
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ stats.domains_count }}</h3>
+                <p class="text-muted mb-0">حوزه</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ stats.fields_count }}</h3>
+                <p class="text-muted mb-0">رشته</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ stats.courses_count }}</h3>
+                <p class="text-muted mb-0">دوره</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h3>{{ stats.assessments_count }}</h3>
+                <p class="text-muted mb-0">آزمون</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'accounts:revenue-chart' %}?type=domain" class="text-decoration-none text-dark">
+            <div class="card text-center shadow-sm" style="transition: all 0.3s;">
+                <div class="card-body">
+                    <h3 class="text-success">{{ total_revenue }} تومان</h3>
+                    <p class="text-muted mb-0">💰 کل درآمد</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

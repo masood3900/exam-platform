@@ -18,11 +18,10 @@
                     <h3 class="mb-1">
                          سلام
                         {{ request.user.first_name|default:request.user.username }}
-                        👋
+                        
                     </h3>
                     <p class="text-muted mb-0">
                         خوش امدی 
-                        امیدوارم امروز هم یک قدم به هدفت نزدیکتر شوی
                     </p>
                 </div>
 
@@ -30,7 +29,7 @@
             <div class="d-flex align-items-center gap-2">
 
                 <a
-                    href="{% url 'messaging:inbox' %}"
+                    href="{% url 'messaging:direct-inbox' %}" class="btn btn-outline-success""
                     class="btn btn-outline-success">
 
                     💬 پیام‌ها

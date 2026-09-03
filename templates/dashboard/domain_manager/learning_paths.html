@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}مسیرهای آموزشی{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📚 مسیرهای آموزشی</h1>
+        <a href="{% url 'accounts:domain_manager:learning-path-create' %}" class="btn btn-primary">
+            ➕ ساخت مسیر جدید
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if learning_paths %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>نام</th>
+                                <th>حوزه</th>
+                                <th>مدیر علمی</th>
+                                <th>ترتیب</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for path in learning_paths %}
+                            <tr>
+                                <td>{{ path.name }}</td>
+                                <td>{{ path.scientific_group.name|default:"-" }}</td>
+                                <td>
+                                    {% for membership in path.scientific_group.memberships.all %}
+                                        {% if membership.role == 'scientific_manager' and membership.is_active %}
+                                            {{ membership.user.get_full_name }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ path.order }}</td>
+                                <td>
+                                    {% if path.is_active %}
+                                        <span class="badge bg-success">فعال</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">غیرفعال</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#assignModal{{ path.id }}">
+                                        👤 اختصاص مدیر علمی
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                {% include "dashboard/components/empty_state.html" with message="مسیری نیست." %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal های اختصاص -->
+{% for path in learning_paths %}
+<div class="modal fade" id="assignModal{{ path.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">اختصاص مدیر علمی به {{ path.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:domain_manager:assign-manager' path_id=path.id %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">کاربر</label>
+                        <select name="user_id" class="form-control" required>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -6,6 +6,9 @@ from apps.assessments.models import (
     Attempt,
     Assessment,
 )
+from apps.assessments.models import PaymentRequest
+
+
 
 
 class DashboardService:
@@ -118,5 +121,50 @@ class DashboardService:
                         else "شروع نشده",
                 }
             )
+
+        return result
+    @staticmethod
+    def assessments_dashboard(user):
+        """آزمون‌های ثبت‌نام شده کاربر"""
+
+        from apps.assessments.models import AssessmentEnrollment, PaymentRequest
+
+        enrollments = AssessmentEnrollment.objects.filter(
+            user=user,
+        ).select_related(
+            "assessment",
+            "assessment__scientific_group",
+            "assessment__course",
+        ).order_by("-enrolled_at")
+
+        result = []
+
+        for enrollment in enrollments:
+            assessment = enrollment.assessment
+
+            # تعداد تلاش‌های استفاده شده
+            used_attempts = Attempt.objects.filter(
+                student=user,
+                assessment=assessment,
+            ).exclude(
+                status=Attempt.Status.CREATED,
+            ).exclude(
+                status=Attempt.Status.CANCELLED,
+            ).count()
+
+            # آیا درخواست پرداخت در انتظار داره؟
+            has_payment_request = PaymentRequest.objects.filter(
+                user=user,
+                assessment=assessment,
+                status=PaymentRequest.Status.PENDING,
+            ).exists()
+
+            result.append({
+                "enrollment": enrollment,
+                "assessment": assessment,
+                "used_attempts": used_attempts,
+                "has_access": enrollment.has_access,
+                "has_payment_request": has_payment_request,
+            })
 
         return result

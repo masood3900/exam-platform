@@ -4,6 +4,7 @@ from django.views import View
 from django.contrib import messages
 from apps.assessments.models import Assessment
 from apps.assessments.services.attempt_service import AttemptService
+from apps.assessments.services.assessment_enrollment_service import AssessmentEnrollmentService
 
 class AssessmentStartView(
     LoginRequiredMixin,
@@ -21,6 +22,21 @@ class AssessmentStartView(
             id=assessment_id,
             is_active=True,
         )
+
+        # چک کن پرداخت شده
+        from apps.assessments.models import AssessmentEnrollment
+        paid_enrollment = AssessmentEnrollment.objects.filter(
+            user=request.user,
+            assessment=assessment,
+            payment_status="paid",
+        ).first()
+        
+        # اگه پرداخت نشده، enroll کن
+        if not paid_enrollment:
+            AssessmentEnrollmentService.enroll(
+                student=request.user,
+                assessment=assessment,
+            )
 
         try:
 

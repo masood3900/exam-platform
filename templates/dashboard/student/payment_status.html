@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}وضعیت پرداخت{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">💳 وضعیت درخواست‌های پرداخت</h1>
+    
+    {% if payment_requests %}
+        <div class="row">
+            {% for payment in payment_requests %}
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>
+                            {% if payment.assessment %}
+                                {{ payment.assessment.title }}
+                            {% elif payment.course %}
+                                {{ payment.course.name }}
+                            {% endif %}
+                        </h5>
+                        
+                        <p class="mb-2">
+                            <strong>مبلغ:</strong> {{ payment.amount }} تومان
+                        </p>
+                        
+                        <p class="mb-2">
+                            <strong>کد رهگیری:</strong> {{ payment.tracking_code|default:"-" }}
+                        </p>
+                        
+                        <p class="mb-3">
+                            <strong>تاریخ:</strong> {{ payment.created_at|date:"Y/m/d H:i" }}
+                        </p>
+                        
+                        <div class="progress mb-3" style="height: 30px;">
+                            {% if payment.status == 'pending' %}
+                                <div class="progress-bar bg-warning text-dark" style="width: 50%;">
+                                    ⏳ در انتظار بررسی
+                                </div>
+                            {% elif payment.status == 'approved' %}
+                                <div class="progress-bar bg-success" style="width: 100%;">
+                                    ✅ فعال شده
+                                </div>
+                            {% elif payment.status == 'rejected' %}
+                                <div class="progress-bar bg-danger" style="width: 100%;">
+                                    ❌ رد شده
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>۱. ارسال درخواست</span>
+                            <span>→</span>
+                            <span>۲. بررسی ادمین</span>
+                            <span>→</span>
+                            <span>۳. فعال‌سازی</span>
+                        </div>
+                        
+                        {% if payment.status == 'rejected' and payment.admin_note %}
+                            <div class="alert alert-danger mt-3 mb-0">
+                                <strong>دلیل رد:</strong> {{ payment.admin_note }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            هنوز درخواست پرداختی ثبت نکرده‌اید.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load markdown_extras %}
+
+{% block title %}نتیجه {{ attempt.assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/components/header.html" %}
+
+    <h1 class="mb-4">📊 نتیجه: {{ attempt.assessment.title }}</h1>
+    <p class="text-muted">دانشجو: {{ attempt.student.get_full_name|default:attempt.student.username }}</p>
+
+    {% include "assessments/result/components/header.html" with attempt=attempt %}
+
+    {% if objective_report %}
+        {% include "assessments/result/components/objective_report.html" with objective_report=objective_report %}
+    {% endif %}
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">📋 پاسخ‌ها</h5>
+        </div>
+        <div class="card-body">
+            {% for question in questions %}
+            <div class="border rounded p-3 mb-2">
+                <div class="d-flex justify-content-between">
+                    <strong>سوال {{ question.order }}</strong>
+                    {% if question.is_correct %}
+                        <span class="badge bg-success">صحیح</span>
+                    {% else %}
+                        <span class="badge bg-danger">غلط</span>
+                    {% endif %}
+                </div>
+                <div class="mt-2">{{ question.question.body|markdown }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <a href="javascript:history.back()" class="btn btn-secondary">بازگشت</a>
+</div>
+{% endblock %}

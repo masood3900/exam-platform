@@ -1,0 +1,20 @@
+<div class="d-flex justify-content-between mb-5">
+    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">بازگشت</a>
+    
+    {% if can_retry %}
+        <a href="{% url 'assessments:start' attempt.assessment.id %}" class="btn btn-primary">
+            آزمون مجدد
+        </a>
+    {% else %}
+        {% if attempt.assessment.is_free %}
+            <a href="{% url 'assessments:start' attempt.assessment.id %}" class="btn btn-primary">
+                آزمون مجدد
+            </a>
+        {% else %}
+            <a href="{% url 'accounts:payment-request-assessment' assessment_id=attempt.assessment.id %}" 
+               class="btn btn-danger">
+                💳 پرداخت هزینه آزمون برای ادامه
+            </a>
+        {% endif %}
+    {% endif %}
+</div>

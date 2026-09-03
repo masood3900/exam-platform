@@ -71,6 +71,7 @@ class QuestionSelectorService:
 
             queryset = Question.objects.filter(
                 is_active=True,
+                status=Question.QuestionStatus.APPROVED,
             )
 
             # -------------------------

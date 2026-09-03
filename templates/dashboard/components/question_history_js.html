@@ -1,0 +1,31 @@
+<script>
+function renderQuestionHistory(data) {
+    let html = '';
+    
+    if (data.review_history && data.review_history.length > 0) {
+        html += `
+            <div class="mb-3">
+                <strong>📜 تاریخچه:</strong>
+                <div class="border rounded p-2 mt-2" style="max-height: 200px; overflow-y: auto;">
+        `;
+        
+        data.review_history.forEach(history => {
+            html += `
+                <div class="small mb-2 pb-2 border-bottom">
+                    <strong>${history.action}</strong>
+                    <span class="text-muted">توسط ${history.reviewer}</span>
+                    <span class="text-muted">- ${history.created_at}</span>
+                    ${history.note ? `<br><span class="text-muted">💬 ${history.note}</span>` : ''}
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+    }
+    
+    return html;
+}
+</script>

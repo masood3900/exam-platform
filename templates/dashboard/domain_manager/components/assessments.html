@@ -1,0 +1,18 @@
+<div class="card shadow-sm">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">📝 آزمون‌های حوزه</h5>
+    </div>
+    <div class="card-body">
+        {% if assessments %}
+            <div class="row">
+                {% for assessment in assessments %}
+                <div class="col-md-4 mb-2">
+                    <p class="mb-0">{{ assessment.title }} - {{ assessment.scientific_group.name }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">آزمونی نیست.</p>
+        {% endif %}
+    </div>
+</div>

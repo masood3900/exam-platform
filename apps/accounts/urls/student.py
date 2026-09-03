@@ -3,63 +3,63 @@ from django.urls import path
 from apps.accounts.views.student.dashboard import (
     DashboardView,
 )
-
-from apps.accounts.views.student.learning_path import (
-    LearningPathDetailView,
+from apps.accounts.views.student.assessment_enroll import (
+    AssessmentEnrollView,
 )
-
-from apps.accounts.views.student.course import (
-    CourseDetailView,
+from apps.accounts.views.student.payment_request import (
+    PaymentRequestView,
 )
-
-from apps.accounts.views.student.category import (
-    QuestionCategoryDetailView,
+from apps.accounts.views.student.payment_status import (
+    PaymentStatusView,
 )
-
-from apps.accounts.views.student.learning_objective import (
-    LearningObjectiveDetailView,
+from apps.accounts.views.student.my_assessments import (
+    MyAssessmentsView,
 )
-
-from apps.accounts.views.student.course_enroll import (
-    CourseEnrollView,
+from apps.accounts.views.student.my_free_assessments import (
+    MyFreeAssessmentsView,
 )
-
+from apps.accounts.views.student.my_paid_assessments import (
+    MyPaidAssessmentsView,
+)
+from apps.accounts.views.student.assessment_remove import AssessmentRemoveView
+from apps.accounts.views.student.contact_manager import ContactManagerView
 
 urlpatterns = [
-
     path(
         "dashboard/",
         DashboardView.as_view(),
         name="dashboard",
     ),
-
     path(
-        "dashboard/path/<uuid:pk>/",
-        LearningPathDetailView.as_view(),
-        name="learning-path-detail",
+        "assessment/<uuid:assessment_id>/enroll/",
+        AssessmentEnrollView.as_view(),
+        name="assessment-enroll",
     ),
-
     path(
-        "dashboard/path/<uuid:path_pk>/course/<uuid:pk>/",
-        CourseDetailView.as_view(),
-        name="course-detail",
+        "payment/assessment/<uuid:assessment_id>/",
+        PaymentRequestView.as_view(),
+        name="payment-request-assessment",
     ),
-
     path(
-        "dashboard/path/<uuid:path_pk>/course/<uuid:course_pk>/category/<uuid:pk>/",
-        QuestionCategoryDetailView.as_view(),
-        name="category-detail",
+        "payment/status/",
+        PaymentStatusView.as_view(),
+        name="payment-status",
     ),
-
     path(
-        "dashboard/path/<uuid:path_pk>/course/<uuid:course_pk>/category/<uuid:category_pk>/objective/<uuid:pk>/",
-        LearningObjectiveDetailView.as_view(),
-        name="learning-objective-detail",
+        "my-assessments/",
+        MyAssessmentsView.as_view(),
+        name="my-assessments",
     ),
-
     path(
-        "course/<uuid:pk>/enroll/",
-        CourseEnrollView.as_view(),
-        name="course-enroll",
+        "my-assessments/free/",
+        MyFreeAssessmentsView.as_view(),
+        name="my-free-assessments",
     ),
+    path(
+        "my-assessments/paid/",
+        MyPaidAssessmentsView.as_view(),
+        name="my-paid-assessments",
+    ),
+    path("assessment/enrollment/<int:enrollment_id>/remove/", AssessmentRemoveView.as_view(), name="assessment-remove"),
+    path("assessment/<uuid:assessment_id>/contact-manager/", ContactManagerView.as_view(), name="contact-manager"),
 ]

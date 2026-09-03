@@ -1,0 +1,16 @@
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">📚 پیشنهاد مطالعه</h5>
+    </div>
+    <div class="card-body">
+        <ul>
+            {% for item in objective_report %}
+                {% if item.percentage < 60 %}
+                <li class="text-danger">مرور: {{ item.objective.name }}</li>
+                {% endif %}
+            {% empty %}
+                <li>پیشنهاد خاصی وجود ندارد.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

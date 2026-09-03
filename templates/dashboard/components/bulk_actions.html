@@ -1,0 +1,21 @@
+<script>
+function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+    updateBulkButton();
+}
+
+function updateBulkButton() {
+    const checked = document.querySelectorAll('.question-checkbox:checked').length;
+    const btn = document.getElementById('bulkSubmitBtn');
+    if (btn) {
+        btn.disabled = checked === 0;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.question-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateBulkButton);
+    });
+});
+</script>

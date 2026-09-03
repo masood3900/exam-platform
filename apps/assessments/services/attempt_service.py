@@ -48,15 +48,26 @@ class AttemptService:
         ).count()
 
         if assessment.is_free:
-            return attempts < assessment.max_attempts
+            return True  # بی‌نهایت
 
         enrollment = assessment.enrollments.filter(
             user=student,
             status=AssessmentEnrollment.Status.ACTIVE,
         ).first()
 
-        if enrollment:
-            return attempts < assessment.max_attempts
+        if enrollment and enrollment.payment_status == AssessmentEnrollment.PaymentStatus.PAID:
+            return True  # پرداخت شده = بی‌نهایت
+
+        # چک PaymentRequest تایید شده
+        from apps.assessments.models import PaymentRequest
+        has_paid = PaymentRequest.objects.filter(
+            user=student,
+            assessment=assessment,
+            status="approved",
+        ).exists()
+        
+        if has_paid:
+            return True
 
         return attempts < assessment.demo_attempts
 

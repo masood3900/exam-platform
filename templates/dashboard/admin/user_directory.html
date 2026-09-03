@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}کاربران{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/components/header.html" %}
+    
+    <h1 class="mb-4">👥 مدیریت کارمندان</h1>
+    
+    <ul class="nav nav-tabs mb-4">
+        {% for key, group in directory_data.items %}
+        <li class="nav-item">
+            <a class="nav-link {% if forloop.first %}active{% endif %}" 
+               data-bs-toggle="tab" href="#tab-{{ key }}">
+                {{ group.title }} ({{ group.users|length }})
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <div class="tab-content">
+        {% for key, group in directory_data.items %}
+        <div class="tab-pane {% if forloop.first %}active{% endif %}" id="tab-{{ key }}">
+            <div class="row g-3">
+                {% for card_data in group.users %}
+                <div class="col-md-4 col-lg-3">
+                    {% include "dashboard/components/user_card.html" with card_data=card_data %}
+                </div>
+                {% empty %}
+                <p class="text-muted">کاربری نیست.</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal های تغییر نقش -->
+{% for key, group in directory_data.items %}
+    {% for card_data in group.users %}
+    <div class="modal fade" id="changeRoleModal{{ card_data.user.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تغییر نقش {{ card_data.full_name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'accounts:user-replace-role' user_id=card_data.user.id %}">
+                        {% csrf_token %}
+    
+                        <div class="mb-3">
+                            <label class="form-label">نقش فعلی</label>
+                            <select name="role" class="form-control" required>
+                                <option value="">انتخاب کنید...</option>
+                                <option value="domain_manager">مدیر کل</option>
+                                <option value="scientific_manager">مدیر علمی</option>
+                                <option value="question_designer">طراح سوال</option>
+                                <option value="financial_manager">مدیر مالی</option>
+                            </select>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label class="form-label">گروه علمی</label>
+                            <select name="scientific_group" class="form-control" required>
+                                <option value="">انتخاب کنید...</option>
+                                {% for group in all_groups %}
+                                <option value="{{ group.id }}">{{ group.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+    
+                        <div class="mb-3">
+                            <label class="form-label">کاربر جدید (جایگزین)</label>
+                            <select name="new_user_id" class="form-control" required>
+                                <option value="">انتخاب کنید...</option>
+                                {% for key2, group2 in directory_data.items %}
+                                    {% for user_card in group2.users %}
+                                        {% if user_card.user.id != card_data.user.id %}
+                                        <option value="{{ user_card.user.id }}">{{ user_card.full_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+    
+                        <button type="submit" class="btn btn-primary w-100">تعویض نقش</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endfor %}
+{% endblock %}

@@ -1,124 +1,97 @@
-
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-
     <div class="container">
-
-        <a
-            class="navbar-brand"
-            href="/"
-        >
+        <a class="navbar-brand" href="{% url 'core:home' %}">
             سامانه آموزشی
         </a>
 
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarMain"
-            aria-controls="navbarMain"
-            aria-expanded="false"
-            aria-label="باز کردن منو"
-        >
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false"
+                aria-label="باز کردن منو">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div
-            class="collapse navbar-collapse"
-            id="navbarMain"
-        >
-
+        <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto">
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:home' %}">
+                        🏠 خانه
+                    </a>
+                </li>
 
                 <li class="nav-item">
-                    <a
-                        class="nav-link"
-                        href="/"
-                    >
-                        خانه
+                    <a class="nav-link" href="{% url 'core:courses' %}">
+                        📚 دوره‌ها
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'core:assessments' %}">
+                        📝 آزمون‌ها
                     </a>
                 </li>
 
                 {% if user.is_authenticated %}
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{% url 'messaging:inbox' %}"
-                        >
-                            💬 پیام‌ها
+                    {% if available_dashboards %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" 
+                        id="dashboardDropdown" role="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                            📊 داشبورد
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="dashboardDropdown">
+                            {% for dashboard in available_dashboards %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ dashboard.url }}">
+                                        {{ dashboard.icon }} {{ dashboard.name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+            
+                            {% if user.is_staff or user.is_superuser %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/admin/" target="_blank">
+                                        ⚙️ پنل ادمین Django
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
                     </li>
-
+                    {% endif %}
                 {% endif %}
 
-            </ul>
-
             <ul class="navbar-nav">
-
                 {% if user.is_authenticated %}
-
-                    <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{{ dashboard_url }}"
-                        >
-                            داشبورد
-                        </a>
-                    </li>
-
                     <li class="nav-item">
                         <span class="nav-link">
-                            {{ user.get_full_name|default:user.username }}
+                            👤 {{ user.get_full_name|default:user.username }}
                         </span>
                     </li>
 
                     <li class="nav-item">
-
-                        <form
-                            method="post"
-                            action="{% url 'accounts:logout' %}"
-                            class="d-inline"
-                        >
-
+                        <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                             {% csrf_token %}
-
-                            <button
-                                type="submit"
-                                class="nav-link btn btn-link"
-                            >
+                            <button type="submit" class="nav-link btn btn-link">
                                 خروج
                             </button>
-
                         </form>
-
                     </li>
-
                 {% else %}
-
                     <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{% url 'accounts:login' %}"
-                        >
+                        <a class="nav-link" href="{% url 'accounts:login' %}">
                             ورود
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a
-                            class="nav-link"
-                            href="{% url 'accounts:register' %}"
-                        >
+                        <a class="nav-link" href="{% url 'accounts:register' %}">
                             ثبت‌نام
                         </a>
                     </li>
-
                 {% endif %}
-
             </ul>
-
         </div>
-
     </div>
-
 </nav>

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت پرداخت‌ها{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">💰 مدیریت پرداخت‌ها</h1>
+
+    <!-- خلاصه مالی -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <a href="{% url 'accounts:revenue-chart' %}?type=financial" class="text-decoration-none">
+                        <h3 class="text-success">{{ total_revenue }} تومان</h3>
+                    </a>
+                    <p class="text-muted mb-0">دارایی کل</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-success">{{ approved_count }}</h3>
+                    <p class="text-muted mb-0">تایید شده</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ pending_count }}</h3>
+                    <p class="text-muted mb-0">در انتظار</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ rejected_count }}</h3>
+                    <p class="text-muted mb-0">رد شده</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- کارت‌های آزمون‌های پولی -->
+    <div class="row g-3">
+        {% for card in cards %}
+        <div class="col-md-4">
+            <a href="{% url 'accounts:admin-assessment-payments' assessment_id=card.assessment.id %}" 
+               class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100" style="transition: all 0.3s;" 
+                     onmouseover="this.style.transform='translateY(-3px)'" 
+                     onmouseout="this.style.transform='translateY(0)'">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">{{ card.assessment.title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>کل پرداخت‌ها:</span>
+                            <strong>{{ card.total }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-success">✅ تایید شده:</span>
+                            <strong>{{ card.approved }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-warning">⏳ در انتظار:</span>
+                            <strong>{{ card.pending }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-danger">❌ رد شده:</span>
+                            <strong>{{ card.rejected }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <p class="text-muted">آزمون پولی نیست.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}پشتیبانی{% endblock %}
+
+{% block extra_css %}
+<style>
+    .support-widget {
+        max-width: 400px;
+        margin: 50px auto;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        overflow: hidden;
+    }
+    
+    .support-header {
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
+        padding: 30px 20px;
+        text-align: center;
+    }
+    
+    .support-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        border: 3px solid white;
+        margin: 0 auto 15px;
+        overflow: hidden;
+    }
+    
+    .support-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .support-body {
+        padding: 30px 20px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="support-widget">
+        <div class="support-header text-white">
+            <div class="support-avatar">
+                <img src="/static/images/support.jpg" 
+                     alt="پشتیبانی">
+            </div>
+            <h5 class="mb-2">پشتیبانی سامانه آموزش</h5>
+            <p class="mb-0 small" style="opacity: 0.9;">در اسرع وقت پاسخگو هستیم</p>
+        </div>
+        
+        <div class="support-body">
+            <p class="text-muted mb-4">
+                سوالی دارید؟ با ما در میان بگذارید.
+            </p>
+            
+            {% if support_manager %}
+            <a href="{% url 'messaging:direct-conversation' user_id=support_manager.id %}" 
+               class="btn btn-primary btn-lg w-100 rounded-pill">
+                💬 شروع گفتگو با پشتیبانی
+            </a>
+            {% else %}
+            <div class="alert alert-warning">
+                در حال حاضر پشتیبانی آنلاین در دسترس نیست.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}درخواست پرداخت{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">💳 درخواست پرداخت</h5>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- اطلاعات پرداخت -->
+                    <div class="alert alert-info">
+                        <strong>مبلغ قابل پرداخت:</strong>
+                        <h4 class="mb-0 mt-2">{{ amount }} تومان</h4>
+                    </div>
+                    
+                    {% if assessment %}
+                        <p><strong>آزمون:</strong> {{ assessment.title }}</p>
+                    {% elif course %}
+                        <p><strong>دوره:</strong> {{ course.name }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <!-- حساب‌های پرداخت -->
+                    <h6>حساب‌های پرداخت:</h6>
+                    {% for account in accounts %}
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <strong>{{ account.get_account_type_display }} - {{ account.title }}</strong><br>
+                            <span class="text-muted">{{ account.account_number }}</span><br>
+                            <small class="text-muted">به نام: {{ account.owner_name }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-warning">
+                        حسابی ثبت نشده. لطفاً با ادمین تماس بگیرید.
+                    </div>
+                    {% endfor %}
+                    
+                    <hr>
+                    
+                    <!-- فرم -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">کد رهگیری پرداخت</label>
+                            {{ form.tracking_code }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">عکس رسید پرداخت</label>
+                            {{ form.receipt_image }}
+                            <small class="text-muted">عکس یا اسکرین‌شات از رسید پرداخت</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            ارسال درخواست
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

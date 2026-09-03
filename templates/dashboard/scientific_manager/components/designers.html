@@ -1,0 +1,43 @@
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">✏️ طراحان سوال</h5>
+        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#assignDesignerModal">
+            ➕ افزودن طراح
+        </button>
+    </div>
+    <div class="card-body">
+        {% if designers %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>نام</th>
+                            <th>دوره</th>
+                            <th>تعداد سوالات</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for designer in designers %}
+                        <tr>
+                            <td>{{ designer.membership.user.get_full_name|default:designer.membership.user.username }}</td>
+                            <td>{{ designer.membership.scientific_group.name }}</td>
+                            <td>{{ designer.question_count }}</td>
+                            <td>
+                                <a href="{% url 'messaging:direct-conversation' user_id=designer.membership.user.id %}" 
+                                   class="btn btn-sm btn-outline-primary">💬</a>
+                                <form method="post" action="{% url 'accounts:scientific_manager:remove-designer' membership_id=designer.membership.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {% include "dashboard/components/empty_state.html" with message="طراح سوالی نیست." %}
+        {% endif %}
+    </div>
+</div>

@@ -20,18 +20,18 @@ class QuestionCategory(models.Model):
     name = models.CharField(
         max_length=255,
     )
-    
 
     description = models.TextField(
-
         blank=True,
     )
+
     course = models.ForeignKey(
         Course,
         on_delete=models.PROTECT,
         related_name="categories",
         verbose_name="دوره آموزشی",
-        
+        null=True,  # ← اضافه کن
+        blank=True,  # ← اضافه کن
     )
 
     parent = models.ForeignKey(
@@ -40,8 +40,8 @@ class QuestionCategory(models.Model):
         blank=True,
         on_delete=models.PROTECT,
         related_name="children",
-        
     )
+    
 
     order = models.PositiveIntegerField(
         default=0,
@@ -58,7 +58,6 @@ class QuestionCategory(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True,
     )
-  
 
     class Meta:
         ordering = ["order", "name"]
@@ -75,6 +74,7 @@ class QuestionCategory(models.Model):
         ]
         verbose_name = "واحد آموزشی"
         verbose_name_plural = "واحدهای آموزشی"
+
     @property
     def level(self):
         level = 0
@@ -85,18 +85,20 @@ class QuestionCategory(models.Model):
             parent = parent.parent
 
         return level
+
     @property
     def has_children(self):
         return self.children.exists()
+
     @property
     def full_name(self):
-
         if self.parent:
             return f"{self.parent.full_name} > {self.name}"
         return self.name
 
     def __str__(self):
         return self.name
+
 
 class LearningObjective(models.Model):
 
@@ -131,6 +133,17 @@ class LearningObjective(models.Model):
         QuestionCategory,
         on_delete=models.PROTECT,
         related_name="learning_objectives",
+        null=True,
+        blank=True,
+    )
+
+    scientific_group = models.ForeignKey(
+        "ScientificGroup",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="learning_objectives",
+        verbose_name="دوره/موضوع",
     )
 
     weight = models.PositiveSmallIntegerField(
@@ -172,12 +185,13 @@ class LearningObjective(models.Model):
     )
 
     class Meta:
-        ordering = ["category", "order", "code"]
+        ordering = ["order", "code"]
         verbose_name = "هدف آموزشی"
         verbose_name_plural = "اهداف آموزشی"
 
     def __str__(self):
         return f"{self.code} - {self.name}"
+    
 class Question(models.Model):
 
     class QuestionType(models.TextChoices):
@@ -191,6 +205,13 @@ class Question(models.Model):
         EASY = "easy", "آسان"
         MEDIUM = "medium", "متوسط"
         HARD = "hard", "سخت"
+
+    class QuestionStatus(models.TextChoices):
+        DRAFT = "draft", "پیش‌نویس"
+        PENDING = "pending", "در انتظار تایید"
+        APPROVED = "approved", "تایید شده"
+        REJECTED = "rejected", "رد شده"
+        INACTIVE = "inactive", "غیرفعال"
 
     id = models.UUIDField(
         primary_key=True,
@@ -214,6 +235,17 @@ class Question(models.Model):
         LearningObjective,
         on_delete=models.PROTECT,
         related_name="questions",
+        null=True,
+        blank=True,
+    )
+
+    scientific_group = models.ForeignKey(
+        "ScientificGroup",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="questions",
+        verbose_name="موضوع",
     )
 
     question_type = models.CharField(
@@ -248,6 +280,42 @@ class Question(models.Model):
         help_text="توضیحی که بعد از پاسخ صحیح نمایش داده می‌شود.",
     )
 
+    status = models.CharField(
+        max_length=20,
+        choices=QuestionStatus.choices,
+        default=QuestionStatus.DRAFT,
+        verbose_name="وضعیت",
+    )
+    scientific_group = models.ForeignKey(
+        "ScientificGroup",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="questions",
+        verbose_name="موضوع",
+        help_text="موضوعی که سوال به آن تعلق دارد",
+    )
+
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_questions",
+        verbose_name="بررسی شده توسط",
+    )
+
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="تاریخ بررسی",
+    )
+
+    review_note = models.TextField(
+        blank=True,
+        verbose_name="یادداشت بررسی",
+    )
+
     is_active = models.BooleanField(
         default=True,
     )
@@ -271,6 +339,7 @@ class Question(models.Model):
             models.Index(fields=["learning_objective"]),
             models.Index(fields=["difficulty"]),
             models.Index(fields=["is_active"]),
+            models.Index(fields=["status"]),
         ]
 
     @property
@@ -282,21 +351,21 @@ class Question(models.Model):
         return self.choices.filter(
             is_correct=True,
         ).count()
+
     @property
     def is_complete(self):
-
         if self.choices_count < 2:
             return False
-
         if self.correct_choices_count != self.correct_answers_required:
             return False
-
         return True
 
     def __str__(self):
         if self.title:
             return f"{self.code} - {self.title}"
         return self.code
+
+
 class Choice(models.Model):
 
     id = models.UUIDField(
@@ -338,45 +407,26 @@ class Choice(models.Model):
         auto_now=True,
     )
 
-
     class Meta:
-
         ordering = [
             "question",
             "order",
         ]
-
         constraints = [
             models.UniqueConstraint(
-                fields=[
-                    "question",
-                    "order",
-                ],
+                fields=["question", "order"],
                 name="unique_choice_order_per_question",
             )
         ]
-
         indexes = [
-            models.Index(
-                fields=[
-                    "question",
-                ]
-            ),
-
-            models.Index(
-                fields=[
-                    "is_correct",
-                ]
-            ),
+            models.Index(fields=["question"]),
+            models.Index(fields=["is_correct"]),
         ]
-
         verbose_name = "گزینه"
         verbose_name_plural = "گزینه‌های سؤال"
 
-
     @property
     def label(self):
-
         labels = {
             1: "الف",
             2: "ب",
@@ -385,13 +435,61 @@ class Choice(models.Model):
             5: "هـ",
             6: "و",
         }
-
-        return labels.get(
-            self.order,
-            str(self.order),
-        )
-
+        return labels.get(self.order, str(self.order))
 
     def __str__(self):
-
         return f"{self.question.code} - گزینه {self.order}"
+
+class QuestionReviewHistory(models.Model):
+    """تاریخچه بررسی سوال"""
+
+    class Action(models.TextChoices):
+        SUBMIT = "submit", "ارسال برای تایید"
+        APPROVE = "approve", "تایید"
+        REJECT = "reject", "رد"
+        RETURN = "return", "برگشت برای اصلاح"
+        COMMENT = "comment", "یادداشت"
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="review_history",
+        verbose_name="سوال",
+    )
+
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="question_review_history",
+        verbose_name="کاربر",
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=Action.choices,
+        verbose_name="اقدام",
+    )
+
+    note = models.TextField(
+        blank=True,
+        verbose_name="یادداشت",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="تاریخ",
+    )
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = "تاریخچه بررسی سوال"
+        verbose_name_plural = "تاریخچه بررسی سوالات"
+
+    def __str__(self):
+        return f"{self.question.code} - {self.get_action_display()}"

@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}ساخت آزمون جدید{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background: #f8f9fa;
+    }
+
+        .form-check-input {
+        width: 20px !important;
+        height: 20px !important;
+        margin: 0 !important;
+        flex-shrink: 0;
+    }
+
+    .form-check-label {
+        margin: 0 !important;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="form-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>📝 ساخت آزمون جدید</h1>
+            <a href="{% url 'accounts:admin-dashboard' %}" class="btn btn-secondary">
+                بازگشت
+            </a>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    لطفاً خطاهای زیر را برطرف کنید:
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">اطلاعات آزمون</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">عنوان آزمون *</label>
+                        {{ form.title }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">نوع آزمون *</label>
+                            {{ form.assessment_type }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">مدت زمان (دقیقه) *</label>
+                            {{ form.duration_minutes }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">توضیحات</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">انتخاب نوع دسترسی</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>نکته:</strong>
+                        <ul class="mb-0">
+                            <li>آزمون مستقل = قابل فروش، نیاز به گروه علمی</li>
+                            <li>آزمون وابسته به دوره = رایگان، نیاز به دوره</li>
+                        </ul>
+                    </div>
+                    <div class="form-check mb-3" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" name="is_independent" id="id_is_independent" 
+                            class="form-check-input" style="width: 20px; height: 20px;">
+                        <label class="form-check-label" for="id_is_independent" style="margin: 0;">
+                             آزمون مستقل (پولی)
+                        </label>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">گروه علمی (برای آزمون مستقل)</label>
+                        {{ form.scientific_group }}
+                        <small class="text-muted">
+                             با نگه داشتن Ctrl می‌توانید چند دوره انتخاب کنید.
+
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">دوره (برای آزمون وابسته)</label>
+                        {{ form.course }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">قیمت‌گذاری</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">قیمت (تومان)</label>
+                            {{ form.price }}
+                            <small class="text-muted">
+                                برای آزمون وابسته به دوره، صفر بگذارید.
+                            </small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">درصد تخفیف</label>
+                            {{ form.discount_percent }}
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        {{ form.is_public }}
+                        <label class="form-check-label">
+                            آزمون عمومی (همه می‌توانند ببینند)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">تنظیمات آزمون</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">حداقل درصد قبولی</label>
+                            {{ form.passing_score }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">تعداد تلاش آزمایشی رایگان</label>
+                            {{ form.demo_attempts }}
+                            <small class="text-muted">
+                                برای آزمون‌های پولی، تعداد دفعاتی که کاربر می‌تواند رایگان امتحان کند.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        {{ form.shuffle_questions }}
+                        <label class="form-check-label">
+                            ترتیب سوالات تصادفی باشد
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        {{ form.shuffle_choices }}
+                        <label class="form-check-label">
+                            ترتیب گزینه‌ها تصادفی باشد
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        {{ form.show_result_immediately }}
+                        <label class="form-check-label">
+                            نمایش نتیجه بلافاصله بعد از اتمام
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">
+                    💾 ذخیره آزمون
+                </button>
+                
+                <a href="{% url 'accounts:admin-dashboard' %}" class="btn btn-secondary">
+                    انصراف
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

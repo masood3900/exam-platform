@@ -7,7 +7,7 @@ from apps.accounts.forms import UserRegisterForm
 class RegisterView(CreateView):
     form_class = UserRegisterForm
     template_name = "accounts/registration/register.html"
-    success_url = reverse_lazy("accounts:dashboard")
+    success_url = reverse_lazy("core:home")
 
     def form_valid(self, form):
         print("FORM VALID")

@@ -1,0 +1,23 @@
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">📊 تحلیل عملکرد آموزشی</h5>
+    </div>
+    <div class="card-body">
+        {% for item in objective_report %}
+        <div class="mb-4">
+            <div class="d-flex justify-content-between">
+                <strong>{{ item.objective.name }}</strong>
+                <span>{{ item.correct }} از {{ item.total }} | {{ item.percentage }}٪</span>
+            </div>
+            <div class="progress mt-2" style="height:25px;">
+                <div class="progress-bar {% if item.percentage >= 85 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
+                     role="progressbar" style="width: {{ item.percentage }}%;">
+                    {{ item.percentage }}٪
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">تحلیل آموزشی موجود نیست.</div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}ساخت مسیر آموزشی{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="mb-4">➕ ساخت مسیر آموزشی</h1>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">حوزه *</label>
+                            <select name="scientific_group" class="form-control" required>
+                                <option value="">انتخاب کنید...</option>
+                                {% for domain in domains %}
+                                <option value="{{ domain.id }}">{{ domain.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">نام *</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">شناسه (slug) *</label>
+                            <input type="text" name="slug" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">توضیحات</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">آیکون</label>
+                                <input type="text" name="icon" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">رنگ</label>
+                                <select name="color" class="form-control">
+                                    <option value="primary">آبی</option>
+                                    <option value="success">سبز</option>
+                                    <option value="danger">قرمز</option>
+                                    <option value="warning">زرد</option>
+                                    <option value="info">فیروزه‌ای</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">ترتیب</label>
+                            <input type="number" name="order" class="form-control" value="1">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">ذخیره</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

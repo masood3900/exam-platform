@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}تیکت‌ها{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/components/header.html" %}
+    
+    <h1 class="mb-4">📝 مدیریت تیکت‌ها</h1>
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if tickets %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>عنوان</th>
+                            <th>کاربر</th>
+                            <th>اولویت</th>
+                            <th>وضعیت</th>
+                            <th>تاریخ</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td>{{ ticket.id }}</td>
+                            <td>{{ ticket.title }}</td>
+                            <td>{{ ticket.user.get_full_name|default:ticket.user.username }}</td>
+                            <td>
+                                {% if ticket.priority == 'high' %}
+                                    <span class="badge bg-danger">زیاد</span>
+                                {% elif ticket.priority == 'normal' %}
+                                    <span class="badge bg-warning">عادی</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">کم</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.status == 'open' %}
+                                    <span class="badge bg-danger">باز</span>
+                                {% elif ticket.status == 'in_progress' %}
+                                    <span class="badge bg-warning">در حال بررسی</span>
+                                {% else %}
+                                    <span class="badge bg-success">بسته</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ticket.created_at|date:"Y/m/d" }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-info" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#ticketModal{{ ticket.id }}">
+                                    📋
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">تیکتی نیست.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal های تغییر وضعیت -->
+{% for ticket in tickets %}
+<div class="modal fade" id="ticketModal{{ ticket.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تیکت #{{ ticket.id }} - {{ ticket.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>کاربر:</strong> {{ ticket.user.get_full_name|default:ticket.user.username }}</p>
+                <p><strong>توضیحات:</strong></p>
+                <p>{{ ticket.description }}</p>
+                
+                <hr>
+                
+                <form method="post" action="{% url 'accounts:support_manager:ticket-status' ticket_id=ticket.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">تغییر وضعیت</label>
+                        <select name="status" class="form-control">
+                            <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>باز</option>
+                            <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>در حال بررسی</option>
+                            <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>بسته</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">ذخیره</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

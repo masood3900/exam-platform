@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}داشبورد پشتیبانی{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/components/header.html" %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🎧 داشبورد پشتیبانی</h1>
+        <a href="{% url 'accounts:support_manager:tickets' %}" class="btn btn-outline-primary">📝 تیکت‌ها</a>
+    </div>
+
+    <!-- آمار -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'messaging:direct-inbox' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm" style="cursor: pointer; transition: all 0.3s;"
+                     onmouseover="this.style.transform='translateY(-3px)'"
+                     onmouseout="this.style.transform='translateY(0)'">
+                    <div class="card-body">
+                        <h3 class="text-danger">{{ unread_count }}</h3>
+                        <p class="text-muted mb-0">پیام جدید</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'messaging:direct-inbox' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm" style="cursor: pointer; transition: all 0.3s;"
+                     onmouseover="this.style.transform='translateY(-3px)'"
+                     onmouseout="this.style.transform='translateY(0)'">
+                    <div class="card-body">
+                        <h3 class="text-warning">{{ active_conversations }}</h3>
+                        <p class="text-muted mb-0">در انتظار پاسخ</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'messaging:direct-inbox' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm" style="cursor: pointer; transition: all 0.3s;"
+                     onmouseover="this.style.transform='translateY(-3px)'"
+                     onmouseout="this.style.transform='translateY(0)'">
+                    <div class="card-body">
+                        <h3>{{ total_messages }}</h3>
+                        <p class="text-muted mb-0">کل پیام‌ها</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'accounts:support_manager:tickets' %}" class="text-decoration-none text-dark">
+                <div class="card text-center shadow-sm" style="cursor: pointer; transition: all 0.3s;"
+                     onmouseover="this.style.transform='translateY(-3px)'"
+                     onmouseout="this.style.transform='translateY(0)'">
+                    <div class="card-body">
+                        <h3>{{ recent_tickets|length }}</h3>
+                        <p class="text-muted mb-0">تیکت‌های اخیر</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- پیام‌های جدید -->
+        <div class="col-md-6 mb-4">
+            <div class="accordion" id="unreadAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#collapseUnread">
+                            🔴 پیام‌های جدید ({{ unread_messages|length }})
+                        </button>
+                    </h2>
+                    <div id="collapseUnread" class="accordion-collapse collapse" 
+                         data-bs-parent="#unreadAccordion">
+                        <div class="accordion-body">
+                            {% if unread_messages %}
+                            <div class="list-group">
+                                {% for message in unread_messages %}
+                                <a href="{% url 'messaging:direct-conversation' user_id=message.sender.id %}" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name={{ message.sender.get_full_name|default:message.sender.username }}&background=primary&color=fff&size=128" 
+                                                 class="rounded-circle me-3" width="30" height="30">
+                                            <div>
+                                                <strong>{{ message.sender.get_full_name|default:message.sender.username }}</strong>
+                                                <p class="mb-0 text-muted small">{{ message.text|truncatewords:10 }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted mb-0">پیام جدیدی نیست.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- گفتگوهای قبلی -->
+        <div class="col-md-6 mb-4">
+            <div class="accordion" id="oldAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#collapseOld">
+                            ✅ گفتگوهای خوانده شده ({{ read_messages|length }})
+                        </button>
+                    </h2>
+                    <div id="collapseOld" class="accordion-collapse collapse" 
+                         data-bs-parent="#oldAccordion">
+                        <div class="accordion-body">
+                            {% if read_messages %}
+                            <div class="list-group">
+                                {% for message in read_messages %}
+                                <a href="{% url 'messaging:direct-conversation' user_id=message.sender.id %}" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name={{ message.sender.get_full_name|default:message.sender.username }}&background=primary&color=fff&size=128" 
+                                                 class="rounded-circle me-3" width="30" height="30">
+                                            <div>
+                                                <strong>{{ message.sender.get_full_name|default:message.sender.username }}</strong>
+                                                <p class="mb-0 text-muted small">{{ message.text|truncatewords:10 }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted mb-0">گفتگوی قبلی نیست.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- کاربران اخیر - Accordion -->
+        <div class="col-md-6 mb-4">
+            <div class="accordion" id="usersAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#collapseUsers">
+                            👥 کاربران اخیر ({{ recent_users|length }})
+                        </button>
+                    </h2>
+                    <div id="collapseUsers" class="accordion-collapse collapse" 
+                         data-bs-parent="#usersAccordion">
+                        <div class="accordion-body">
+                            {% if recent_users %}
+                            <div class="list-group">
+                                {% for user in recent_users %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=info&color=fff&size=128" 
+                                                 class="rounded-circle me-3" width="30" height="30">
+                                            <div>
+                                                <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                                <p class="mb-0 text-muted small">عضویت: {{ user.date_joined|date:"Y/m/d" }}</p>
+                                            </div>
+                                        </div>
+                                        <a href="{% url 'messaging:direct-conversation' user_id=user.id %}" 
+                                           class="btn btn-sm btn-outline-primary">💬</a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted mb-0">کاربری نیست.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تیکت‌های اخیر -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">📝 تیکت‌های اخیر</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_tickets %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>عنوان</th>
+                            <th>کاربر</th>
+                            <th>وضعیت</th>
+                            <th>تاریخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in recent_tickets %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ ticket.title }}</td>
+                            <td>{{ ticket.user.get_full_name|default:ticket.user.username }}</td>
+                            <td>
+                                {% if ticket.status == 'open' %}
+                                    <span class="badge bg-danger">باز</span>
+                                {% elif ticket.status == 'in_progress' %}
+                                    <span class="badge bg-warning">در حال بررسی</span>
+                                {% else %}
+                                    <span class="badge bg-success">بسته</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ticket.created_at|date:"Y/m/d" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">هنوز تیکتی ثبت نشده.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">👥 مدیران علمی</h5>
+    </div>
+    <div class="card-body">
+        {% if managers %}
+            <div class="row">
+                {% for manager in managers %}
+                <div class="col-md-4 mb-2">
+                    <span class="badge bg-info">
+                        {{ manager.user.get_full_name }} - {{ manager.scientific_group.name }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">مدیر علمی نیست.</p>
+        {% endif %}
+    </div>
+</div>

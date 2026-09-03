@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}دانشجویان {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% include "dashboard/components/header.html" %}
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👥 دانشجویان «{{ group.name }}»</h1>
+        <a href="{% url 'accounts:scientific_manager:dashboard' %}" class="btn btn-secondary">بازگشت</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>دانشجو</th>
+                            <th>تعداد آزمون</th>
+                            <th>میانگین</th>
+                            <th>قبول شده</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in students %}
+                        <tr>
+                            <td>{{ item.student.get_full_name|default:item.student.username }}</td>
+                            <td>{{ item.stats.total }}</td>
+                            <td>{{ item.stats.avg }}%</td>
+                            <td>{{ item.stats.passed }}</td>
+                            <td>
+                                <a href="{% url 'accounts:scientific_manager:student-detail' student_id=item.student.id %}" 
+                                   class="btn btn-sm btn-outline-info">📊 نتایج</a>
+                                <a href="{% url 'messaging:direct-conversation' user_id=item.student.id %}" 
+                                   class="btn btn-sm btn-outline-primary">💬</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">دانشجویی نیست.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
