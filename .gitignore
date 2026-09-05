@@ -19,3 +19,7 @@ staticfiles/
 
 # OS
 .DS_Store
+
+# Backups
+backup_*.sql
+questions_backup.json
