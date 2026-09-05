@@ -1,0 +1,32 @@
+from .admin_dashboard import AdminDashboardView
+
+from .admin_courses import (
+    AdminCourseListView,
+)
+
+from .admin_course_create import (
+    AdminCourseCreateView,
+)
+
+from .admin_course_detail import (
+    AdminCourseDetailView,
+)
+
+from .admin_learning_paths import (
+    AdminLearningPathListView,
+)
+
+from .admin_learning_path import (
+    AdminLearningPathCreateView,
+)
+
+from .admin_learning_path_detail import (
+    AdminLearningPathDetailView,
+)
+
+from .admin_learning_path_delete import (
+    AdminLearningPathDeleteView,
+)
+from .register import RegisterView
+from .profile import ProfileView
+from .

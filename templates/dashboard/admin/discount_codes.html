@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}کدهای تخفیف{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🎁 کدهای تخفیف</h1>
+        <a href="{% url 'accounts:admin-dashboard' %}" class="btn btn-outline-secondary">
+            بازگشت به داشبورد
+        </a>
+    </div>
+
+    <!-- فرم ساخت کد جدید -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">➕ کد تخفیف جدید</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">کد</label>
+                        {{ form.code }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">درصد تخفیف</label>
+                        {{ form.discount_percent }}
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label">آزمون (اختیاری - اگر خالی باشد برای همه آزمون‌ها)</label>
+                        {{ form.assessment }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">تاریخ شروع</label>
+                        {{ form.valid_from }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">تاریخ پایان (اختیاری)</label>
+                        {{ form.valid_until }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">حداکثر استفاده</label>
+                        {{ form.max_uses }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="form-check mt-4">
+                            {{ form.is_active }}
+                            <label class="form-check-label">فعال</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-warning">ساخت کد</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- لیست کدها -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">📋 کدهای تخفیف</h5>
+        </div>
+        <div class="card-body">
+            {% if codes %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>کد</th>
+                            <th>درصد</th>
+                            <th>آزمون</th>
+                            <th>استفاده</th>
+                            <th>اعتبار</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for code in codes %}
+                        <tr>
+                            <td><code>{{ code.code }}</code></td>
+                            <td>{{ code.discount_percent }}٪</td>
+                            <td>
+                                {% if code.assessment %}
+                                    {{ code.assessment.title }}
+                                {% else %}
+                                    <span class="text-muted">همه آزمون‌ها</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ code.used_count }}/{{ code.max_uses }}</td>
+                            <td>
+                                {% if code.valid_until %}
+                                    {{ code.valid_until|date:"Y/m/d" }}
+                                {% else %}
+                                    نامحدود
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if code.is_active %}
+                                    <span class="badge bg-success">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-danger">غیرفعال</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'accounts:admin-discount-code-toggle' code_id=code.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                        {% if code.is_active %}⏸️{% else %}▶️{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'accounts:admin-discount-code-delete' code_id=code.id %}" class="d-inline" onsubmit="return confirm('حذف شود؟')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">کدی ساخته نشده است.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

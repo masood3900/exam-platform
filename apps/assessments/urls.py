@@ -12,6 +12,9 @@ from apps.assessments.views.code_execute import (
     CodeExecuteView,
     CodeCheckView,
 )
+from apps.assessments.views.apply_discount import (
+    ApplyDiscountView,
+)
 
 
 app_name = "assessments"
@@ -68,5 +71,9 @@ urlpatterns = [
         CodeCheckView.as_view(),
         name="exercise-check",
     ),
-
+    path(
+        "assessment/<uuid:assessment_id>/apply-discount/",
+        ApplyDiscountView.as_view(),
+        name="apply-discount",
+    ),
 ]

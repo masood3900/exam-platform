@@ -61,7 +61,11 @@ from apps.accounts.views.admin.assessments import AdminAssessmentListView
 from apps.accounts.views.admin.assessment_delete import AdminAssessmentDeleteView
 from apps.accounts.views.admin.payment_management import AdminPaymentManagementView
 from apps.accounts.views.admin.assessment_payments import AdminAssessmentPaymentsView
-
+from apps.accounts.views.admin.discount_codes import (
+    AdminDiscountCodesView,
+    AdminDiscountCodeDeleteView,
+    AdminDiscountCodeToggleView,
+)
 
 
 urlpatterns = [
@@ -155,7 +159,7 @@ urlpatterns = [
     path("assessments/<uuid:assessment_id>/delete/", AdminAssessmentDeleteView.as_view(), name="admin-assessment-delete"),
     path("payments/", AdminPaymentManagementView.as_view(), name="admin-payment-management"),
     path("payments/assessment/<uuid:assessment_id>/", AdminAssessmentPaymentsView.as_view(), name="admin-assessment-payments"),
-
-
+    path("discount-codes/", AdminDiscountCodesView.as_view(), name="admin-discount-codes"),
+    path("discount-codes/<uuid:code_id>/toggle/", AdminDiscountCodeToggleView.as_view(), name="admin-discount-code-toggle"),
+    path("discount-codes/<uuid:code_id>/delete/", AdminDiscountCodeDeleteView.as_view(), name="admin-discount-code-delete"),
 ]
-

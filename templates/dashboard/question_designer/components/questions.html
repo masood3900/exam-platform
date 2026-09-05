@@ -4,113 +4,153 @@
     </div>
     <div class="card-body">
         {% if dashboard_tree %}
-            {% for group_data in dashboard_tree %}
-            <div class="mb-4">
-                <!-- سطح ۱: دوره -->
-                <div class="card">
-                    <div class="card-header bg-light" data-bs-toggle="collapse" 
-                         data-bs-target="#group-{{ group_data.group.id }}" style="cursor: pointer;">
-                        <h6 class="mb-0">
-                            📂 {{ group_data.group.name }}
-                            <span class="badge bg-primary ms-2">اهداف: {{ group_data.objectives|length }}</span>
-                        </h6>
-                    </div>
-                    
-                    <div id="group-{{ group_data.group.id }}" class="collapse show">
-                        <div class="card-body">
-                            <div class="row">
-                                {% for objective_data in group_data.objectives %}
-                                <div class="col-md-4 mb-3">
-                                    <!-- سطح ۲: هدف آموزشی -->
-                                    <div class="card h-100" style="cursor: pointer;"
-                                         data-bs-toggle="collapse"
-                                         data-bs-target="#objective-{{ objective_data.objective.id }}">
-                                        <div class="card-body">
-                                            <h6 class="card-title">
-                                                🎯 {{ objective_data.objective.name }}
-                                            </h6>
-                                            <div class="d-flex gap-2 flex-wrap">
-                                                <span class="badge bg-secondary">
-                                                    کل: {{ objective_data.total }}
-                                                </span>
-                                                <span class="badge bg-warning text-dark">
-                                                    در انتظار: {{ objective_data.pending }}
-                                                </span>
-                                                <span class="badge bg-success">
-                                                    تایید شده: {{ objective_data.approved }}
-                                                </span>
+            <form method="post" action="{% url 'accounts:question_designer:bulk-submit' %}" id="bulkSubmitForm">
+                {% csrf_token %}
+                
+                {% for group_data in dashboard_tree %}
+                <div class="mb-4">
+                    <!-- سطح ۱: دوره -->
+                    <div class="card">
+                        <div class="card-header bg-light" data-bs-toggle="collapse"
+                             data-bs-target="#group-{{ group_data.group.id }}" style="cursor: pointer;">
+                            <h6 class="mb-0">
+                                📂 {{ group_data.group.name }}
+                                <span class="badge bg-primary ms-2">اهداف: {{ group_data.objectives|length }}</span>
+                            </h6>
+                        </div>
+
+                        <div id="group-{{ group_data.group.id }}" class="collapse show">
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for objective_data in group_data.objectives %}
+                                    <div class="col-md-4 mb-3">
+                                        <!-- سطح ۲: هدف آموزشی -->
+                                        <div class="card h-100" style="cursor: pointer;"
+                                             data-bs-toggle="collapse"
+                                             data-bs-target="#objective-{{ objective_data.objective.id }}">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    🎯 {{ objective_data.objective.name }}
+                                                </h6>
+                                                <div class="d-flex gap-2 flex-wrap">
+                                                    <span class="badge bg-secondary">
+                                                        کل: {{ objective_data.total }}
+                                                    </span>
+                                                    <span class="badge bg-warning text-dark">
+                                                        در انتظار: {{ objective_data.pending }}
+                                                    </span>
+                                                    <span class="badge bg-success">
+                                                        تایید شده: {{ objective_data.approved }}
+                                                    </span>
+                                                </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- سطح ۳: سوالات هر هدف -->
+                                {% for objective_data in group_data.objectives %}
+                                <div id="objective-{{ objective_data.objective.id }}" class="collapse mt-3">
+                                    <div class="card">
+                                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">
+                                                سوالات هدف: {{ objective_data.objective.name }}
+                                            </h6>
+                                            <div>
+                                                <input type="checkbox" class="form-check-input" 
+                                                       onclick="toggleObjectiveQuestions(this, 'objective-questions-{{ objective_data.objective.id }}')">
+                                                <label class="small ms-1">انتخاب همه</label>
+                                            </div>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            {% if objective_data.questions %}
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th style="width: 40px;"></th>
+                                                            <th>کد</th>
+                                                            <th>عنوان</th>
+                                                            <th>نوع</th>
+                                                            <th>سختی</th>
+                                                            <th>وضعیت</th>
+                                                            <th>عملیات</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="objective-questions-{{ objective_data.objective.id }}">
+                                                        {% for question in objective_data.questions %}
+                                                        <tr>
+                                                            <td onclick="event.stopPropagation();">
+                                                                {% if question.status == 'draft' or question.status == 'rejected' %}
+                                                                <input type="checkbox" name="question_ids" value="{{ question.id }}" class="form-check-input question-checkbox">
+                                                                {% endif %}
+                                                            </td>
+                                                            <td onclick="showQuestionDetails('{{ question.id }}')" style="cursor: pointer;">
+                                                                <code>{{ question.code }}</code>
+                                                            </td>
+                                                            <td onclick="showQuestionDetails('{{ question.id }}')" style="cursor: pointer;">
+                                                                {{ question.title|default:question.body|truncatewords:10 }}
+                                                            </td>
+                                                            <td onclick="showQuestionDetails('{{ question.id }}')" style="cursor: pointer;">
+                                                                {{ question.get_question_type_display }}
+                                                            </td>
+                                                            <td onclick="showQuestionDetails('{{ question.id }}')" style="cursor: pointer;">
+                                                                {% if question.difficulty == 'easy' %}
+                                                                    <span class="badge bg-success">آسان</span>
+                                                                {% elif question.difficulty == 'medium' %}
+                                                                    <span class="badge bg-warning text-dark">متوسط</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-danger">سخت</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td onclick="showQuestionDetails('{{ question.id }}')" style="cursor: pointer;">
+                                                                {% if question.status == 'approved' %}
+                                                                    <span class="badge bg-success">تایید شده</span>
+                                                                {% elif question.status == 'pending' %}
+                                                                    <span class="badge bg-warning text-dark">در انتظار</span>
+                                                                {% elif question.status == 'draft' %}
+                                                                    <span class="badge bg-secondary">پیش‌نویس</span>
+                                                                {% elif question.status == 'rejected' %}
+                                                                    <span class="badge bg-danger">برگشت خورده</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td onclick="event.stopPropagation();">
+                                                                <a href="{% url 'accounts:question_designer:question-preview' question_id=question.id %}"
+                                                                   class="btn btn-sm btn-outline-info" title="پیش‌نمایش">👁️</a>
+                                                                <a href="{% url 'accounts:question_designer:question-edit' question_id=question.id %}"
+                                                                   class="btn btn-sm btn-outline-primary" title="ویرایش">✏️</a>
+                                                                <form method="post" action="{% url 'accounts:question_designer:question-delete' question_id=question.id %}"
+                                                                      class="d-inline" onsubmit="return confirm('این سوال حذف شود؟')">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="حذف">🗑️</button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {% else %}
+                                            <p class="text-muted p-3 mb-0">سوالی برای این هدف نیست.</p>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
-                            
-                            <!-- سطح ۳: سوالات هر هدف -->
-                            {% for objective_data in group_data.objectives %}
-                            <div id="objective-{{ objective_data.objective.id }}" class="collapse mt-3">
-                                <div class="card">
-                                    <div class="card-header bg-info text-white">
-                                        <h6 class="mb-0">
-                                            سوالات هدف: {{ objective_data.objective.name }}
-                                        </h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        {% if objective_data.questions %}
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-hover mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>کد</th>
-                                                        <th>عنوان</th>
-                                                        <th>نوع</th>
-                                                        <th>سختی</th>
-                                                        <th>وضعیت</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for question in objective_data.questions %}
-                                                    <tr onclick="showQuestionDetails('{{ question.id }}')" style="cursor: pointer;">
-                                                        <td><code>{{ question.code }}</code></td>
-                                                        <td>{{ question.title|default:question.body|truncatewords:10 }}</td>
-                                                        <td>{{ question.get_question_type_display }}</td>
-                                                        <td>
-                                                            {% if question.difficulty == 'easy' %}
-                                                                <span class="badge bg-success">آسان</span>
-                                                            {% elif question.difficulty == 'medium' %}
-                                                                <span class="badge bg-warning text-dark">متوسط</span>
-                                                            {% else %}
-                                                                <span class="badge bg-danger">سخت</span>
-                                                            {% endif %}
-                                                        </td>
-                                                        <td>
-                                                            {% if question.status == 'approved' %}
-                                                                <span class="badge bg-success">تایید شده</span>
-                                                            {% elif question.status == 'pending' %}
-                                                                <span class="badge bg-warning text-dark">در انتظار</span>
-                                                            {% elif question.status == 'draft' %}
-                                                                <span class="badge bg-secondary">پیش‌نویس</span>
-                                                            {% elif question.status == 'rejected' %}
-                                                                <span class="badge bg-danger">برگشت خورده</span>
-                                                            {% endif %}
-                                                        </td>
-                                                    </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        {% else %}
-                                        <p class="text-muted p-3 mb-0">سوالی برای این هدف نیست.</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
                         </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
+
+                <div class="sticky-bottom bg-white p-3 border-top">
+                    <button type="submit" class="btn btn-primary" id="bulkSubmitBtn" disabled>
+                        📤 ارسال انتخاب شده‌ها برای تایید
+                    </button>
+                    <span class="ms-2 text-muted" id="selectedCount">۰ سوال انتخاب شده</span>
+                </div>
+            </form>
         {% else %}
             <div class="text-center py-5">
                 <p class="text-muted mb-3">هنوز سوالی ثبت نشده است.</p>
@@ -121,3 +161,34 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+function toggleObjectiveQuestions(sourceCheckbox, tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    const checkboxes = tbody.querySelectorAll('.question-checkbox');
+    checkboxes.forEach(cb => cb.checked = sourceCheckbox.checked);
+    updateBulkButton();
+}
+
+function updateBulkButton() {
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+    const checked = document.querySelectorAll('.question-checkbox:checked');
+    const btn = document.getElementById('bulkSubmitBtn');
+    const count = document.getElementById('selectedCount');
+    
+    if (btn) {
+        btn.disabled = checked.length === 0;
+    }
+    if (count) {
+        count.textContent = `${checked.length} سوال انتخاب شده`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkButton);
+    });
+    updateBulkButton();
+});
+</script>

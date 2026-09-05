@@ -11,21 +11,57 @@
                     <h5 class="mb-0">💳 درخواست پرداخت</h5>
                 </div>
                 <div class="card-body">
-                    
+
                     <!-- اطلاعات پرداخت -->
                     <div class="alert alert-info">
                         <strong>مبلغ قابل پرداخت:</strong>
-                        <h4 class="mb-0 mt-2">{{ amount }} تومان</h4>
+                        <h4 class="mb-0 mt-2">
+                            {% if discount_info %}
+                                <del class="text-danger">{{ discount_info.original_price }} تومان</del>
+                                <span class="text-success">{{ discount_info.final_price }} تومان</span>
+                                <span class="badge bg-success">
+                                    {{ discount_info.discount_percent }}٪ تخفیف
+                                </span>
+                            {% else %}
+                                {{ amount }} تومان
+                            {% endif %}
+                        </h4>
                     </div>
-                    
+
                     {% if assessment %}
                         <p><strong>آزمون:</strong> {{ assessment.title }}</p>
                     {% elif course %}
                         <p><strong>دوره:</strong> {{ course.name }}</p>
                     {% endif %}
-                    
+
                     <hr>
-                    
+
+                    <!-- کد تخفیف -->
+                    {% if assessment %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>🎁 کد تخفیف</h6>
+                            <form method="post" action="{% url 'assessments:apply-discount' assessment_id=assessment.id %}" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="text" name="code" class="form-control" 
+                                       placeholder="کد تخفیف را وارد کنید..."
+                                       value="{{ request.session.discount_info.code|default:'' }}">
+                                <button type="submit" class="btn btn-warning">اعمال</button>
+                            </form>
+                            {% if discount_info %}
+                            <div class="alert alert-success mt-2 mb-0">
+                                کد تخفیف «{{ discount_info.code }}» اعمال شد:
+                                تخفیف کد: {{ discount_info.code_discount }}٪ +
+                                تخفیف پایه: {{ discount_info.base_discount }}٪ =
+                                مجموع: {{ discount_info.discount_percent }}٪
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
                     <!-- حساب‌های پرداخت -->
                     <h6>حساب‌های پرداخت:</h6>
                     {% for account in accounts %}
@@ -41,24 +77,24 @@
                         حسابی ثبت نشده. لطفاً با ادمین تماس بگیرید.
                     </div>
                     {% endfor %}
-                    
+
                     <hr>
-                    
+
                     <!-- فرم -->
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        
+
                         <div class="mb-3">
                             <label class="form-label">کد رهگیری پرداخت</label>
                             {{ form.tracking_code }}
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">عکس رسید پرداخت</label>
                             {{ form.receipt_image }}
                             <small class="text-muted">عکس یا اسکرین‌شات از رسید پرداخت</small>
                         </div>
-                        
+
                         <button type="submit" class="btn btn-primary w-100">
                             ارسال درخواست
                         </button>

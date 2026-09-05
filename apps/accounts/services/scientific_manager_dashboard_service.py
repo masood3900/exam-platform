@@ -23,13 +23,13 @@ class ScientificManagerDashboardService:
             memberships__is_active=True,
             is_active=True,
         ).distinct()
-        
+
         # شامل فرزندها
         all_groups = list(groups)
         for group in groups:
             children = ScientificGroup.objects.filter(parent=group)
             all_groups.extend(children)
-        
+
         return ScientificGroup.objects.filter(id__in=[g.id for g in all_groups])
 
     @staticmethod
@@ -65,8 +65,15 @@ class ScientificManagerDashboardService:
             status="active",
         ).values("user").distinct().count()
 
+        # تعداد موضوع‌ها (گروه‌هایی که parent دارند)
+        topics_count = ScientificGroup.objects.filter(
+            id__in=[g.id for g in groups if g.parent is not None],
+            is_active=True,
+        ).count()
+
         return {
             "groups_count": groups.count(),
+            "topics_count": topics_count,
             "questions_count": questions.count(),
             "designers_count": designers,
             "assessments_count": assessments.count(),
@@ -131,7 +138,7 @@ class ScientificManagerDashboardService:
         from apps.accounts.services.student_directory_service import StudentDirectoryService
 
         groups = ScientificManagerDashboardService.get_managed_groups(user)
-        
+
         result = []
         for group in groups:
             # فقط موضوع‌ها (parent دارن)
@@ -144,7 +151,7 @@ class ScientificManagerDashboardService:
                         "students_count": len(students),
                         "avg_percentage": round(avg, 2),
                     })
-        
+
         return result
 
     @staticmethod

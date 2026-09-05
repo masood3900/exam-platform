@@ -21,6 +21,7 @@ from apps.accounts.views.question_designer.learning_objectives_api import (
 from apps.accounts.views.question_designer.bulk_submit import BulkSubmitView
 from apps.accounts.views.question_designer.question_edit import QuestionEditView
 from apps.accounts.views.question_designer.question_delete import QuestionDeleteView
+from apps.accounts.views.question_designer.question_preview import QuestionPreviewView
 
 
 app_name = "question_designer"
@@ -59,5 +60,5 @@ urlpatterns = [
     path("question/bulk-submit/", BulkSubmitView.as_view(), name="bulk-submit"),
     path("question/<uuid:question_id>/edit/", QuestionEditView.as_view(), name="question-edit"),
     path("question/<uuid:question_id>/delete/", QuestionDeleteView.as_view(), name="question-delete"),
-
+    path("question/<uuid:question_id>/preview/", QuestionPreviewView.as_view(), name="question-preview"),
 ]

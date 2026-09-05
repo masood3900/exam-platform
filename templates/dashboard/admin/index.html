@@ -34,7 +34,7 @@
                         <a href="{% url 'accounts:admin-scientific-groups' %}" class="list-group-item list-group-item-action">
                             🏛️ مدیریت حوزه‌های علمی
                         </a>
-                        
+
                         <a href="{% url 'accounts:admin-learning-paths' %}" class="list-group-item list-group-item-action">
                             📚 مدیریت مسیرهای آموزشی
                         </a>
@@ -47,7 +47,10 @@
                         <a href="{% url 'accounts:admin-assessment-create' %}" class="list-group-item list-group-item-action">
                             📝 ساخت آزمون جدید
                         </a>
-                                            </div>
+                        <a href="{% url 'accounts:admin-discount-codes' %}" class="list-group-item list-group-item-action">
+                            🎁 مدیریت کدهای تخفیف
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,8 +88,8 @@
                                         <td>{{ payment.amount }} تومان</td>
                                         <td>{{ payment.created_at|date:"Y/m/d H:i" }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary" 
-                                                    data-bs-toggle="modal" 
+                                            <button class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal"
                                                     data-bs-target="#paymentModal{{ forloop.counter }}">
                                                 مشاهده
                                             </button>
@@ -126,15 +129,15 @@
                     <div class="col-md-6">
                         {% if payment.receipt_image %}
                             <p><strong>عکس رسید:</strong></p>
-                            <img src="{{ payment.receipt_image.url }}" class="img-fluid rounded" 
-                                 style="max-height: 200px; cursor: pointer;" 
+                            <img src="{{ payment.receipt_image.url }}" class="img-fluid rounded"
+                                 style="max-height: 200px; cursor: pointer;"
                                  onclick="window.open(this.src)">
                         {% else %}
                             <p class="text-muted">عکسی ارسال نشده.</p>
                         {% endif %}
                     </div>
                 </div>
-                
+
                 <div class="alert alert-info">
                     💡 برای تایید/رد این درخواست، مدیر مالی اقدام می‌کند.
                 </div>

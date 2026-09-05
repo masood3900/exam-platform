@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت موضوع‌ها{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📂 مدیریت موضوع‌ها</h1>
+        <a href="{% url 'accounts:scientific_manager:dashboard' %}" class="btn btn-outline-secondary">
+            بازگشت به داشبورد
+        </a>
+    </div>
+
+    <!-- فرم ساخت موضوع جدید -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">➕ موضوع جدید</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'accounts:scientific_manager:topic-management-create' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">مسیر آموزشی / رشته</label>
+                        <select name="parent_id" class="form-control" required>
+                            <option value="">انتخاب والد...</option>
+                            {% for group in available_parents %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">نام موضوع</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">کد موضوع</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">توضیحات</label>
+                    <textarea name="description" class="form-control" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">ساخت موضوع</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- لیست موضوع‌ها -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">📋 موضوع‌های من</h5>
+        </div>
+        <div class="card-body">
+            {% if topics %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>نام</th>
+                            <th>کد</th>
+                            <th>مسیر آموزشی</th>
+                            <th>اهداف</th>
+                            <th>وضعیت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for topic in topics %}
+                        <tr>
+                            <td>{{ topic.name }}</td>
+                            <td><code>{{ topic.code }}</code></td>
+                            <td>{{ topic.parent.name|default:"-" }}</td>
+                            <td>{{ topic.learning_objectives.count }}</td>
+                            <td>
+                                {% if topic.is_active %}
+                                    <span class="badge bg-success">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-danger">غیرفعال</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'accounts:scientific_manager:topic-edit' topic_id=topic.id %}" class="btn btn-sm btn-outline-primary">✏️ ویرایش</a>
+                                <form method="post" action="{% url 'accounts:scientific_manager:topic-management-toggle' topic_id=topic.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                        {% if topic.is_active %}⏸️{% else %}▶️{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'accounts:scientific_manager:topic-management-delete' topic_id=topic.id %}" class="d-inline" onsubmit="return confirm('حذف شود؟')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">موضوعی ساخته نشده است.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

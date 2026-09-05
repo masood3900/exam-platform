@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}ویرایش موضوع{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>✏️ ویرایش موضوع</h1>
+        <a href="{% url 'accounts:scientific_manager:topic-management' %}" class="btn btn-outline-secondary">
+            بازگشت
+        </a>
+    </div>
+
+    <!-- فرم ویرایش موضوع -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">📝 اطلاعات موضوع</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'accounts:scientific_manager:topic-edit' topic_id=topic.id %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">نام موضوع</label>
+                        <input type="text" name="name" class="form-control" value="{{ topic.name }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">کد موضوع</label>
+                        <input type="text" name="code" class="form-control" value="{{ topic.code }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">مسیر آموزشی</label>
+                        <input type="text" class="form-control" value="{{ topic.parent.name|default:'-' }}" disabled>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">توضیحات</label>
+                    <textarea name="description" class="form-control" rows="3">{{ topic.description }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- اهداف آموزشی -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">🎯 اهداف آموزشی</h5>
+        </div>
+        <div class="card-body">
+            <!-- فرم افزودن هدف -->
+            <form method="post" action="{% url 'accounts:scientific_manager:topic-objective-create' topic_id=topic.id %}" class="mb-4">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <input type="text" name="name" class="form-control" placeholder="نام هدف" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" name="code" class="form-control" placeholder="کد هدف" required>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <input type="text" name="description" class="form-control" placeholder="توضیحات (اختیاری)">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button type="submit" class="btn btn-success w-100">➕ افزودن</button>
+                    </div>
+                </div>
+            </form>
+
+            <hr>
+
+            <!-- لیست اهداف -->
+            {% if objectives %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>نام</th>
+                            <th>کد</th>
+                            <th>توضیحات</th>
+                            <th>سوالات</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for objective in objectives %}
+                        <tr>
+                            <td>{{ objective.name }}</td>
+                            <td><code>{{ objective.code }}</code></td>
+                            <td>{{ objective.description|default:"-"|truncatewords:8 }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ objective.questions.count }}</span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'accounts:scientific_manager:topic-objective-delete' objective_id=objective.id %}" class="d-inline" onsubmit="return confirm('این هدف حذف شود؟')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">هدفی برای این موضوع ساخته نشده.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

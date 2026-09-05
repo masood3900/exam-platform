@@ -11,11 +11,9 @@ class QuestionDeleteView(LoginRequiredMixin, View):
 
     def post(self, request, question_id):
         question = get_object_or_404(Question, id=question_id)
-        
-        if question.status in [Question.QuestionStatus.DRAFT, Question.QuestionStatus.REJECTED]:
-            question.delete()
-            messages.success(request, "سوال حذف شد.")
-        else:
-            messages.error(request, "سوال تایید شده یا در انتظار تایید قابل حذف نیست.")
-        
+
+        # همه سوالات قابل حذف هستن (حتی تایید شده)
+        question.delete()
+        messages.success(request, "سوال حذف شد.")
+
         return redirect("accounts:question_designer:dashboard")

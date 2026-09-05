@@ -18,14 +18,22 @@ from apps.accounts.views.scientific_manager.question_status_change import (
 )
 from apps.accounts.views.scientific_manager.assign_designer import AssignDesignerView
 from apps.accounts.views.scientific_manager.remove_designer import RemoveDesignerView
-from apps.accounts.views.scientific_manager.objective_create import ObjectiveCreateView
-from apps.accounts.views.scientific_manager.topic_create import TopicCreateView
 from apps.accounts.views.scientific_manager.user_directory import ScientificManagerUserDirectoryView
 from apps.accounts.views.scientific_manager.assessment_delete import AssessmentDeleteView
-from apps.accounts.views.scientific_manager.topic_delete import TopicDeleteView
 from apps.accounts.views.scientific_manager.assessment_add_student import AssessmentAddStudentView
 from apps.accounts.views.scientific_manager.assessment_toggle import AssessmentToggleActiveView
 from apps.accounts.views.scientific_manager.assessment_pricing import AssessmentPricingView
+from apps.accounts.views.scientific_manager.topic_management import (
+    TopicManagementView,
+    TopicCreateView,
+    TopicDeleteView,
+    TopicToggleView,
+)
+from apps.accounts.views.scientific_manager.topic_edit import (
+    TopicEditView,
+    ObjectiveCreateView,
+    ObjectiveDeleteView,
+)
 
 app_name = "scientific_manager"
 
@@ -63,15 +71,19 @@ urlpatterns = [
     path("assign-designer/", AssignDesignerView.as_view(), name="assign-designer"),
     path("remove-designer/<uuid:membership_id>/", RemoveDesignerView.as_view(), name="remove-designer"),
     path("question/bulk-review/", BulkReviewView.as_view(), name="bulk-review"),
-    path("topics/create/", TopicCreateView.as_view(), name="topic-create"),
-    path("objectives/create/", ObjectiveCreateView.as_view(), name="objective-create"),
     path("users/", ScientificManagerUserDirectoryView.as_view(), name="user-directory"),
     path("course/<uuid:group_id>/students/", CourseStudentsView.as_view(), name="course-students"),
     path("student/<int:student_id>/detail/", StudentDetailView.as_view(), name="student-detail"),
     path("attempt/<uuid:attempt_id>/detail/", AttemptDetailView.as_view(), name="attempt-detail"),
     path("assessments/<uuid:assessment_id>/delete/", AssessmentDeleteView.as_view(), name="assessment-delete"),
-    path("topics/<uuid:topic_id>/delete/", TopicDeleteView.as_view(), name="topic-delete"),
     path("assessments/<uuid:assessment_id>/add-student/", AssessmentAddStudentView.as_view(), name="assessment-add-student"),
     path("assessments/<uuid:assessment_id>/toggle/", AssessmentToggleActiveView.as_view(), name="assessment-toggle"),
     path("assessments/<uuid:assessment_id>/pricing/", AssessmentPricingView.as_view(), name="assessment-pricing"),
+    path("topics/manage/", TopicManagementView.as_view(), name="topic-management"),
+    path("topics/manage/create/", TopicCreateView.as_view(), name="topic-management-create"),
+    path("topics/manage/<uuid:topic_id>/delete/", TopicDeleteView.as_view(), name="topic-management-delete"),
+    path("topics/manage/<uuid:topic_id>/toggle/", TopicToggleView.as_view(), name="topic-management-toggle"),
+    path("topics/manage/<uuid:topic_id>/edit/", TopicEditView.as_view(), name="topic-edit"),
+    path("topics/manage/<uuid:topic_id>/objective/create/", ObjectiveCreateView.as_view(), name="topic-objective-create"),
+    path("objective/<uuid:objective_id>/delete/", ObjectiveDeleteView.as_view(), name="topic-objective-delete"),
 ]

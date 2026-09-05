@@ -1,4 +1,3 @@
-
 from .learning_path import *
 from .question import *
 from .assessment import *
@@ -9,3 +8,4 @@ from .scientific_group import *
 from .course_instructor_assignment import *
 from .payment import *
 from .lesson import *
+from .discount_code import *
