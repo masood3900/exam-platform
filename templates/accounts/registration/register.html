@@ -5,75 +5,60 @@
 {% endblock %}
 
 {% block content %}
-
-<div class="row justify-content-center">
-
-    <div class="col-12 col-md-8 col-lg-6">
-
-        <div class="card shadow-sm">
-
-            <div class="card-body p-4">
-
-                <h2 class="text-center mb-4">
-                    ایجاد حساب کاربری
-                </h2>
-
-                <form method="post">
-
-                    {% csrf_token %}
-
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                    {% endif %}
-
-
-                    {% for field in form %}
-
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
                         <div class="mb-3">
-
-                            <label
-                                for="{{ field.id_for_label }}"
-                                class="form-label"
-                            >
-                                {{ field.label }}
-                            </label>
-
-                            {{ field }}
-
-                            {% if field.help_text %}
-                                <div class="form-text">
-                                    {{ field.help_text }}
-                                </div>
-                            {% endif %}
-
-                            {% for error in field.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ error }}
-                                </div>
-                            {% endfor %}
-
+                            <span style="font-size: 60px;">✨</span>
                         </div>
+                        <h3 class="fw-bold mb-1">ایجاد حساب کاربری</h3>
+                        <p class="text-muted mb-0">همین امروز شروع کنید</p>
+                    </div>
 
-                    {% endfor %}
+                    <form method="post" class="mb-3">
+                        {% csrf_token %}
 
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2 small">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100"
-                    >
-                        ثبت‌نام
-                    </button>
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                    {{ field.label }}
+                                </label>
 
-                </form>
+                                {{ field }}
 
+                                {% if field.help_text %}
+                                    <div class="form-text small">{{ field.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3">
+                            ثبت‌نام
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="text-muted mb-2">قبلاً ثبت‌نام کردید؟</p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary w-100 rounded-3">
+                            ورود به حساب کاربری
+                        </a>
+                    </div>
+                </div>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 {% endblock %}
