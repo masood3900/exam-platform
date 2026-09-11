@@ -1,0 +1,86 @@
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">🎁 کد معرف شما</h5>
+        <button class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#referralListModal">
+            👥 افراد معرفی‌شده ({{ referred_users_count }})
+        </button>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-2">این کد را به دوستان خود بدهید و از هر خرید آن‌ها ۱٪ سود بگیرید.</p>
+        <div class="d-flex gap-2 align-items-center">
+            <div class="flex-grow-1">
+                <input type="text" 
+                       id="referralCodeInput" 
+                       class="form-control form-control-lg text-center fw-bold" 
+                       value="{{ user.referral_code }}" 
+                       readonly
+                       style="font-family: monospace; letter-spacing: 2px; background: #f8f9fa;">
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="copyReferralCode()">
+                📋 کپی
+            </button>
+        </div>
+        <div id="copyMessage" class="text-success small mt-2" style="display: none;">
+            ✅ کد کپی شد!
+        </div>
+    </div>
+</div>
+
+<!-- Modal لیست افراد معرفی‌شده -->
+<div class="modal fade" id="referralListModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">👥 افراد معرفی‌شده</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {% if referred_users %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>نام کاربری</th>
+                                <th>نام کامل</th>
+                                <th>تاریخ عضویت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in referred_users %}
+                            <tr>
+                                <td><code>{{ u.username }}</code></td>
+                                <td>{{ u.get_full_name|default:"-" }}</td>
+                                <td>{{ u.date_joined|date:"Y/m/d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0 text-center py-4">
+                    هنوز کسی با کد شما ثبت‌نام نکرده است.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyReferralCode() {
+    const input = document.getElementById('referralCodeInput');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(input.value).then(function() {
+        const msg = document.getElementById('copyMessage');
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    }).catch(function() {
+        document.execCommand('copy');
+        const msg = document.getElementById('copyMessage');
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    });
+}
+</script>

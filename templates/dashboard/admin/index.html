@@ -24,8 +24,8 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <a href="{% url 'accounts:admin-user-directory' %}" class="list-group-item list-group-item-action">
-                            👥 مدیریت کارمندان
+                        <a href="{% url 'accounts:user-management' %}" class="list-group-item list-group-item-action">
+                            👥 مدیریت کاربران
                         </a>
                         <a href="{% url 'accounts:admin-payment-management' %}" class="list-group-item list-group-item-action">
                             💰 مدیریت پرداخت‌ها
@@ -49,6 +49,9 @@
                         </a>
                         <a href="{% url 'accounts:admin-discount-codes' %}" class="list-group-item list-group-item-action">
                             🎁 مدیریت کدهای تخفیف
+                        </a>
+                        <a href="/admin/" target="_blank" class="list-group-item list-group-item-action">
+                            ⚙️ پنل ادمین Django
                         </a>
                     </div>
                 </div>

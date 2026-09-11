@@ -3,25 +3,25 @@
 {% block title %}مدیریت موضوع‌ها{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>📂 مدیریت موضوع‌ها</h1>
-        <a href="{% url 'accounts:scientific_manager:dashboard' %}" class="btn btn-outline-secondary">
-            بازگشت به داشبورد
+<div class="container py-3 py-md-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">📂 مدیریت موضوع‌ها</h4>
+        <a href="{% url 'accounts:scientific_manager:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+            بازگشت
         </a>
     </div>
 
     <!-- فرم ساخت موضوع جدید -->
-    <div class="card shadow-sm mb-4">
+    <div class="card shadow-sm mb-3">
         <div class="card-header bg-success text-white">
-            <h5 class="mb-0">➕ موضوع جدید</h5>
+            <h6 class="mb-0">➕ موضوع جدید</h6>
         </div>
-        <div class="card-body">
+        <div class="card-body p-3">
             <form method="post" action="{% url 'accounts:scientific_manager:topic-management-create' %}">
                 {% csrf_token %}
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">مسیر آموزشی / رشته</label>
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small">مسیر آموزشی</label>
                         <select name="parent_id" class="form-control" required>
                             <option value="">انتخاب والد...</option>
                             {% for group in available_parents %}
@@ -29,20 +29,22 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">نام موضوع</label>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small">نام موضوع</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">کد موضوع</label>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small">کد موضوع</label>
                         <input type="text" name="code" class="form-control" required>
                     </div>
+                    <div class="col-12">
+                        <label class="form-label small">توضیحات</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success w-100 w-md-auto">ساخت موضوع</button>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">توضیحات</label>
-                    <textarea name="description" class="form-control" rows="2"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success">ساخت موضوع</button>
             </form>
         </div>
     </div>
@@ -50,13 +52,62 @@
     <!-- لیست موضوع‌ها -->
     <div class="card shadow-sm">
         <div class="card-header bg-info text-white">
-            <h5 class="mb-0">📋 موضوع‌های من</h5>
+            <h6 class="mb-0">📋 موضوع‌های من ({{ topics|length }})</h6>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             {% if topics %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+            
+            <!-- نمایش موبایل -->
+            <div class="d-md-none">
+                {% for topic in topics %}
+                <div class="border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong class="d-block">{{ topic.name }}</strong>
+                            <small class="text-muted">
+                                <code>{{ topic.code }}</code> • {{ topic.parent.name|default:"-" }}
+                            </small>
+                        </div>
+                        <div>
+                            {% if topic.is_active %}
+                                <span class="badge bg-success">فعال</span>
+                            {% else %}
+                                <span class="badge bg-danger">غیرفعال</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <span class="badge bg-secondary">🎯 {{ topic.learning_objectives.count }} هدف</span>
+                    </div>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <a href="{% url 'accounts:scientific_manager:topic-edit' topic_id=topic.id %}" class="btn btn-sm btn-outline-primary flex-fill">
+                            ✏️ ویرایش
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-success flex-fill"
+                                data-bs-toggle="modal"
+                                data-bs-target="#assignDesignerModal"
+                                onclick="document.getElementById('designerTopicId').value='{{ topic.id }}'">
+                            🎨 طراح
+                        </button>
+                        <form method="post" action="{% url 'accounts:scientific_manager:topic-management-toggle' topic_id=topic.id %}" class="flex-fill">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-warning w-100">
+                                {% if topic.is_active %}⏸️{% else %}▶️{% endif %}
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'accounts:scientific_manager:topic-management-delete' topic_id=topic.id %}" class="flex-fill" onsubmit="return confirm('حذف شود؟')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">🗑️</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- نمایش دسکتاپ -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
                         <tr>
                             <th>نام</th>
                             <th>کد</th>
@@ -72,7 +123,7 @@
                             <td>{{ topic.name }}</td>
                             <td><code>{{ topic.code }}</code></td>
                             <td>{{ topic.parent.name|default:"-" }}</td>
-                            <td>{{ topic.learning_objectives.count }}</td>
+                            <td><span class="badge bg-secondary">{{ topic.learning_objectives.count }}</span></td>
                             <td>
                                 {% if topic.is_active %}
                                     <span class="badge bg-success">فعال</span>
@@ -81,7 +132,13 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'accounts:scientific_manager:topic-edit' topic_id=topic.id %}" class="btn btn-sm btn-outline-primary">✏️ ویرایش</a>
+                                <a href="{% url 'accounts:scientific_manager:topic-edit' topic_id=topic.id %}" class="btn btn-sm btn-outline-primary">✏️</a>
+                                <button type="button" class="btn btn-sm btn-outline-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#assignDesignerModal"
+                                        onclick="document.getElementById('designerTopicId').value='{{ topic.id }}'">
+                                    🎨
+                                </button>
                                 <form method="post" action="{% url 'accounts:scientific_manager:topic-management-toggle' topic_id=topic.id %}" class="d-inline">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-outline-warning">
@@ -98,9 +155,41 @@
                     </tbody>
                 </table>
             </div>
+            
             {% else %}
-            <p class="text-muted mb-0">موضوعی ساخته نشده است.</p>
+            <div class="text-center py-5">
+                <div style="font-size: 60px;">📭</div>
+                <p class="text-muted mb-0 mt-3">موضوعی ساخته نشده است.</p>
+            </div>
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal افزودن طراح -->
+<div class="modal fade" id="assignDesignerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🎨 افزودن طراح سوال</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:scientific_manager:assign-designer' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="scientific_group_id" id="designerTopicId">
+                    <div class="mb-3">
+                        <label class="form-label small">کاربر</label>
+                        <select name="user_id" class="form-control" required>
+                            <option value="">انتخاب کاربر...</option>
+                            {% for user in all_users %}
+                            <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">ثبت</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

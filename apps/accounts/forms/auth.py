@@ -1,9 +1,22 @@
+from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from apps.accounts.forms.honeypot_mixin import HoneypotMixin
 from apps.accounts.models import User
 
 
 class UserRegisterForm(HoneypotMixin, UserCreationForm):
+
+    referral_code_input = forms.CharField(
+        label="کد معرف (اختیاری)",
+        required=False,
+        max_length=10,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "مثلاً SJ12345",
+            }
+        ),
+    )
 
     class Meta(UserCreationForm.Meta):
 
@@ -40,3 +53,27 @@ class UserRegisterForm(HoneypotMixin, UserCreationForm):
         self.fields["password2"].help_text = (
             "رمز عبور را دوباره وارد کنید."
         )
+
+    def clean_referral_code_input(self):
+        code = self.cleaned_data.get("referral_code_input", "").strip().upper()
+
+        if code:
+            try:
+                referrer = User.objects.get(referral_code__iexact=code)
+            except User.DoesNotExist:
+                raise forms.ValidationError("کد معرف نامعتبر است.")
+            return referrer
+
+        return None
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        referrer = self.cleaned_data.get("referral_code_input")
+
+        if referrer:
+            user.referred_by = referrer
+
+        if commit:
+            user.save()
+
+        return user

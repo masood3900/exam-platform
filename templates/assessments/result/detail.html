@@ -5,27 +5,66 @@
 نتیجه آزمون | {{ attempt.assessment.title }}
 {% endblock %}
 
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block support_button %}{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism.min.css">
 <style>
+    body {
+        background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 50%, #f3e5f5 100%) !important;
+        min-height: 100vh;
+    }
+    
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    }
+    
     .question-body {
         direction: rtl;
         text-align: right;
         line-height: 2;
+        word-wrap: break-word;
     }
     .question-body pre {
         direction: ltr;
         text-align: left;
         background: #f8f9fa;
-        padding: 15px;
+        padding: 12px;
         border-radius: 8px;
         overflow-x: auto;
+        font-size: 0.85rem;
+    }
+    
+    .question-body img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .question-body table {
+        display: block;
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    
+    @media (max-width: 576px) {
+        .question-body {
+            font-size: 0.95rem;
+            line-height: 1.9;
+        }
+        
+        .question-body pre {
+            font-size: 0.75rem;
+            padding: 8px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
     {% include "assessments/result/components/header.html" %}
     {% include "assessments/result/components/objective_report.html" %}
     {% include "assessments/result/components/suggestion.html" %}

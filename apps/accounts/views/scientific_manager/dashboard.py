@@ -38,10 +38,19 @@ class ScientificManagerDashboardView(
         # کاربران برای افزودن طراح
         context["all_users"] = User.objects.filter(is_active=True)
         
-        # گروه‌های تحت مدیریت
+        # مسیرهای آموزشی تحت مدیریت (فقط فرزندان مستقیم رشته‌ها)
         context["my_groups"] = (
             ScientificManagerDashboardService.get_managed_groups(user).filter(
                 parent__isnull=False,
+                parent__parent__isnull=True,
+            )
+        )
+
+        # موضوع‌های تحت مدیریت (فرزندان مسیرها)
+        context["managed_topics"] = (
+            ScientificManagerDashboardService.get_managed_groups(user).filter(
+                parent__isnull=False,
+                parent__parent__isnull=False,
             )
         )
         context["student_groups"] = (

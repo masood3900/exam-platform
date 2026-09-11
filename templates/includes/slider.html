@@ -1,0 +1,42 @@
+<div id="heroSlider" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="2"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active" style="background: linear-gradient(135deg, #667eea, #764ba2); min-height: 300px;">
+            <div class="d-flex align-items-center justify-content-center text-center text-white" style="min-height: 300px;">
+                <div>
+                    <h2 class="fw-bold mb-3">📚 سامانه برگزاری آزمون آنلاین</h2>
+                    <p class="mb-4">همین حالا آزمون بده و سطح خودت رو بسنج!</p>
+                    <a href="{% url 'core:assessments' %}" class="btn btn-light btn-lg rounded-pill px-5">شروع آزمون</a>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="background: linear-gradient(135deg, #f093fb, #f5576c); min-height: 300px;">
+            <div class="d-flex align-items-center justify-content-center text-center text-white" style="min-height: 300px;">
+                <div>
+                    <h2 class="fw-bold mb-3">🎯 انواع سوالات</h2>
+                    <p class="mb-4">چهارگزینه‌ای، صحیح غلط، تشریحی و کدنویسی</p>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg rounded-pill px-5">ثبت‌نام رایگان</a>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item" style="background: linear-gradient(135deg, #43e97b, #38f9d7); min-height: 300px;">
+            <div class="d-flex align-items-center justify-content-center text-center text-white" style="min-height: 300px;">
+                <div>
+                    <h2 class="fw-bold mb-3">📊 تحلیل دقیق نتایج</h2>
+                    <p class="mb-4">گزارش کامل عملکرد در هر مبحث</p>
+                    <a href="{% url 'core:assessments' %}" class="btn btn-light btn-lg rounded-pill px-5">مشاهده آزمون‌ها</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>

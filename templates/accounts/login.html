@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}
-ورود
-{% endblock %}
+{% block title %}ورود{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-3 py-md-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
+        <div class="col-11 col-sm-8 col-md-6 col-lg-5">
             <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-body p-5">
+                <div class="card-body p-4 p-md-5">
                     <div class="text-center mb-4">
                         <div class="mb-3">
-                            <span style="font-size: 60px;">🔐</span>
+                            <span style="font-size: 50px;">🔐</span>
                         </div>
-                        <h3 class="fw-bold mb-1">خوش برگشتی!</h3>
-                        <p class="text-muted mb-0">وارد حساب کاربری خود شوید</p>
+                        <h4 class="fw-bold mb-1">خوش برگشتی!</h4>
+                        <p class="text-muted mb-0 small">وارد حساب کاربری خود شوید</p>
                     </div>
 
                     <form method="post" class="mb-3">
@@ -28,24 +26,28 @@
                         {% endif %}
 
                         <div class="mb-3">
-                            <label class="form-label">نام کاربری</label>
-                            <input type="text" name="username" class="form-control form-control-lg rounded-3"
+                            <label class="form-label small">نام کاربری</label>
+                            <input type="text" name="username" class="form-control rounded-3"
                                    placeholder="نام کاربری" required autofocus>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">رمز عبور</label>
-                            <input type="password" name="password" class="form-control form-control-lg rounded-3"
+                            <label class="form-label small">رمز عبور</label>
+                            <input type="password" name="password" class="form-control rounded-3"
                                    placeholder="رمز عبور" required>
                         </div>
 
-                        <button class="btn btn-primary btn-lg w-100 rounded-3" type="submit">
+                        <button class="btn btn-primary w-100 rounded-3 py-2" type="submit">
                             ورود
                         </button>
                     </form>
 
                     <div class="text-center">
-                        <p class="text-muted mb-2">حساب کاربری ندارید؟</p>
+                        <a href="{% url 'accounts:password-reset' %}" class="d-block mb-3 small text-decoration-none">
+                            🔑 رمز عبور را فراموش کردید؟
+                        </a>
+                        <hr class="my-3">
+                        <p class="text-muted mb-2 small">حساب کاربری ندارید؟</p>
                         <a href="{% url 'accounts:register' %}" class="btn btn-outline-success w-100 rounded-3">
                             ➕ ثبت نام کنید
                         </a>

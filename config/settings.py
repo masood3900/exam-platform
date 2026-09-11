@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['185.8.172.51', 'localhost', '127.0.0.1', 'sanjehyar.ir', 'www.
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +58,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 AUTH_USER_MODEL = "accounts.User"
-LOGIN_REDIRECT_URL = reverse_lazy("accounts:dashboard")
+LOGIN_REDIRECT_URL = reverse_lazy("core:home")
 LOGOUT_REDIRECT_URL = reverse_lazy("accounts:login")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -140,3 +141,23 @@ STATIC_ROOT = BASE_DIR/"staticfiles"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'info.sanjehyar@gmail.com'
+EMAIL_HOST_PASSWORD = 'YOUR_APP_PASSWORD'
+DEFAULT_FROM_EMAIL = 'info.sanjehyar@gmail.com'
+
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = [
+    'https://sanjehyar.ir',
+    'https://www.sanjehyar.ir',
+    'http://sanjehyar.ir',
+    'http://www.sanjehyar.ir',
+]
+
+# Proxy SSL Header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

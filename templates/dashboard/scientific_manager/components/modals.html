@@ -61,11 +61,11 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">موضوع/دوره</label>
+                        <label class="form-label">موضوع</label>
                         <select name="scientific_group_id" class="form-control" required>
                             <option value="">انتخاب موضوع...</option>
-                            {% for group in my_groups %}
-                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% for topic in managed_topics %}
+                            <option value="{{ topic.id }}">{{ topic.parent.name }} > {{ topic.name }}</option>
                             {% endfor %}
                         </select>
                     </div>

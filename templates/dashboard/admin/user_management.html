@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت کاربران{% endblock %}
+
+{% block content %}
+<div class="container py-3 py-md-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">👥 مدیریت کاربران</h4>
+        <a href="{% url 'accounts:admin-dashboard' %}" class="btn btn-sm btn-outline-secondary">
+            بازگشت
+        </a>
+    </div>
+
+    <!-- فرم ساخت کاربر -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-success text-white">
+            <h6 class="mb-0">➕ کاربر جدید</h6>
+        </div>
+        <div class="card-body p-3">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <input type="text" name="username" class="form-control" placeholder="نام کاربری *" required>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <input type="email" name="email" class="form-control" placeholder="ایمیل">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <input type="password" name="password" class="form-control" placeholder="رمز عبور *" required>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <input type="text" name="first_name" class="form-control" placeholder="نام">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <input type="text" name="last_name" class="form-control" placeholder="نام خانوادگی">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="d-flex gap-3 flex-wrap align-items-center h-100">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_staff" class="form-check-input" id="isStaff">
+                                <label class="form-check-label small" for="isStaff">کارمند</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="is_superuser" class="form-check-input" id="isSuperuser">
+                                <label class="form-check-label small" for="isSuperuser">سوپریوزر</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="isActive" checked>
+                                <label class="form-check-label small" for="isActive">فعال</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success w-100 w-md-auto">ساخت کاربر</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- لیست کاربران -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">📋 کاربران ({{ users.count }})</h6>
+        </div>
+        <div class="card-body p-0">
+            {% if users %}
+            
+            <!-- نمایش موبایل -->
+            <div class="d-md-none">
+                {% for user in users %}
+                <div class="border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle me-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                                 style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 16px;">
+                                {{ user.get_full_name|default:user.username|slice:":1" }}
+                            </div>
+                            <div>
+                                <strong class="d-block">{{ user.get_full_name|default:user.username }}</strong>
+                                <small class="text-muted">{{ user.username }}</small>
+                            </div>
+                        </div>
+                        <div>
+                            {% if user.is_superuser %}
+                                <span class="badge bg-danger">سوپریوزر</span>
+                            {% elif user.is_staff %}
+                                <span class="badge bg-warning text-dark">کارمند</span>
+                            {% else %}
+                                <span class="badge bg-secondary">عادی</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if user.email %}
+                    <div class="small text-muted mb-1">📧 {{ user.email }}</div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between small text-muted mb-2">
+                        <span>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">فعال</span>
+                            {% else %}
+                                <span class="badge bg-danger">غیرفعال</span>
+                            {% endif %}
+                        </span>
+                        <span>{{ user.date_joined|date:"Y/m/d" }}</span>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-primary flex-fill" data-bs-toggle="modal"
+                                data-bs-target="#editModal{{ user.id }}">✏️ ویرایش</button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill" data-bs-toggle="modal"
+                                data-bs-target="#passwordModal{{ user.id }}">🔑 پسورد</button>
+                        <form method="post" class="flex-fill" onsubmit="return confirm('حذف شود؟')">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">🗑️</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- نمایش دسکتاپ -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>نام کاربری</th>
+                            <th>نام کامل</th>
+                            <th>ایمیل</th>
+                            <th>نقش</th>
+                            <th>وضعیت</th>
+                            <th>تاریخ عضویت</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td><code>{{ user.username }}</code></td>
+                            <td>{{ user.get_full_name|default:"-" }}</td>
+                            <td>{{ user.email|default:"-" }}</td>
+                            <td>
+                                {% if user.is_superuser %}
+                                    <span class="badge bg-danger">سوپریوزر</span>
+                                {% elif user.is_staff %}
+                                    <span class="badge bg-warning text-dark">کارمند</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">کاربر عادی</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.is_active %}
+                                    <span class="badge bg-success">فعال</span>
+                                {% else %}
+                                    <span class="badge bg-danger">غیرفعال</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.date_joined|date:"Y/m/d" }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editModal{{ user.id }}">✏️</button>
+                                <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal"
+                                        data-bs-target="#passwordModal{{ user.id }}">🔑</button>
+                                <form method="post" class="d-inline" onsubmit="return confirm('حذف شود؟')">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% else %}
+            <div class="text-center py-5">
+                <div style="font-size: 60px;">📭</div>
+                <p class="text-muted mb-0 mt-3">کاربری ثبت نشده است.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal ویرایش -->
+{% for user in users %}
+<div class="modal fade" id="editModal{{ user.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">ویرایش {{ user.username }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small">نام کاربری</label>
+                            <input type="text" name="username" class="form-control" value="{{ user.username }}">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small">ایمیل</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email }}">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small">نام</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small">نام خانوادگی</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small">رمز عبور جدید (اختیاری)</label>
+                            <input type="password" name="password" class="form-control">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small">وضعیت</label>
+                            <select name="is_active" class="form-control">
+                                <option value="on" {% if user.is_active %}selected{% endif %}>فعال</option>
+                                <option value="" {% if not user.is_active %}selected{% endif %}>غیرفعال</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">💾 ذخیره</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Modal تغییر پسورد -->
+{% for user in users %}
+<div class="modal fade" id="passwordModal{{ user.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">🔑 تغییر پسورد {{ user.username }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'accounts:admin-change-password' user_id=user.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small">رمز عبور جدید</label>
+                        <input type="password" name="new_password" class="form-control" required minlength="8">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">تکرار رمز عبور</label>
+                        <input type="password" name="confirm_password" class="form-control" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">تغییر رمز عبور</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

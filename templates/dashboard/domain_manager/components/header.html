@@ -1,23 +1,23 @@
 {% include "dashboard/components/header.html" %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
     <div>
-        <h1>🏛️ داشبورد مدیر کل</h1>
+        <h4 class="mb-1">🏛️ داشبورد مدیر کل</h4>
         {% if managed_domains %}
-        <p class="text-muted mb-0">
-            حوزه: 
+        <p class="text-muted mb-0 small">
+            حوزه:
             {% for domain in managed_domains %}
                 {{ domain.name }}{% if not forloop.last %}، {% endif %}
             {% endfor %}
         </p>
         {% endif %}
     </div>
-    <div class="d-flex gap-2">
-        <a href="{% url 'accounts:domain_manager:user-directory' %}" class="btn btn-outline-primary">
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'accounts:domain_manager:user-directory' %}" class="btn btn-sm btn-outline-primary">
             👥 کاربران
         </a>
-        <a href="{% url 'accounts:domain_manager:learning-paths' %}" class="btn btn-primary">
-            📚 مدیریت مسیرهای آموزشی
+        <a href="{% url 'accounts:domain_manager:learning-paths' %}" class="btn btn-sm btn-primary">
+            📚 مدیریت مسیرها
         </a>
     </div>
 </div>

@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}آزمون‌ها{% endblock %}
+{% block title %}
+    {% if selected_category %}
+        آزمون‌های {{ selected_category.name }}
+    {% else %}
+        آزمون‌ها
+    {% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -10,12 +16,12 @@
         border: none;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    
+
     .assessment-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     }
-    
+
     .assessment-icon {
         width: 60px;
         height: 60px;
@@ -26,7 +32,7 @@
         font-size: 30px;
         margin: 0 auto 15px;
     }
-    
+
     .price-tag {
         font-size: 1.2em;
         font-weight: bold;
@@ -36,7 +42,19 @@
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="mb-4">📝 آزمون‌ها</h1>
+    {% if selected_category %}
+        <!-- نمایش Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">خانه</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'core:assessments' %}">آزمون‌ها</a></li>
+                <li class="breadcrumb-item active">{{ selected_category.name }}</li>
+            </ol>
+        </nav>
+        <h1 class="mb-4">📝 آزمون‌های {{ selected_category.name }}</h1>
+    {% else %}
+        <h1 class="mb-4">📝 آزمون‌ها</h1>
+    {% endif %}
 
     <div class="row">
         {% for assessment in assessments %}
@@ -46,18 +64,18 @@
                     <div class="assessment-icon {% if assessment.is_free %}bg-success-subtle{% else %}bg-primary-subtle{% endif %}">
                         📝
                     </div>
-                    
+
                     <h5 class="card-title">{{ assessment.title }}</h5>
-                    
+
                     <p class="card-text text-muted small">
                         {{ assessment.get_assessment_type_display }}
                     </p>
-                    
+
                     <p class="card-text">{{ assessment.description|truncatewords:15 }}</p>
-                    
+
                     <div class="mb-3">
                         <span class="badge bg-info">{{ assessment.duration_minutes }} دقیقه</span>
-                        
+
                         {% if assessment.is_free %}
                             <span class="badge bg-success">رایگان</span>
                         {% else %}
@@ -66,7 +84,7 @@
                             </span>
                         {% endif %}
                     </div>
-                    
+
                     <div class="price-tag mb-3">
                         {% if assessment.is_free %}
                             <span class="text-success">رایگان</span>
@@ -78,22 +96,31 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="card-footer bg-white text-center">
+                <div class="card-footer bg-white text-center" onclick="event.stopPropagation();">
                     {% if user.is_authenticated %}
                         {% if assessment.user_has_access %}
                             <span class="btn btn-success btn-sm w-100">✅ در داشبورد شما</span>
                         {% else %}
-                            <span class="btn btn-primary btn-sm w-100">➕ افزودن به داشبورد</span>
+                            <form method="post" action="{% url 'accounts:assessment-enroll' assessment_id=assessment.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-sm w-100">➕ افزودن به داشبورد</button>
+                            </form>
                         {% endif %}
                     {% else %}
-                        <span class="btn btn-primary btn-sm w-100">برای شرکت وارد شوید</span>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm w-100">برای شرکت وارد شوید</a>
                     {% endif %}
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-12">
-            <div class="alert alert-info">هنوز آزمونی ثبت نشده است.</div>
+            <div class="alert alert-info">
+                {% if selected_category %}
+                    هنوز آزمونی برای «{{ selected_category.name }}» ثبت نشده است.
+                {% else %}
+                    هنوز آزمونی ثبت نشده است.
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>

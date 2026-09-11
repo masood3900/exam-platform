@@ -1,0 +1,49 @@
+<section class="container mb-5">
+    <h2 class="text-center mb-4">📂 حوزه‌های آموزشی</h2>
+    
+    <div class="accordion" id="categoriesAccordion">
+        {% for category in categories %}
+        <div class="accordion-item mb-3 border-0 shadow-sm rounded-3">
+            <h2 class="accordion-header">
+                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} rounded-3" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#cat-{{ category.id }}"
+                        style="font-size: 1.1rem;">
+                    <span class="me-2">
+                        {% if category.name == 'برنامه نویسی' %}💻
+                        {% elif category.name == 'ریاضی' %}📐
+                        {% elif category.name == 'علوم تجربی' %}🔬
+                        {% elif category.name == 'ادبیات' %}📚
+                        {% elif category.name == 'زبان انگلیسی' %}📖
+                        {% else %}📁{% endif %}
+                    </span>
+                    {{ category.name }}
+                </button>
+            </h2>
+            <div id="cat-{{ category.id }}" 
+                 class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                 data-bs-parent="#categoriesAccordion">
+                <div class="accordion-body bg-light">
+                    <div class="list-group">
+                        {% for child in category.children.all %}
+                        <a href="{% url 'core:assessments' %}?category={{ child.id }}" 
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="me-2">📌</span>
+                                {{ child.name }}
+                            </span>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ child.questions.count }} سوال
+                            </span>
+                        </a>
+                        {% empty %}
+                        <p class="text-muted mb-0">مسیری برای این حوزه ثبت نشده.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>

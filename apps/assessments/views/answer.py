@@ -1,8 +1,11 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils import timezone
+from datetime import timedelta
+
 from apps.assessments.models import Attempt, AttemptQuestion
 from apps.assessments.services import AttemptService
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class AnswerView(LoginRequiredMixin, View):
@@ -13,6 +16,16 @@ class AnswerView(LoginRequiredMixin, View):
             id=attempt_id,
             student=request.user,
         )
+
+        # چک زمان
+        if attempt.started_at:
+            end_time = attempt.started_at + timedelta(
+                minutes=attempt.assessment.duration_minutes
+            )
+            if timezone.now() > end_time:
+                # زمان تموم شده
+                AttemptService.finish_attempt(attempt)
+                return redirect("assessments:result", attempt_id=attempt.id)
 
         question_number = int(request.POST.get("question_number"))
         attempt_question = get_object_or_404(

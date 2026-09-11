@@ -1,22 +1,13 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import User, UserProfile
+from apps.accounts.models import User, UserProfile
+from apps.accounts.models_wallet import Wallet
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-
+def create_user_related_objects(sender, instance, created, **kwargs):
+    """ساخت خودکار کیف پول و پروفایل برای کاربر جدید"""
     if created:
-
-        UserProfile.objects.create(
-            user=instance
-        )
-
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-
-    if hasattr(instance, "profile"):
-
-        instance.profile.save()
+        Wallet.objects.get_or_create(user=instance)
+        UserProfile.objects.get_or_create(user=instance)

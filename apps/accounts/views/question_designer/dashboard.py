@@ -34,4 +34,9 @@ class QuestionDesignerDashboardView(
         from apps.accounts.services.user_directory_service import UserDirectoryService
         context["upper_manager"] = UserDirectoryService.get_upper_manager(user)
 
+        # موضوع‌های طراح سوال
+        context["designer_topics"] = (
+            QuestionDesignerDashboardService.get_designer_groups(user)
+        )
+
         return context

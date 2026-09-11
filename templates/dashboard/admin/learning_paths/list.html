@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}
+    مدیریت مسیرهای آموزشی
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .learning-path-card {
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+
+        border: 1px solid #dee2e6;
+    }
+
+    .learning-path-card:hover {
+        transform: translateY(-3px);
+
+        box-shadow:
+            0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    }
+
+    .learning-path-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .learning-path-link:hover {
+        color: inherit;
+    }
+
+    .learning-path-slug {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h1 class="h3 mb-1">
+                مدیریت مسیرهای آموزشی
+            </h1>
+
+            <p class="text-muted mb-0">
+                مدیریت مسیرها و دوره‌های آزمونی سامانه
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'accounts:admin-learning-path-create' %}"
+            class="btn btn-primary"
+        >
+            ایجاد مسیر آموزشی جدید
+        </a>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        {% for path in learning_paths %}
+
+            <div class="col-12 col-md-6 col-xl-4">
+
+                <div class="card h-100 shadow-sm learning-path-card">
+
+
+                    <a
+                        href="{% url 'accounts:admin-learning-path-detail' path.pk %}"
+                        class="learning-path-link"
+                    >
+
+                        <div class="card-body">
+
+
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+
+                                <h2 class="h5 card-title mb-0">
+                                    {{ path.name }}
+                                </h2>
+
+
+                                {% if path.is_active %}
+
+                                    <span class="badge text-bg-success">
+                                        فعال
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-secondary">
+                                        غیرفعال
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="learning-path-slug mb-3">
+
+                                شناسه:
+                                {{ path.slug }}
+
+                            </div>
+
+
+                            {% if path.description %}
+
+                                <p class="card-text text-muted">
+                                    {{ path.description|truncatechars:120 }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <div class="d-flex gap-3 text-muted small mt-3">
+
+                                <span>
+                                    ترتیب:
+                                    {{ path.order }}
+                                </span>
+
+                                <span>
+                                    دوره‌ها:
+                                    {{ path.courses.count }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+
+                            <span class="text-primary">
+                                مشاهده جزئیات ←
+                            </span>
+
+                        </div>
+
+                    </a>
+
+
+                    <div class="card-footer bg-transparent border-top">
+
+                        <div class="d-flex justify-content-end">
+
+                            <a
+                                href="{% url 'accounts:admin-learning-path-delete' path.pk %}"
+                                class="btn btn-sm btn-outline-danger"
+                            >
+                                حذف مسیر
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+        {% empty %}
+
+            <div class="col-12">
+
+                <div class="alert alert-secondary">
+
+                    هیچ مسیر آموزشی ثبت نشده است.
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -5,6 +5,7 @@ from django.views import View
 
 from apps.accounts.services.scientific_group_service import ScientificGroupService
 from apps.assessments.models import ScientificGroup
+from apps.accounts.models import User
 
 
 class TopicManagementView(LoginRequiredMixin, View):
@@ -18,54 +19,45 @@ class TopicManagementView(LoginRequiredMixin, View):
         # گروه‌هایی که مدیر علمی به آن‌ها متصل است
         managed_groups = ScientificGroupService.get_manager_fields(user)
 
-        # والدهایی که می‌توانند موضوع جدید زیرشان ساخته شود
+        # والدهای مجاز برای ساخت موضوع (مسیرهای آموزشی)
         available_parents = []
-        # موضوع‌هایی که مدیر می‌تواند ببیند
+
+        # فقط موضوع‌ها (فرزندان مسیرهای آموزشی)
         topics = []
 
         for group in managed_groups:
             if group.parent is None:
-                # مدیر کل یک رشته → همه مسیرهای آموزشی زیرش
-                available_parents.append(group)
-                # مسیرهای آموزشی این رشته
+                # مدیر کل رشته: مسیرهای آموزشی زیرش
                 learning_paths = ScientificGroup.objects.filter(
                     parent=group,
-                    is_active=True,
                 )
                 for lp in learning_paths:
-                    if lp not in topics:
-                        topics.append(lp)
-                    # موضوع‌های زیر این مسیر آموزشی
-                    sub_topics = ScientificGroup.objects.filter(
-                        parent=lp,
-                        is_active=True,
-                    )
+                    if lp not in available_parents:
+                        available_parents.append(lp)
+                    # موضوع‌های زیر این مسیر
+                    sub_topics = ScientificGroup.objects.filter(parent=lp)
                     for st in sub_topics:
                         if st not in topics:
                             topics.append(st)
             else:
-                # مدیر یک مسیر آموزشی → فقط موضوع‌های زیرش
-                available_parents.append(group)
-                sub_topics = ScientificGroup.objects.filter(
-                    parent=group,
-                    is_active=True,
-                )
+                # مدیر یک مسیر آموزشی: موضوع‌های زیرش
+                if group not in available_parents:
+                    available_parents.append(group)
+                sub_topics = ScientificGroup.objects.filter(parent=group)
                 for st in sub_topics:
                     if st not in topics:
                         topics.append(st)
 
         # QuerySet نهایی
-        if topics:
-            topics_query = ScientificGroup.objects.filter(
-                id__in=[t.id for t in topics],
-            ).prefetch_related("learning_objectives", "parent")
-        else:
-            topics_query = ScientificGroup.objects.none()
+        topics_query = ScientificGroup.objects.filter(
+            id__in=[t.id for t in topics],
+        ).prefetch_related("learning_objectives", "parent")
 
         return render(request, self.template_name, {
             "managed_groups": managed_groups,
             "available_parents": available_parents,
             "topics": topics_query,
+            "all_users": User.objects.filter(is_active=True),
         })
 
 
@@ -80,6 +72,11 @@ class TopicCreateView(LoginRequiredMixin, View):
 
         if not name or not code or not parent_id:
             messages.error(request, "نام، کد و والد الزامی است.")
+            return redirect("accounts:scientific_manager:topic-management")
+
+        # چک تکراری بودن (حتی غیرفعال)
+        if ScientificGroup.objects.filter(name=name, parent_id=parent_id).exists():
+            messages.error(request, "موضوعی با این نام قبلاً وجود دارد (حتی غیرفعال).")
             return redirect("accounts:scientific_manager:topic-management")
 
         try:

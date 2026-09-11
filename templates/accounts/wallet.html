@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}کیف پول{% endblock %}
+
+{% block content %}
+<div class="container py-3 py-md-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">💰 کیف پول</h4>
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+            بازگشت
+        </a>
+    </div>
+
+    <!-- موجودی -->
+    <div class="card shadow-sm mb-3 border-0" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+        <div class="card-body text-center py-4">
+            <p class="mb-2 opacity-75 small">موجودی فعلی</p>
+            <h2 class="fw-bold mb-0">
+                {{ wallet.balance|floatformat:0 }}
+                <small style="font-size: 0.9rem;">تومان</small>
+            </h2>
+        </div>
+    </div>
+
+    <!-- آمار -->
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body p-2">
+                    <h5 class="text-primary mb-0">{{ wallet.transactions.count }}</h5>
+                    <small class="text-muted">کل تراکنش‌ها</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card text-center shadow-sm h-100">
+                <div class="card-body p-2">
+                    <h5 class="text-warning mb-0">
+                        {{ wallet.transactions.count }}
+                    </h5>
+                    <small class="text-muted">آخرین به‌روزرسانی</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تاریخچه تراکنش‌ها -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h6 class="mb-0">📋 تاریخچه تراکنش‌ها</h6>
+        </div>
+        <div class="card-body p-0">
+            {% if transactions %}
+            
+            <!-- نمایش دسکتاپ -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>نوع</th>
+                            <th>مبلغ</th>
+                            <th>موجودی بعد</th>
+                            <th>توضیحات</th>
+                            <th>تاریخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transactions %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                {% if t.transaction_type == 'deposit' %}
+                                    <span class="badge bg-success">واریز</span>
+                                {% elif t.transaction_type == 'withdraw' %}
+                                    <span class="badge bg-danger">برداشت</span>
+                                {% elif t.transaction_type == 'purchase' %}
+                                    <span class="badge bg-warning text-dark">خرید</span>
+                                {% elif t.transaction_type == 'revenue_share' %}
+                                    <span class="badge bg-primary">سهم فروش</span>
+                                {% elif t.transaction_type == 'referral_bonus' %}
+                                    <span class="badge bg-info">پاداش معرف</span>
+                                {% elif t.transaction_type == 'designer_payment' %}
+                                    <span class="badge bg-secondary">پرداخت طراح</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ t.get_transaction_type_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if t.amount > 0 %}
+                                    <span class="text-success">+{{ t.amount|floatformat:0 }}</span>
+                                {% else %}
+                                    <span class="text-danger">{{ t.amount|floatformat:0 }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ t.balance_after|floatformat:0 }}</td>
+                            <td>{{ t.description|default:"-"|truncatewords:8 }}</td>
+                            <td class="small">{{ t.created_at|date:"Y/m/d H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- نمایش موبایل -->
+            <div class="d-md-none">
+                {% for t in transactions %}
+                <div class="border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                            {% if t.transaction_type == 'deposit' %}
+                                <span class="badge bg-success">واریز</span>
+                            {% elif t.transaction_type == 'withdraw' %}
+                                <span class="badge bg-danger">برداشت</span>
+                            {% elif t.transaction_type == 'purchase' %}
+                                <span class="badge bg-warning text-dark">خرید</span>
+                            {% elif t.transaction_type == 'revenue_share' %}
+                                <span class="badge bg-primary">سهم فروش</span>
+                            {% elif t.transaction_type == 'referral_bonus' %}
+                                <span class="badge bg-info">پاداش معرف</span>
+                            {% elif t.transaction_type == 'designer_payment' %}
+                                <span class="badge bg-secondary">پرداخت طراح</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ t.get_transaction_type_display }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if t.amount > 0 %}
+                                <strong class="text-success">+{{ t.amount|floatformat:0 }}</strong>
+                            {% else %}
+                                <strong class="text-danger">{{ t.amount|floatformat:0 }}</strong>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if t.description %}
+                    <div class="small text-muted mb-1">{{ t.description|truncatewords:12 }}</div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>موجودی: {{ t.balance_after|floatformat:0 }}</span>
+                        <span>{{ t.created_at|date:"Y/m/d H:i" }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="text-center py-5">
+                <div style="font-size: 50px;">📭</div>
+                <p class="text-muted mb-0 mt-2">هنوز تراکنشی ثبت نشده است.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

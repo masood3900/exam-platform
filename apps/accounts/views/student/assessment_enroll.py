@@ -32,13 +32,18 @@ class AssessmentEnrollView(LoginRequiredMixin, View):
         if enrollment.has_access:
             messages.success(
                 request,
-                f"آزمون «{assessment.title}» به داشبورد شما اضافه شد.",
+                f"✅ آزمون «{assessment.title}» به داشبورد شما اضافه شد. "
+                f"می‌توانید از داشبورد شروع کنید.",
             )
         else:
             messages.info(
                 request,
-                f"آزمون «{assessment.title}» ثبت شد. "
-                f"برای فعال‌سازی، پرداخت را انجام دهید.",
+                f"📝 آزمون «{assessment.title}» به داشبورد شما اضافه شد. "
+                f"شما {assessment.demo_attempts} بار آزمایشی رایگان دارید.",
             )
 
-        return redirect("accounts:dashboard")
+        # برگشت به صفحه جزئیات آزمون
+        return redirect(
+            "core:assessment-detail",
+            assessment_id=assessment.id,
+        )

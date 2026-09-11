@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}
-    ثبت‌نام
-{% endblock %}
+{% block title %}ثبت‌نام{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-3 py-md-5">
     <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+        <div class="col-11 col-sm-8 col-md-7 col-lg-6">
             <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-body p-5">
+                <div class="card-body p-4 p-md-5">
                     <div class="text-center mb-4">
                         <div class="mb-3">
-                            <span style="font-size: 60px;">✨</span>
+                            <span style="font-size: 50px;">✨</span>
                         </div>
-                        <h3 class="fw-bold mb-1">ایجاد حساب کاربری</h3>
-                        <p class="text-muted mb-0">همین امروز شروع کنید</p>
+                        <h4 class="fw-bold mb-1">ایجاد حساب کاربری</h4>
+                        <p class="text-muted mb-0 small">همین امروز شروع کنید</p>
                     </div>
 
                     <form method="post" class="mb-3">
@@ -29,7 +27,7 @@
 
                         {% for field in form %}
                             <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                                <label for="{{ field.id_for_label }}" class="form-label small fw-semibold">
                                     {{ field.label }}
                                 </label>
 
@@ -45,13 +43,14 @@
                             </div>
                         {% endfor %}
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3">
+                        <button type="submit" class="btn btn-primary w-100 rounded-3 py-2">
                             ثبت‌نام
                         </button>
                     </form>
 
                     <div class="text-center">
-                        <p class="text-muted mb-2">قبلاً ثبت‌نام کردید؟</p>
+                        <hr class="my-3">
+                        <p class="text-muted mb-2 small">قبلاً ثبت‌نام کردید؟</p>
                         <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary w-100 rounded-3">
                             ورود به حساب کاربری
                         </a>

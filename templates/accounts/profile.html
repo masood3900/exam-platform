@@ -1,144 +1,173 @@
 {% extends "base.html" %}
 
-{% block title %}
-پروفایل کاربر
+{% block title %}پروفایل کاربر
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.querySelector('input[type="file"]');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // پیدا کردن img آواتار
+                    let avatar = document.querySelector('.profile-avatar-img');
+                    if (!avatar) {
+                        // اگه img نبود، بساز
+                        const div = document.querySelector('.profile-avatar-div');
+                        if (div) {
+                            avatar = document.createElement('img');
+                            avatar.className = 'rounded-circle border border-3 profile-avatar-img';
+                            avatar.width = 120;
+                            avatar.height = 120;
+                            avatar.style.objectFit = 'cover';
+                            div.replaceWith(avatar);
+                        }
+                    }
+                    if (avatar) {
+                        avatar.src = event.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+
 {% endblock %}
 
 {% block content %}
-
-<div class="row justify-content-center">
-
-    <div class="col-lg-8">
-
-        <div class="card shadow border-0">
-
-            <div class="card-body text-center">
-
-                {% if user.profile.avatar %}
-                    <img
-                        src="{{ user.profile.avatar.url }}"
-                        class="rounded-circle border border-3"
-                        width="150"
-                        height="150"
-                        style="object-fit:cover;">
-                {% else %}
-                    <img
-                        src="https://ui-avatars.com/api/?name={{ user.username }}&background=0d6efd&color=fff&size=150"
-                        class="rounded-circle border border-3">
-                {% endif %}
-
-                <h3 class="mt-3">
-
-                    {{ user.get_full_name|default:user.username }}
-
-                </h3>
-
-                <p class="text-muted">
-
-                    {{ user.email }}
-
-                </p>
-
-                <div class="mt-4">
-
-                    <h6>
-
-                        تکمیل پروفایل
-
-                    </h6>
-
-                    <div class="progress" style="height:25px;">
-
-                        <div
-                            class="progress-bar bg-success"
-                            role="progressbar"
-                            style="width: {{ profile_status.percent }}%;">
-
-                            {{ profile_status.percent }}%
-
+<div class="container py-3 py-md-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow border-0 rounded-4">
+                
+                <!-- اطلاعات کاربر -->
+                <div class="card-body text-center p-3 p-md-4">
+                    {% if user.profile.avatar %}
+                        <img
+                            src="{{ user.profile.avatar.url }}"
+                            class="rounded-circle border border-3 profile-avatar-img"
+                            width="120"
+                            height="120"
+                            style="object-fit:cover;">
+                    {% else %}
+                        <div class="rounded-circle border border-3 d-inline-flex align-items-center justify-content-center profile-avatar-div"
+                             style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 50px;">
+                            {{ user.get_full_name|default:user.username|slice:":1" }}
                         </div>
+                    {% endif %}
 
+                    <h4 class="mt-3 mb-1">
+                        {{ user.get_full_name|default:user.username }}
+                    </h4>
+
+                    <p class="text-muted small mb-3">
+                        {{ user.email|default:"ایمیل ثبت نشده" }}
+                    </p>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2 text-center">
+                                <small class="text-muted d-block">کد معرف</small>
+                                <strong style="font-family: monospace;">{{ user.referral_code|default:"—" }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2 text-center">
+                                <small class="text-muted d-block">موجودی</small>
+                                <strong class="text-success">{{ user.wallet.balance|floatformat:0|default:"0" }} تومان</strong>
+                            </div>
+                        </div>
                     </div>
 
-                    <small class="text-muted">
-
-                        {{ profile_status.completed }}
-                        از
-                        {{ profile_status.total }}
-                        فیلد تکمیل شده است.
-
-                    </small>
-
+                    <div class="mt-3">
+                        <h6 class="small">تکمیل پروفایل</h6>
+                        <div class="progress" style="height:20px;">
+                            <div
+                                class="progress-bar bg-success"
+                                role="progressbar"
+                                style="width: {{ profile_status.percent }}%;">
+                                {{ profile_status.percent }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            {{ profile_status.completed }} از {{ profile_status.total }} فیلد تکمیل شده است.
+                        </small>
+                    </div>
                 </div>
 
+                <!-- فرم ویرایش -->
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">✏️ ویرایش اطلاعات</h6>
+                </div>
+
+                <div class="card-body p-3 p-md-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            {% for field in form %}
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-semibold">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="text-muted d-block">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button class="btn btn-success py-2" type="submit">
+                                💾 ذخیره اطلاعات
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="card-header bg-primary text-white">
-
-                اطلاعات پروفایل
-
-            </div>
-
-            <div class="card-body">
-
-                <form
-                    method="post"
-                    enctype="multipart/form-data">
-
-                    {% csrf_token %}
-
-                    <div class="row">
-
-                        {% for field in form %}
-
-                            <div class="col-md-6 mb-3">
-
-                                <label class="form-label">
-
-                                    {{ field.label }}
-
-                                </label>
-
-                                {{ field }}
-
-                                {% if field.help_text %}
-                                    <small class="text-muted d-block">
-                                        {{ field.help_text }}
-                                    </small>
-                                {% endif %}
-
-                                {% for error in field.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {{ error }}
-                                    </div>
-                                {% endfor %}
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                    <div class="d-grid mt-3">
-
-                        <button
-                            class="btn btn-success btn-lg"
-                            type="submit">
-
-                            ذخیره اطلاعات
-
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
         </div>
-
     </div>
-
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.querySelector('input[type="file"]');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // پیدا کردن img آواتار
+                    let avatar = document.querySelector('.profile-avatar-img');
+                    if (!avatar) {
+                        // اگه img نبود، بساز
+                        const div = document.querySelector('.profile-avatar-div');
+                        if (div) {
+                            avatar = document.createElement('img');
+                            avatar.className = 'rounded-circle border border-3 profile-avatar-img';
+                            avatar.width = 120;
+                            avatar.height = 120;
+                            avatar.style.objectFit = 'cover';
+                            div.replaceWith(avatar);
+                        }
+                    }
+                    if (avatar) {
+                        avatar.src = event.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
 
 {% endblock %}

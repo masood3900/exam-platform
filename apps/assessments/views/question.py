@@ -34,6 +34,23 @@ class QuestionDetailView(
                 attempt_id=self.attempt.id,
             )
 
+        # چک زمان
+        from django.utils import timezone
+        from datetime import timedelta
+
+        if self.attempt.started_at:
+            end_time = self.attempt.started_at + timedelta(
+                minutes=self.attempt.assessment.duration_minutes
+            )
+            if timezone.now() > end_time:
+                # زمان تموم شده
+                from apps.assessments.services import AttemptService
+                AttemptService.finish_attempt(self.attempt)
+                return redirect(
+                    "assessments:result",
+                    attempt_id=self.attempt.id,
+                )
+
 
         self.attempt_question = (
             self.attempt.questions
@@ -101,5 +118,21 @@ class QuestionDetailView(
         context["selected_choice_ids"] = (
             self.selected_choice_ids
         )
+
+        # زمان باقی‌مانده
+        from django.utils import timezone
+        from datetime import timedelta
+
+        if self.attempt.started_at:
+            end_time = self.attempt.started_at + timedelta(
+                minutes=self.attempt.assessment.duration_minutes
+            )
+            remaining = end_time - timezone.now()
+            remaining_seconds = max(0, int(remaining.total_seconds()))
+        else:
+            remaining_seconds = self.attempt.assessment.duration_minutes * 60
+
+        context["remaining_seconds"] = remaining_seconds
+        context["attempt_id"] = str(self.attempt.id)
 
         return context

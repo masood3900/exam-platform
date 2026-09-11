@@ -5,6 +5,7 @@ from apps.assessments.models import (
     Course,
     CourseEnrollment,
     Assessment,
+    ScientificGroup,
 )
 from apps.accounts.services.role_service import RoleService
 from apps.assessments.services.assessment_access_service import (
@@ -27,7 +28,13 @@ class HomeView(TemplateView):
 
         context["courses"] = courses
 
-        # آزمون‌های ویژه
+        context["categories"] = ScientificGroup.objects.filter(
+            parent__isnull=True,
+            is_active=True,
+        ).exclude(
+            name__icontains="فنی"
+        ).prefetch_related("children")
+
         context["featured_assessments"] = Assessment.objects.filter(
             is_active=True,
             is_public=True,
@@ -48,72 +55,19 @@ class CourseListView(ListView):
         return Course.objects.filter(
             is_active=True,
             parent__isnull=False,
-        ).select_related(
-            "learning_path",
-            "parent",
-        ).prefetch_related(
-            "course_instructor_assignments",
-            "course_instructor_assignments__instructor",
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        courses = context["courses"]
-
-        if self.request.user.is_authenticated:
-            user_enrollments = CourseEnrollment.objects.filter(
-                user=self.request.user,
-                course__in=courses,
-            )
-            enrollment_map = {
-                enrollment.course_id: enrollment
-                for enrollment in user_enrollments
-            }
-
-            for course in courses:
-                course.user_enrollment = enrollment_map.get(course.id)
-
-        return context
+        ).order_by("-created_at")
 
 
 class CourseDetailPublicView(DetailView):
-    """صفحه عمومی دوره"""
+    """جزئیات دوره"""
 
     model = Course
     template_name = "core/course_detail.html"
     context_object_name = "course"
-    pk_url_kwarg = "pk"
-
-    def get_queryset(self):
-        return Course.objects.filter(
-            is_active=True,
-            parent__isnull=False,
-        ).select_related(
-            "learning_path",
-            "parent",
-            "scientific_group",
-        ).prefetch_related(
-            "categories",
-            "course_instructor_assignments",
-            "course_instructor_assignments__instructor",
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        course = self.get_object()
-
-        if self.request.user.is_authenticated:
-            enrollment = CourseEnrollment.objects.filter(
-                user=self.request.user,
-                course=course,
-            ).first()
-            context["enrollment"] = enrollment
-
-        return context
 
 
 class AssessmentListView(ListView):
-    """لیست همه آزمون‌های مستقل"""
+    """لیست آزمون‌ها - قابل فیلتر بر اساس حوزه یا مسیر"""
 
     model = Assessment
     template_name = "core/assessment_list.html"
@@ -121,10 +75,49 @@ class AssessmentListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Assessment.objects.filter(
+        queryset = Assessment.objects.filter(
             is_active=True,
             course__isnull=True,
         ).order_by("-created_at")
+
+        # فیلتر بر اساس حوزه یا مسیر
+        category_id = self.request.GET.get("category")
+        if category_id:
+            # گروه انتخاب شده
+            try:
+                group = ScientificGroup.objects.get(id=category_id)
+                
+                # اگه رشته (parent) باشه، همه مسیرها و موضوع‌های زیرش
+                if group.parent is None:
+                    # جمع‌آوری همه زیرمجموعه‌ها
+                    descendants = []
+                    children = ScientificGroup.objects.filter(parent=group)
+                    for child in children:
+                        descendants.append(child.id)
+                        # زیرمجموعه‌های عمیق‌تر
+                        grandchildren = ScientificGroup.objects.filter(parent=child)
+                        for gc in grandchildren:
+                            descendants.append(gc.id)
+                    
+                    queryset = queryset.filter(scientific_group_id__in=descendants)
+                
+                # اگه مسیر باشه، خودش و موضوع‌های زیرش
+                elif group.parent.parent is None:
+                    descendants = [group.id]
+                    children = ScientificGroup.objects.filter(parent=group)
+                    for child in children:
+                        descendants.append(child.id)
+                    
+                    queryset = queryset.filter(scientific_group_id__in=descendants)
+                
+                # اگه موضوع باشه، فقط خودش
+                else:
+                    queryset = queryset.filter(scientific_group=group)
+                    
+            except ScientificGroup.DoesNotExist:
+                pass
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -139,52 +132,75 @@ class AssessmentListView(ListView):
                     )
                 )
 
+        # اطلاعات گروه انتخاب شده
+        category_id = self.request.GET.get("category")
+        if category_id:
+            try:
+                context["selected_category"] = ScientificGroup.objects.get(id=category_id)
+            except ScientificGroup.DoesNotExist:
+                context["selected_category"] = None
+
         return context
 
 
 class AssessmentDetailView(DetailView):
-    """صفحه جزئیات آزمون"""
+    """جزئیات آزمون"""
 
     model = Assessment
     template_name = "core/assessment_detail.html"
     context_object_name = "assessment"
     pk_url_kwarg = "assessment_id"
 
-    def get_queryset(self):
-        return Assessment.objects.filter(is_active=True).select_related(
-            "scientific_group",
-            "course",
+    def get_context_data(self, **kwargs):
+        from apps.assessments.models import (
+            AssessmentEnrollment,
+            PaymentRequest,
+            Attempt,
         )
 
-    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         assessment = self.get_object()
         user = self.request.user
 
         if user.is_authenticated:
-            from apps.assessments.models import AssessmentEnrollment, PaymentRequest
-
-            context["used_attempts"] = AssessmentAccessService.used_attempts(
+            context["user_has_access"] = AssessmentAccessService.can_user_access(
                 user,
                 assessment,
             )
 
+            # Enrollment
             enrollment = AssessmentEnrollment.objects.filter(
                 user=user,
                 assessment=assessment,
             ).first()
             context["enrollment"] = enrollment
 
-            context["has_payment_request"] = PaymentRequest.objects.filter(
+            # آیا قبلاً پرداخت شده؟
+            has_paid_before = AssessmentEnrollment.objects.filter(
+                user=user,
+                assessment=assessment,
+                payment_status=AssessmentEnrollment.PaymentStatus.PAID,
+            ).exists()
+            context["has_paid_before"] = has_paid_before
+
+            # تعداد تلاش‌های استفاده شده
+            used_attempts = Attempt.objects.filter(
+                student=user,
+                assessment=assessment,
+            ).exclude(
+                status__in=[
+                    Attempt.Status.CREATED,
+                    Attempt.Status.CANCELLED,
+                ],
+            ).count()
+            context["used_attempts"] = used_attempts
+
+            # آیا درخواست پرداخت در انتظار داره؟
+            has_payment_request = PaymentRequest.objects.filter(
                 user=user,
                 assessment=assessment,
                 status=PaymentRequest.Status.PENDING,
             ).exists()
-
-            context["has_paid_before"] = PaymentRequest.objects.filter(
-                user=user,
-                assessment=assessment,
-                status=PaymentRequest.Status.APPROVED,
-            ).exists()
+            context["has_payment_request"] = has_payment_request
 
         return context

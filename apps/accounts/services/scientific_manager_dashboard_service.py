@@ -65,14 +65,21 @@ class ScientificManagerDashboardService:
             status="active",
         ).values("user").distinct().count()
 
-        # تعداد موضوع‌ها (گروه‌هایی که parent دارند)
+        # مسیرهای آموزشی (فرزند مستقیم رشته‌ها)
+        paths_count = ScientificGroup.objects.filter(
+            id__in=[g.id for g in groups if g.parent is not None and g.parent.parent is None],
+            is_active=True,
+        ).count()
+
+        # موضوع‌ها (فرزند مسیرها)
         topics_count = ScientificGroup.objects.filter(
-            id__in=[g.id for g in groups if g.parent is not None],
+            id__in=[g.id for g in groups if g.parent is not None and g.parent.parent is not None],
             is_active=True,
         ).count()
 
         return {
             "groups_count": groups.count(),
+            "paths_count": paths_count,
             "topics_count": topics_count,
             "questions_count": questions.count(),
             "designers_count": designers,

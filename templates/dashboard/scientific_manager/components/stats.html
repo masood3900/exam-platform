@@ -1,12 +1,20 @@
 <div class="row mb-4">
     <div class="col-md-2">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ stats.paths_count }}</h5>
+                <p class="card-text text-muted">📂 مسیرهای آموزشی</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
         <a href="{% url 'accounts:scientific_manager:topic-management' %}" class="text-decoration-none text-dark">
             <div class="card text-center shadow-sm" style="cursor: pointer; transition: all 0.3s;"
                  onmouseover="this.style.transform='translateY(-3px)'"
                  onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                     <h5 class="card-title">{{ stats.topics_count }}</h5>
-                    <p class="card-text text-muted">📂 موضوع‌ها</p>
+                    <p class="card-text text-muted">📝 موضوع‌ها</p>
                 </div>
             </div>
         </a>
@@ -32,14 +40,6 @@
             <div class="card-body">
                 <h5 class="card-title">{{ stats.assessments_count }}</h5>
                 <p class="card-text text-muted">آزمون</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <div class="card text-center shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">{{ stats.students_count }}</h5>
-                <p class="card-text text-muted">دانشجو</p>
             </div>
         </div>
     </div>

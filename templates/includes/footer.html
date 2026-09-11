@@ -1,6 +1,62 @@
-<hr>
-<footer>
-     <p>
-        سامانه آموزش © 2026
-    </p>
+<footer class="text-white pt-5 pb-4 mt-5" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+    <div class="container">
+        <div class="row g-4">
+            <!-- درباره -->
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">🎓 سنجه‌یار</h5>
+                <p class="small opacity-75">
+                    سامانه برگزاری آزمون آنلاین با انواع سوالات چهارگزینه‌ای،
+                    صحیح غلط، تشریحی و کدنویسی.
+                </p>
+            </div>
+
+            <!-- دسترسی سریع -->
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">دسترسی سریع</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="{% url 'core:home' %}" class="text-white text-decoration-none">🏠 خانه</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'core:assessments' %}" class="text-white text-decoration-none">📝 آزمون‌ها</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'core:courses' %}" class="text-white text-decoration-none">📚 دوره‌ها</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ارتباط با ما -->
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">ارتباط با ما</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a href="tel:09910998775" class="text-white text-decoration-none">📞 09910998775</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="mailto:info.sanjehyar@gmail.com" class="text-white text-decoration-none">📧 info.sanjehyar@gmail.com</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="https://t.me/sanjehyar" class="text-white text-decoration-none">✈️ @sanjehyar</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- شبکه‌های اجتماعی -->
+            <div class="col-md-2">
+                <h6 class="fw-bold mb-3">شبکه‌های اجتماعی</h6>
+                <div class="d-flex gap-2">
+                    <a href="https://t.me/sanjehyar" class="btn btn-light btn-sm rounded-circle">✈️</a>
+                    <a href="https://instagram.com/sanjehyar2026" class="btn btn-light btn-sm rounded-circle">📷</a>
+                    <a href="https://twitter.com/sanjehyar" class="btn btn-light btn-sm rounded-circle">🐦</a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="bg-white my-4 opacity-50">
+
+        <div class="text-center small opacity-75">
+            © 2026 سنجه‌یار - تمامی حقوق محفوظ است.
+        </div>
+    </div>
 </footer>

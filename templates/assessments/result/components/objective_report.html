@@ -1,15 +1,15 @@
 <div class="card shadow-sm mb-4">
-    <div class="card-header">
+    <div class="card-header bg-primary text-white">
         <h5 class="mb-0">📊 تحلیل عملکرد آموزشی</h5>
     </div>
     <div class="card-body">
         {% for item in objective_report %}
         <div class="mb-4">
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between flex-wrap gap-1 small mb-1">
                 <strong>{{ item.objective.name }}</strong>
-                <span>{{ item.correct }} از {{ item.total }} | {{ item.percentage }}٪</span>
+                <span class="text-muted">{{ item.correct }} از {{ item.total }} | {{ item.percentage }}٪</span>
             </div>
-            <div class="progress mt-2" style="height:25px;">
+            <div class="progress" style="height:22px;">
                 <div class="progress-bar {% if item.percentage >= 85 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
                      role="progressbar" style="width: {{ item.percentage }}%;">
                     {{ item.percentage }}٪

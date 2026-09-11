@@ -2,12 +2,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
 from apps.accounts.services.dashboard_service import DashboardService
+from apps.accounts.models import User
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
 
     template_name = "dashboard/student/index.html"
-
 
     def get_context_data(self, **kwargs):
 
@@ -18,7 +18,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 self.request.user
             )
         )
-
 
         context["learning_paths"] = (
             DashboardService.learning_paths_dashboard(
@@ -31,5 +30,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             )
         )
 
+        # افراد معرفی‌شده
+        referred_users = User.objects.filter(
+            referred_by=self.request.user
+        ).order_by("-date_joined")
+
+        context["referred_users"] = referred_users
+        context["referred_users_count"] = referred_users.count()
 
         return context
