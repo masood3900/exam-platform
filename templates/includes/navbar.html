@@ -1,113 +1,30 @@
 <nav class="navbar navbar-expand-lg shadow-sm" 
      style="background: linear-gradient(135deg, #667eea, #764ba2);">
     <div class="container">
-        <!-- لوگو -->
         <a class="navbar-brand d-flex align-items-center text-white fw-bold" href="{% url 'core:home' %}">
-            <span class="me-2" style="font-size: 28px;">🎓</span>
-            سنجه‌یار
+            <span class="me-2" style="font-size: 32px;">🎓</span>
+            <span>سنجه‌یار</span>
         </a>
 
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navbarMain"
-                aria-controls="navbarMain" aria-expanded="false"
-                aria-label="باز کردن منو">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'core:home' %}">
-                        🏠 خانه
-                    </a>
-                </li>
-
-                <!-- منوی حوزه‌های آموزشی -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link text-white dropdown-toggle" href="#"
-                       id="categoriesDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        📂 حوزه‌های آموزشی
-                    </a>
-                    <ul class="dropdown-menu shadow border-0" aria-labelledby="categoriesDropdown">
-                        {% for category in categories %}
-                        <li>
-                            <a class="dropdown-item fw-bold" href="{% url 'core:assessments' %}?category={{ category.id }}">
-                                {% if category.name == 'برنامه نویسی' %}💻
-                                {% elif category.name == 'ریاضی' %}📐
-                                {% elif category.name == 'علوم تجربی' %}🔬
-                                {% elif category.name == 'ادبیات' %}📚
-                                {% elif category.name == 'زبان انگلیسی' %}📖
-                                {% else %}📁{% endif %}
-                                {{ category.name }}
-                            </a>
-                            {% if category.children.all %}
-                            <ul class="list-unstyled ps-4 small">
-                                {% for child in category.children.all %}
-                                <li>
-                                    <a class="dropdown-item py-1 text-muted" href="{% url 'core:assessments' %}?category={{ child.id }}">
-                                        📌 {{ child.name }}
-                                    </a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </li>
-                        {% if not forloop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
-                        {% endfor %}
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="navbar-nav align-items-center">
-                {% if user.is_authenticated %}
-                    {% if available_dashboards %}
-                    <li class="nav-item dropdown me-2">
-                        <a class="nav-link text-white dropdown-toggle" href="#"
-                        id="dashboardDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                            📊 داشبورد
-                        </a>
-                        <ul class="dropdown-menu shadow border-0" aria-labelledby="dashboardDropdown">
-                            {% for dashboard in available_dashboards %}
-                                <li>
-                                    <a class="dropdown-item" href="{{ dashboard.url }}">
-                                        {{ dashboard.icon }} {{ dashboard.name }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    {% endif %}
-
-                    <li class="nav-item me-2">
-                        <span class="text-white">
-                            👤 {{ user.get_full_name|default:user.username }}
-                        </span>
-                    </li>
-
-                    <li class="nav-item">
-                        <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-light btn-sm">
-                                خروج
-                            </button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="nav-item me-2">
-                        <a class="btn btn-light btn-sm rounded-pill px-3" href="{% url 'accounts:login' %}" style="color: #667eea;">
-                            ورود
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="btn btn-light btn-sm rounded-pill px-3" href="{% url 'accounts:register' %}" style="color: #667eea;">
-                            ثبت‌نام رایگان
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
+        <div class="d-flex align-items-center gap-2">
+            {% if user.is_authenticated %}
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-light btn-sm rounded-pill px-3" style="color: #667eea;">
+                    📊 داشبورد
+                </a>
+                <form method="post" action="{% url 'accounts:logout' %}" class="d-inline" onsubmit="return confirm('از حساب کاربری خود خارج می‌شوید؟')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3">
+                        🚪 خروج
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-light btn-sm rounded-pill px-3" style="color: #667eea;">
+                    ورود
+                </a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-light btn-sm rounded-pill px-3" style="color: #667eea;">
+                    ثبت‌نام
+                </a>
+            {% endif %}
         </div>
     </div>
 </nav>

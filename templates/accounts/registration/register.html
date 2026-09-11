@@ -31,7 +31,21 @@
                                     {{ field.label }}
                                 </label>
 
-                                {{ field }}
+                                {% if 'password' in field.name %}
+                                    <div class="input-group">
+                                        <input type="password" 
+                                               name="{{ field.name }}" 
+                                               id="{{ field.id_for_label }}"
+                                               class="form-control rounded-end-3" 
+                                               {% if field.field.required %}required{% endif %}>
+                                        <button type="button" class="btn btn-outline-secondary rounded-start-3" 
+                                                onclick="togglePassword('{{ field.id_for_label }}', this)" tabindex="-1">
+                                            <span class="eye-icon">👁️</span>
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
 
                                 {% if field.help_text %}
                                     <div class="form-text small">{{ field.help_text }}</div>
@@ -60,4 +74,18 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('.eye-icon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        icon.textContent = '👁️';
+    }
+}
+</script>
 {% endblock %}

@@ -36,6 +36,69 @@
 
         <!-- ردیف دوم: دکمه‌ها -->
         <div class="row g-2">
+            <!-- حوزه‌ها -->
+            <div class="col-6 col-md-3">
+                <div class="dropdown w-100">
+                    <button class="btn btn-sm btn-outline-primary w-100 dropdown-toggle" 
+                            type="button" 
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        📂 حوزه‌ها
+                    </button>
+                    <ul class="dropdown-menu shadow border-0">
+                        {% for category in categories %}
+                        <li>
+                            <a class="dropdown-item fw-bold" href="{% url 'core:assessments' %}?category={{ category.id }}">
+                                {% if category.name == 'برنامه نویسی' %}💻
+                                {% elif category.name == 'ریاضی' %}📐
+                                {% elif category.name == 'علوم تجربی' %}🔬
+                                {% elif category.name == 'ادبیات' %}📚
+                                {% elif category.name == 'زبان انگلیسی' %}📖
+                                {% else %}📁{% endif %}
+                                {{ category.name }}
+                            </a>
+                            {% if category.children.all %}
+                            <ul class="list-unstyled ps-3 small">
+                                {% for child in category.children.all %}
+                                <li>
+                                    <a class="dropdown-item py-1 text-muted" href="{% url 'core:assessments' %}?category={{ child.id }}">
+                                        📌 {{ child.name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </li>
+                        {% if not forloop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- داشبورد -->
+            {% if available_dashboards %}
+            <div class="col-6 col-md-3">
+                <div class="dropdown w-100">
+                    <button class="btn btn-sm btn-outline-info w-100 dropdown-toggle" 
+                            type="button" 
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        📊 داشبورد
+                    </button>
+                    <ul class="dropdown-menu shadow border-0">
+                        {% for dashboard in available_dashboards %}
+                            <li>
+                                <a class="dropdown-item" href="{{ dashboard.url }}">
+                                    {{ dashboard.icon }} {{ dashboard.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- پیام‌ها -->
             <div class="col-6 col-md-3">
                 <a href="{% url 'messaging:direct-inbox' %}" class="btn btn-sm btn-outline-success w-100 position-relative">
                     💬 پیام‌ها
@@ -46,16 +109,22 @@
                     {% endif %}
                 </a>
             </div>
+
+            <!-- کیف پول -->
             <div class="col-6 col-md-3">
                 <a href="{% url 'accounts:wallet' %}" class="btn btn-sm btn-outline-success w-100">
                     💰 کیف پول
                 </a>
             </div>
+
+            <!-- معرفی‌شده‌ها -->
             <div class="col-6 col-md-3">
                 <a href="{% url 'accounts:referrals' %}" class="btn btn-sm btn-outline-warning w-100">
                     👥 معرفی‌شده
                 </a>
             </div>
+
+            <!-- پروفایل -->
             <div class="col-6 col-md-3">
                 <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-primary w-100">
                     👤 پروفایل
