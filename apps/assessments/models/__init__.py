@@ -35,3 +35,5 @@ from .exercise import Exercise, ExerciseAttempt
 from .user_score import UserScore
 from .lesson_content import LessonContent
 from .discount_code import DiscountCode, DiscountCodeUsage
+
+from .question_image import QuestionImage

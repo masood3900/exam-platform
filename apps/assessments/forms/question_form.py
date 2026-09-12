@@ -32,7 +32,7 @@ class QuestionForm(forms.ModelForm):
         ]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
-            "body": forms.Textarea(attrs={"class": "form-control", "rows": 4, "style": "direction: rtl; text-align: right;"}),
+            "body": forms.Textarea(attrs={"class": "form-control", "rows": 4, "style": "direction: rtl; text-align: right;", "required": False}),
             "question_type": forms.Select(attrs={"class": "form-control"}),
             "difficulty": forms.Select(attrs={"class": "form-control"}),
             "score": forms.NumberInput(attrs={"class": "form-control"}),

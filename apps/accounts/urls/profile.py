@@ -9,6 +9,9 @@ from apps.accounts.views.profile.referrals import (
 from apps.accounts.views.profile.wallet import (
     WalletView,
 )
+from apps.accounts.views.profile.change_password import (
+    ProfileChangePasswordView,
+)
 
 
 urlpatterns = [
@@ -27,5 +30,10 @@ urlpatterns = [
         "wallet/",
         WalletView.as_view(),
         name="wallet",
+    ),
+    path(
+        "change-password/",
+        ProfileChangePasswordView.as_view(),
+        name="change-password",
     ),
 ]

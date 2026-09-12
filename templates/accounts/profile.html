@@ -1,40 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}پروفایل کاربر
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const avatarInput = document.querySelector('input[type="file"]');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    // پیدا کردن img آواتار
-                    let avatar = document.querySelector('.profile-avatar-img');
-                    if (!avatar) {
-                        // اگه img نبود، بساز
-                        const div = document.querySelector('.profile-avatar-div');
-                        if (div) {
-                            avatar = document.createElement('img');
-                            avatar.className = 'rounded-circle border border-3 profile-avatar-img';
-                            avatar.width = 120;
-                            avatar.height = 120;
-                            avatar.style.objectFit = 'cover';
-                            div.replaceWith(avatar);
-                        }
-                    }
-                    if (avatar) {
-                        avatar.src = event.target.result;
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-});
-</script>
+{% block title %}پروفایل کاربر{% endblock %}
 
+{% block support_button %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+<style>
+    .datepicker-plot-area {
+        font-family: Tahoma, sans-serif !important;
+        z-index: 9999 !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -43,15 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-12 col-lg-8">
             <div class="card shadow border-0 rounded-4">
                 
-                <!-- اطلاعات کاربر -->
                 <div class="card-body text-center p-3 p-md-4">
                     {% if user.profile.avatar %}
-                        <img
-                            src="{{ user.profile.avatar.url }}"
-                            class="rounded-circle border border-3 profile-avatar-img"
-                            width="120"
-                            height="120"
-                            style="object-fit:cover;">
+                        <img src="{{ user.profile.avatar.url }}"
+                             class="rounded-circle border border-3 profile-avatar-img"
+                             width="120" height="120"
+                             style="object-fit:cover;">
                     {% else %}
                         <div class="rounded-circle border border-3 d-inline-flex align-items-center justify-content-center profile-avatar-div"
                              style="width: 120px; height: 120px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 50px;">
@@ -85,10 +59,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="mt-3">
                         <h6 class="small">تکمیل پروفایل</h6>
                         <div class="progress" style="height:20px;">
-                            <div
-                                class="progress-bar bg-success"
-                                role="progressbar"
-                                style="width: {{ profile_status.percent }}%;">
+                            <div class="progress-bar bg-success"
+                                 role="progressbar"
+                                 style="width: {{ profile_status.percent }}%;">
                                 {{ profile_status.percent }}%
                             </div>
                         </div>
@@ -98,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
-                <!-- فرم ویرایش -->
                 <div class="card-header bg-primary text-white">
                     <h6 class="mb-0">✏️ ویرایش اطلاعات</h6>
                 </div>
@@ -124,10 +96,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             {% endfor %}
                         </div>
 
-                        <div class="d-grid mt-4">
+                        <div class="d-grid gap-2 mt-4">
                             <button class="btn btn-success py-2" type="submit">
                                 💾 ذخیره اطلاعات
                             </button>
+                            <a href="{% url 'accounts:change-password' %}" class="btn btn-warning py-2">
+                                🔑 تغییر رمز عبور
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -135,9 +110,31 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const birthDateInput = document.getElementById('birthDateInput');
+    if (birthDateInput && window.jQuery) {
+        $(birthDateInput).persianDatepicker({
+            format: 'YYYY/MM/DD',
+            initialValue: false,
+            autoClose: true,
+            persianDigit: false,
+            observer: true,
+            calendar: {
+                persian: {
+                    locale: 'fa'
+                }
+            }
+        });
+    }
+
     const avatarInput = document.querySelector('input[type="file"]');
     if (avatarInput) {
         avatarInput.addEventListener('change', function(e) {
@@ -145,10 +142,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    // پیدا کردن img آواتار
                     let avatar = document.querySelector('.profile-avatar-img');
                     if (!avatar) {
-                        // اگه img نبود، بساز
                         const div = document.querySelector('.profile-avatar-div');
                         if (div) {
                             avatar = document.createElement('img');
@@ -169,5 +164,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
 {% endblock %}

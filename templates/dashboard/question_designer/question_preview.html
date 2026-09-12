@@ -45,6 +45,7 @@
     direction: rtl;
     text-align: right;
     line-height: 2;
+    word-wrap: break-word;
 }
 
 .question-body pre {
@@ -54,6 +55,46 @@
     padding: 15px;
     border-radius: 8px;
     overflow-x: auto;
+    font-size: 0.85rem;
+}
+
+.question-body img,
+.choice-item img {
+    max-width: 100% !important;
+    max-height: 400px !important;
+    height: auto !important;
+    object-fit: contain;
+    border-radius: 8px;
+    display: block;
+    margin: 10px auto;
+}
+
+.choice-item img {
+    max-height: 250px !important;
+}
+
+.question-body table {
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.choice-explanation {
+    background: #f8f9fa;
+    border-right: 3px solid #0d6efd;
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 576px) {
+    .question-body img {
+        max-height: 250px !important;
+    }
+    .choice-item img {
+        max-height: 150px !important;
+    }
 }
 </style>
 {% endblock %}
@@ -100,15 +141,20 @@
                         {% elif forloop.counter == 4 %}د)
                         {% else %}{{ forloop.counter }}){% endif %}
                     </strong>
-                    {{ choice.text }}
+                    <span class="choice-text">{{ choice.text|markdown }}</span>
                     {% if choice.is_correct %}
                         <span class="badge bg-success ms-2">✓ پاسخ صحیح</span>
                     {% endif %}
                 </label>
+                {% if choice.explanation %}
+                <div class="choice-explanation">
+                    💡 {{ choice.explanation|markdown }}
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
 
-            <!-- توضیح -->
+            <!-- توضیح سوال -->
             {% if question.explanation %}
             <div class="alert alert-info mt-4">
                 <strong>📖 توضیح:</strong>

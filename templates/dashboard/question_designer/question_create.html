@@ -2,15 +2,88 @@
 
 {% block title %}طراحی سوال جدید{% endblock %}
 
+{% block extra_css %}
+<style>
+    .tox-tinymce {
+        border-radius: 8px !important;
+    }
+    
+    /* راست‌چین کردن TinyMCE */
+    .tox .tox-edit-area__iframe {
+        background: white;
+    }
+    
+    @media (max-width: 576px) {
+        .tox-tinymce {
+            font-size: 0.9rem;
+        }
+    }
+    .preview-box {
+        background: #f8f9fa;
+        border: 1px dashed #0d6efd;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 8px;
+        min-height: 60px;
+        max-height: 500px;
+        overflow-y: auto;
+        display: none;
+        font-size: 0.95rem;
+        line-height: 1.9;
+    }
+    
+    .preview-box.active {
+        display: block;
+    }
+    
+    .preview-box img {
+        max-width: 100%;
+        max-height: 300px;
+        height: auto;
+        border-radius: 8px;
+        display: block;
+        margin: 10px auto;
+    }
+    
+    .preview-box table {
+        display: block;
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    
+    .preview-box::before {
+        content: "👁️ پیش‌نمایش:";
+        display: block;
+        font-weight: bold;
+        color: #0d6efd;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h1 class="mb-4">✏️ طراحی سوال جدید</h1>
-            
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h4 class="mb-0">✏️ طراحی سوال جدید</h4>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="openDrawio()">
+                        🎨 شکل هندسی
+                    </button>
+                    <a href="{% url 'core:markdown-help' %}" target="_blank" class="btn btn-sm btn-outline-info">
+                        📚 راهنما
+                    </a>
+                    <a href="{% url 'accounts:question_designer:dashboard' %}" class="btn btn-sm btn-outline-secondary">
+                        ← بازگشت
+                    </a>
+                </div>
+            </div>
+
             <form method="post" id="questionForm">
                 {% csrf_token %}
-                
+
                 {% if form.errors %}
                 <div class="alert alert-danger">
                     {% for field in form %}
@@ -20,33 +93,42 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                
+
+                <!-- اطلاعات سوال -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">📝 اطلاعات سوال</h5>
                     </div>
                     <div class="card-body">
-                        
-                        <div class="mb-3">
-                            <label class="form-label">دوره/موضوع *</label>
-                            {{ form.topic }}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">دوره/موضوع *</label>
+                                {{ form.topic }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">هدف آموزشی *</label>
+                                {{ form.learning_objective }}
+                            </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">هدف آموزشی *</label>
-                            {{ form.learning_objective }}
-                        </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">عنوان سوال (اختیاری)</label>
                             {{ form.title }}
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label class="form-label">متن سوال *</label>
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                                <label class="form-label mb-0">متن سوال *</label>
+                                <button type="button" class="btn btn-sm btn-outline-secondary preview-toggle"
+                                        data-target="id_body" data-preview="preview_body">
+                                    👁️ پیش‌نمایش
+                                </button>
+                            </div>
                             {{ form.body }}
+                            <div class="preview-box" id="preview_body"></div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">نوع سوال</label>
@@ -61,53 +143,81 @@
                                 {{ form.score }}
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">زمان (ثانیه)</label>
                             {{ form.estimated_seconds }}
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label class="form-label">توضیح پاسخ صحیح</label>
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                                <label class="form-label mb-0">توضیح پاسخ صحیح</label>
+                                <button type="button" class="btn btn-sm btn-outline-secondary preview-toggle"
+                                        data-target="id_explanation" data-preview="preview_explanation">
+                                    👁️ پیش‌نمایش
+                                </button>
+                            </div>
                             {{ form.explanation }}
+                            <div class="preview-box" id="preview_explanation"></div>
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- گزینه‌ها -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0">✅ گزینه‌ها</h5>
                     </div>
                     <div class="card-body">
                         {{ formset.management_form }}
-                        
+
                         <div id="choices-container">
                             {% for choice_form in formset %}
-                            <div class="choice-item border rounded p-3 mb-2">
+                            <div class="choice-item border rounded p-3 mb-3">
                                 <div class="choice-header d-flex justify-content-between mb-2">
                                     <strong>گزینه {{ forloop.counter }}</strong>
-                                    <label>
+                                    <label class="mb-0">
                                         {{ choice_form.is_correct }}
                                         پاسخ صحیح
                                     </label>
                                 </div>
                                 {{ choice_form.id }}
-                                {{ choice_form.text }}
-                                
-                                <div class="mt-2">
-                                    <label class="form-label small">توضیح گزینه (اختیاری - می‌توانید Markdown بنویسید)</label>
+
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+                                        <label class="form-label small mb-0">متن گزینه *</label>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary preview-toggle"
+                                                data-target="id_{{ choice_form.text.html_name }}" 
+                                                data-preview="preview_id_{{ choice_form.text.html_name }}">
+                                            👁️
+                                        </button>
+                                    </div>
+                                    {{ choice_form.text }}
+                                    <div class="preview-box" id="preview_id_{{ choice_form.text.html_name }}"></div>
+                                </div>
+
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+                                        <label class="form-label small mb-0">توضیح گزینه (اختیاری)</label>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary preview-toggle"
+                                                data-target="id_{{ choice_form.explanation.html_name }}" 
+                                                data-preview="preview_id_{{ choice_form.explanation.html_name }}">
+                                            👁️
+                                        </button>
+                                    </div>
                                     {{ choice_form.explanation }}
+                                    <div class="preview-box" id="preview_id_{{ choice_form.explanation.html_name }}"></div>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
-                        
+
                         <button type="button" class="btn btn-outline-primary btn-sm" id="addChoiceBtn">
                             ➕ افزودن گزینه
                         </button>
                     </div>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary btn-lg w-100">
                     💾 ذخیره به عنوان پیش‌نویس
                 </button>
@@ -118,39 +228,320 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="/static/tinymce/tinymce/js/tinymce/tinymce.min.js"></script>
+
 <script>
+// ===== تنظیمات مشترک TinyMCE =====
+function getTinyMCEConfig(selector) {
+    return {
+        selector: selector,
+        language: 'fa',
+        directionality: 'rtl',
+        height: 300,
+        menubar: false,
+        branding: false,
+        resize: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount',
+        ],
+        toolbar: 'undo redo | blocks | ' +
+                 'bold italic forecolor backcolor | alignright aligncenter alignleft alignjustify | ' +
+                 'bullist numlist outdent indent | ' +
+                 'link image media table drawio | ' +
+                 'removeformat code fullscreen',
+        content_style: `
+            body {
+                font-family: Tahoma, sans-serif;
+                font-size: 15px;
+                direction: rtl;
+                text-align: right;
+                line-height: 1.9;
+                padding: 10px;
+            }
+            img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            img:hover {
+                box-shadow: 0 0 0 3px #0d6efd;
+            }
+        `,
+        // آپلود عکس
+        images_upload_handler: function(blobInfo, progress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.withCredentials = false;
+                xhr.open('POST', '/accounts/question-designer/upload-image/');
+
+                xhr.upload.onprogress = function(e) {
+                    progress(e.loaded / e.total * 100);
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status === 403) {
+                        reject({message: 'دسترسی رد شد', remove: true});
+                        return;
+                    }
+
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        reject('خطای HTTP: ' + xhr.status);
+                        return;
+                    }
+
+                    const json = JSON.parse(xhr.responseText);
+
+                    if (!json || typeof json.url != 'string') {
+                        reject('آدرس عکس نامعتبر است');
+                        return;
+                    }
+
+                    // URL مطلق بساز
+                    let url = json.url;
+                    if (url.startsWith('http://') || url.startsWith('https://')) {
+                        // اگه full URL هست، فقط path رو نگه دار
+                        try {
+                            const urlObj = new URL(url);
+                            url = urlObj.pathname;
+                        } catch(e) {
+                            // اگه خطا داد، دست نزن
+                        }
+                    }
+                    // اطمینان از اینکه با / شروع می‌شه
+                    if (!url.startsWith('/')) {
+                        url = '/' + url;
+                    }
+                    resolve(url);
+                };
+
+                xhr.onerror = function() {
+                    reject('خطا در آپلود. لطفاً دوباره تلاش کنید.');
+                };
+
+                const formData = new FormData();
+                formData.append('image', blobInfo.blob(), blobInfo.filename());
+
+                // CSRF Token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                xhr.setRequestHeader('X-CSRFToken', csrfToken);
+
+                xhr.send(formData);
+            });
+        },
+        // اجازه paste عکس
+        paste_data_images: true,
+        // اجازه drag & drop
+        image_advtab: true,
+        image_title: true,
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        // دکمه‌های سفارشی
+        setup: function(editor) {
+            // دکمه draw.io
+            editor.ui.registry.addButton('drawio', {
+                text: '🎨 شکل هندسی',
+                tooltip: 'ساخت شکل هندسی با draw.io',
+                onAction: function() {
+                    openDrawio(editor);
+                }
+            });
+        },
+        // قالب برای انتخاب فایل
+        file_picker_callback: function(cb, value, meta) {
+            if (meta.filetype === 'image') {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.onchange = function() {
+                    const file = this.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const id = 'blobid' + (new Date()).getTime();
+                        const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        const base64 = reader.result.split(',')[1];
+                        const blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+                        cb(blobInfo.blobUri(), {title: file.name});
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                input.click();
+            }
+        },
+    };
+}
+
+// ===== راه‌اندازی TinyMCE =====
+// اجرای فوری - قبل از هر چیز
+(function() {
+    function stripRequired() {
+        document.querySelectorAll('textarea[required]').forEach(function(ta) {
+            ta.removeAttribute('required');
+            ta.removeAttribute('aria-required');
+        });
+    }
+    stripRequired();
+    document.addEventListener('DOMContentLoaded', stripRequired);
+    setInterval(stripRequired, 200);
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof tinymce === 'undefined') {
+        console.error('TinyMCE لود نشده!');
+        return;
+    }
+
+    // فیلدهای اصلی
+    tinymce.init(getTinyMCEConfig('#id_body, #id_explanation'));
+
+    // فیلدهای گزینه‌های موجود
+    setTimeout(function() {
+        const choiceTexts = [];
+        const choiceExplanations = [];
+        
+        document.querySelectorAll('.choice-item').forEach(function(item) {
+            const textarea = item.querySelector('textarea[name$="-text"]');
+            const explanation = item.querySelector('textarea[name$="-explanation"]');
+            
+            if (textarea) choiceTexts.push('#' + textarea.id);
+            if (explanation) choiceExplanations.push('#' + explanation.id);
+        });
+        
+        if (choiceTexts.length) {
+            tinymce.init(getTinyMCEConfig(choiceTexts.join(', ') + ', ' + choiceExplanations.join(', ')));
+        }
+    }, 100);
+
+    // ===== افزودن گزینه جدید =====
     const addBtn = document.getElementById('addChoiceBtn');
     const container = document.getElementById('choices-container');
-    
+
     if (addBtn && container) {
         addBtn.addEventListener('click', function() {
             const totalFormsInput = document.querySelector('[name="choices-TOTAL_FORMS"]');
             const formCount = parseInt(totalFormsInput.value);
             const newIndex = formCount;
-            
+
             const newForm = document.createElement('div');
-            newForm.className = 'choice-item border rounded p-3 mb-2';
+            newForm.className = 'choice-item border rounded p-3 mb-3';
             newForm.innerHTML = `
                 <div class="choice-header d-flex justify-content-between mb-2">
                     <strong>گزینه ${newIndex + 1}</strong>
-                    <label>
+                    <label class="mb-0">
                         <input type="checkbox" name="choices-${newIndex}-is_correct" value="true" class="form-check-input">
                         پاسخ صحیح
                     </label>
                 </div>
-                <textarea name="choices-${newIndex}-text" rows="2" class="form-control" placeholder="متن گزینه..."></textarea>
-                <div class="mt-2">
+                <div class="mb-2">
+                    <label class="form-label small">متن گزینه *</label>
+                    <textarea name="choices-${newIndex}-text" id="id_choices-${newIndex}-text" class="form-control" rows="3"></textarea>
+                </div>
+                <div>
                     <label class="form-label small">توضیح گزینه (اختیاری)</label>
-                    <textarea name="choices-${newIndex}-explanation" rows="2" class="form-control" placeholder="توضیح..."></textarea>
+                    <textarea name="choices-${newIndex}-explanation" id="id_choices-${newIndex}-explanation" class="form-control" rows="2"></textarea>
                 </div>
                 <input type="hidden" name="choices-${newIndex}-id">
             `;
-            
+
             container.appendChild(newForm);
             totalFormsInput.value = newIndex + 1;
+
+            // راه‌اندازی TinyMCE برای textarea جدید
+            tinymce.init(getTinyMCEConfig(`#id_choices-${newIndex}-text, #id_choices-${newIndex}-explanation`));
+        });
+    }
+
+    // ===== ذخیره TinyMCE قبل از submit =====
+    // هم با submit و هم با کلیک مستقیم روی دکمه
+    document.getElementById('questionForm').addEventListener('submit', function(e) {
+        if (typeof tinymce !== 'undefined') {
+            tinymce.triggerSave();
+        }
+    });
+    
+    // روش پشتیبان: کلیک روی دکمه submit
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.triggerSave();
+            }
         });
     }
 });
+
+// ===== پیش‌نمایش =====
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.preview-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const previewId = this.dataset.preview;
+            const targetId = this.dataset.target;
+            const previewBox = document.getElementById(previewId);
+            const textarea = document.getElementById(targetId);
+            
+            if (!previewBox || !textarea) {
+                alert('خطا: فیلد پیدا نشد');
+                return;
+            }
+            
+            if (previewBox.classList.contains('active')) {
+                previewBox.classList.remove('active');
+                this.innerHTML = '👁️ پیش‌نمایش';
+            } else {
+                // به‌روزرسانی TinyMCE
+                if (typeof tinymce !== 'undefined') {
+                    tinymce.triggerSave();
+                }
+                
+                const content = textarea.value;
+                
+                if (!content || !content.trim() || content === '<p><br></p>') {
+                    previewBox.innerHTML = '<span class="text-muted">چیزی برای نمایش نیست</span>';
+                } else {
+                    previewBox.innerHTML = content;
+                }
+                
+                previewBox.classList.add('active');
+                this.innerHTML = '👁️ بستن';
+                
+                // MathJax
+                if (window.MathJax) {
+                    MathJax.typesetPromise([previewBox]).catch(function() {});
+                }
+            }
+        });
+    });
+});
+
+// ===== draw.io =====
+function openDrawio(editor) {
+    // ذخیره editor برای استفاده بعدی
+    window._drawioEditor = editor;
+    
+    // باز کردن draw.io
+    const drawioWindow = window.open(
+        'https://app.diagrams.net/?splash=0&ui=sketch&libs=general;basic',
+        'drawio',
+        'width=1200,height=800,scrollbars=yes,resizable=yes'
+    );
+    
+    if (!drawioWindow) {
+        alert('❌ لطفاً اجازه باز کردن پنجره جدید را بدهید');
+        return;
+    }
+    
+    // نمایش راهنما
+    alert('🎨 راهنمای استفاده:\n\n' +
+          '۱. شکل مورد نظر را در draw.io بکشید\n' +
+          '۲. از منوی File → Export as → PNG\n' +
+          '۳. گزینه "Transparent Background" را تیک بزنید\n' +
+          '۴. فایل را دانلود کنید\n' +
+          '۵. برگردید و از دکمه 📷 عکس، فایل را آپلود کنید');
+}
 </script>
 {% endblock %}
