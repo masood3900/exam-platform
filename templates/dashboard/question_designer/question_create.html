@@ -270,6 +270,24 @@ function getTinyMCEConfig(selector) {
                 box-shadow: 0 0 0 3px #0d6efd;
             }
         `,
+        // تنظیمات موبایل - نمایش کامل toolbar
+        mobile: {
+            theme: 'silver',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
+                'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount',
+            ],
+            toolbar: 'undo redo | bold italic forecolor backcolor | ' +
+                     'alignright aligncenter alignleft | ' +
+                     'bullist numlist | link image drawio | ' +
+                     'removeformat code fullscreen',
+            menubar: false,
+        },
+        // اجازه نمایش همه دکمه‌ها در موبایل
+        mobile_toolbar_mode: 'wrap',
+        // کاهش ارتفاع موبایل
+        height: window.innerWidth < 768 ? 400 : 300,
         // آپلود عکس
         images_upload_handler: function(blobInfo, progress) {
             return new Promise((resolve, reject) => {

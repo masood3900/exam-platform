@@ -120,11 +120,8 @@
                                                                    class="btn btn-sm btn-outline-info" title="پیش‌نمایش">👁️</a>
                                                                 <a href="{% url 'accounts:question_designer:question-edit' question_id=question.id %}"
                                                                    class="btn btn-sm btn-outline-primary" title="ویرایش">✏️</a>
-                                                                <form method="post" action="{% url 'accounts:question_designer:question-delete' question_id=question.id %}"
-                                                                      class="d-inline" onsubmit="return confirm('این سوال حذف شود؟')">
-                                                                    {% csrf_token %}
-                                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="حذف">🗑️</button>
-                                                                </form>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger" title="حذف" 
+                                                                            onclick="deleteQuestion('{{ question.id }}', '{% url 'accounts:question_designer:question-delete' question_id=question.id %}')">🗑️</button>
                                                             </td>
                                                         </tr>
                                                         {% endfor %}
@@ -191,4 +188,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     updateBulkButton();
 });
+
+function deleteQuestion(questionId, deleteUrl) {
+    if (!confirm('این سوال حذف شود؟')) {
+        return;
+    }
+    
+    // ساخت فرم مخفی خارج از فرم bulk
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = deleteUrl;
+    form.style.display = 'none';
+    
+    // CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    form.appendChild(csrfInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
 </script>
