@@ -23,3 +23,10 @@ staticfiles/
 # Backups
 backup_*.sql
 questions_backup.json
+
+# Backups
+*.backup
+*.before-*
+backup_files_*.tar.gz
+postgres_volume_*.tar.gz
+fix_postgres_password.sh

@@ -229,6 +229,7 @@
 
 {% block extra_js %}
 <script src="/static/tinymce/tinymce/js/tinymce/tinymce.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
 
 <script>
 // ===== تنظیمات مشترک TinyMCE =====
@@ -356,8 +357,26 @@ function getTinyMCEConfig(selector) {
         image_title: true,
         automatic_uploads: true,
         file_picker_types: 'image',
-        // دکمه‌های سفارشی
+        // تبدیل خودکار Markdown به HTML
         setup: function(editor) {
+            // زمان‌بندی برای debounce
+            let typingTimer = null;
+            const DELAY = 800;
+
+            editor.on('keyup', function(e) {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(function() {
+                        convertMarkdownToHTML(editor);
+                    }, DELAY);
+                }
+            });
+
+            editor.on('blur', function() {
+                clearTimeout(typingTimer);
+                convertMarkdownToHTML(editor);
+            });
+
             // دکمه draw.io
             editor.ui.registry.addButton('drawio', {
                 text: '🎨 شکل هندسی',
@@ -535,6 +554,64 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// ===== تبدیل خودکار Markdown =====
+let mdConverter = null;
+
+function getMarkdownConverter() {
+    if (!mdConverter && typeof window.markdownit !== 'undefined') {
+        mdConverter = window.markdownit({
+            html: true,
+            linkify: true,
+            breaks: true,
+            typographer: true,
+        });
+    }
+    return mdConverter;
+}
+
+function convertMarkdownToHTML(editor) {
+    const converter = getMarkdownConverter();
+    if (!converter) {
+        console.warn('markdown-it not loaded yet');
+        return;
+    }
+
+    // محتوای فعلی
+    let content = editor.getContent();
+
+    // اگه خالیه، هیچی نکن
+    if (!content || !content.trim()) return;
+
+    // اگه HTML هست (شامل <) و Markdown نیست، کاری نکن
+    // فقط اگه Markdown syntax دید، تبدیل کن
+    const hasMarkdown = /\*\*|__|\*[^*]|_[^_]|\[.*?\]\(.*?\)|`[^`]+`|^#{1,6}\s|^>\s|^[-*+]\s|^\d+\.\s/m.test(content);
+
+    if (!hasMarkdown) return;
+
+    // تبدیل هر خط Markdown به HTML
+    // ولی HTML های موجود رو دست نزن
+    const lines = content.split('\n');
+    const converted = lines.map(function(line) {
+        // اگه خط HTML هست، دست نزن
+        if (/^\s*<[a-z][\s\S]*>\s*$/i.test(line) || /^\s*<\/[a-z]+>\s*$/i.test(line)) {
+            return line;
+        }
+        // اگه خط Markdown هست، تبدیل کن
+        const trimmed = line.trim();
+        if (trimmed && /\*\*|__|\*[^*]|_[^_]|`[^`]+`|^#{1,6}\s|^>\s|^[-*+]\s|^\d+\.\s/.test(trimmed)) {
+            return converter.renderInline(trimmed);
+        }
+        return line;
+    }).join('<br>');
+
+    // فقط اگه تغییر کرد
+    if (converted !== content) {
+        const bookmark = editor.selection.getBookmark();
+        editor.setContent(converted);
+        editor.selection.moveToBookmark(bookmark);
+    }
+}
 
 // ===== draw.io =====
 function openDrawio(editor) {
