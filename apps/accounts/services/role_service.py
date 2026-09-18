@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 
 
@@ -85,7 +86,10 @@ class RoleService:
                 "icon": "🔬",
             })
         # داشبورد طراح سوال
-        if RoleService.is_question_designer(user):
+        if (
+            getattr(settings, "ENABLE_QUESTION_DESIGNER", False)
+            and RoleService.is_question_designer(user)
+        ):
             dashboards.append({
                 "name": "داشبورد طراح سوال",
                 "url": reverse("accounts:question_designer:dashboard"),

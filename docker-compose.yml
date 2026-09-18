@@ -22,10 +22,11 @@ services:
       - ./docker/postgres-init:/docker-entrypoint-initdb.d
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U postgres && psql -U postgres -d postgres -c \"ALTER USER postgres WITH LOGIN SUPERUSER PASSWORD 'postgres';\" || exit 1"]
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 20s
 
   web:
     build: .

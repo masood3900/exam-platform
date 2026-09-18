@@ -1,4 +1,4 @@
--- تنظیم پسورد با md5 از ابتدا
--- این فایل موقع اولین ساخت Volume اجرا می‌شه
+-- تنظیم کامل کاربر postgres
+-- این فایل موقع ساخت اولیه Volume اجرا می‌شه
 SET password_encryption = 'md5';
-ALTER USER postgres WITH PASSWORD 'postgres';
+ALTER USER postgres WITH LOGIN SUPERUSER PASSWORD 'postgres';
